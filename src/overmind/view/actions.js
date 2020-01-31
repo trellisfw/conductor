@@ -2,6 +2,12 @@ import _ from 'lodash';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 export default {
+  TopBar: {
+    logout({state, actions}) {
+      actions.login.logout()
+      actions.oada.logout();
+    }
+  },
   Modals: {
     FileDetailsModal: {
       onShareChange({state, actions}, data) {

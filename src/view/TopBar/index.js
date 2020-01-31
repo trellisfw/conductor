@@ -4,8 +4,12 @@ import React from 'react';
 import { jsx } from '@emotion/core'
 
 import logo from './smithfield.svg'
+import { Button, Dropdown } from 'semantic-ui-react'
+import overmind from '../../overmind'
+
 
 function TopBar() {
+  const { actions, state } = overmind();
   return (
     <div css={{
       display: 'flex',
@@ -20,7 +24,13 @@ function TopBar() {
         height: '50px',
         paddingLeft: '20px'
       }} src={logo} alt="logo" />
-      <div css={{marginRight: 20}}>{'Michael Gaspers'}</div>
+      <div css={{marginRight: 20}}>
+          <Dropdown text={state.login.name}>
+            <Dropdown.Menu>
+              <Dropdown.Item icon='power' text='Logout' value='logout' onClick={actions.view.TopBar.logout} />
+            </Dropdown.Menu>
+          </Dropdown>
+      </div>
     </div>
   );
 }

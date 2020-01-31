@@ -10,9 +10,13 @@ import SideBar from './view/SideBar';
 import Pages from './view/Pages';
 import FileDetailsModal from './view/Modals/FileDetailsModal';
 import PDFViewerModal from './view/Modals/PDFViewerModal';
+import Login from './Login';
 
 function App() {
   const { state, actions } = overmind();
+  if (!state.login.loggedIn) {
+    return <Login />
+  }
   return (
     <div css={{
       height: '100vh',

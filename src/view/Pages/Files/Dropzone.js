@@ -19,7 +19,7 @@ function Dropzone(props) {
         props.children
       }
       {
-        <input {...getInputProps()} />
+        <input id="user-search-2" {...getInputProps()} />
       }
     </div>
   );

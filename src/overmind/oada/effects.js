@@ -15,6 +15,9 @@ export default {
     },
     http(request, callback) {
       return myWebsocket.http(request, callback)
+    },
+    close() {
+      return myWebsocket.close()
     }
   }
 }
