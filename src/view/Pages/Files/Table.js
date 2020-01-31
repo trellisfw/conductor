@@ -31,15 +31,18 @@ function Table() {
         return false;
       } else {
         const failed = _.find(statuses, {status: 'error'});
-        fileDetails.type = 'Unknown'
-        fileDetails.format = 'Unknown'
-        return false;
+        if (failed != null) {
+          fileDetails.type = 'Unknown'
+          fileDetails.format = 'Unknown'
+          return false;
+        }
       }
     })
     //Pull out share status
     const shared = (_.chain(document).get('_meta.services.approval.tasks').find({status: 'approved'}).value() != null);
     //Pull out signature from audit
-    const signatures = _.chain(document).get('audits').values().get(0).get('signatures').value() || [];
+    var signatures = _.chain(document).get('audits').values().get(0).get('signatures').value() || [];
+    if (signatures.length == 0) signatures = _.chain(document).get('cois').values().get(0).get('signatures').value() || [];
     return {
       documentKey: documentKey,
       filename: _.get(document, 'pdf._meta.filename') || '',
