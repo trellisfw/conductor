@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const urlLib = require('url');
 const uuid = require('uuid/v4');
-//Promise.config({warnings: false})
+Promise.config({warnings: false})
 
 export default function websocket(url) {
 	//Create the message queue
