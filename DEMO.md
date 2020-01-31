@@ -16,7 +16,7 @@ Files for demo are located at `docs/Demo_Files`
 1. Open up PDF to see that the PDF was uploaded
 1. Show json, plus out "score"
 1. Explain the sharing rules, show the mockups for sharing.
-1. Bring up EMAIL EXPLAIN THIS IS MCDONALD'S EMAIL
+1. Bring up EMAIL EXPLAIN THIS IS MCDONALD'S EMAIL: GMAIL (cb@centricity.us)
 1. Share audit to `McDonalds - email`
 1. Show it is no longer bold in the list
 1. Show email arriving
@@ -26,7 +26,7 @@ Files for demo are located at `docs/Demo_Files`
 1. Send to `smithfield@trellis.one` explain that it can be CC'd or send directly to it
 1. Wait for it to arrive in Trellis
 1. Open it in trellis, showing pdf
-1. Bring up foodlogic and show there are no docs.
+1. Bring up foodlogic and show there are no docs. sandbox.foodlogiq.com creds in lastpass
 1. Share doc to foodlogic
 1. Wait for it to arrive in foodlogic and show details.
 1. Bulk upload audits (Wilson, COI North, Martin City, COI)
