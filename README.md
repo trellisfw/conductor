@@ -2,6 +2,8 @@
 
 This is the UI for the Smithfield SOW1 Demo.
 
+[DEMO SOW1 01/31/2020](DEMO.md)
+[TODO](TODO.md)
 
 ## Configuration
 
