@@ -1,0 +1,75 @@
+https://smithfield.trellis.one/bookmarks/trellisfw/documents/1ef32f54-f5c5-47b1-9224-337f7dbfd122/cois/ef62dbc0-e0eb-4a3b-a2f2-5fb4f36c7c1b
+
+{
+  "_id": "resources/1bac05f2-566b-46dd-946a-29fe05ebae71",
+  "_rev": 1,
+  "_type": "application/vnd.trellisfw.coi.accord+json",
+  "_meta": {
+    "_id": "resources/1bac05f2-566b-46dd-946a-29fe05ebae71/_meta",
+    "_rev": 1
+  },
+  "certificate": {
+    "certnum": "CLE-005862780-24",
+    "rev": "2",
+    "docdate": "1900-12-30T00:00:00",
+    "operate_desc": " TYSON FOODS AND ITS MAJORITY OWNED SUBSIDIARIES ARE INCLUDED AS ADDITIONAL INSURED (EXCEPT WORKERS COMPENSATION) WHERE REQUIRED BY WRITTEN CONTRACT.",
+    "file_name": "1ef32f54-f5c5-47b1-9224-337f7dbfd122.pdf"
+  },
+  "producer": {
+    "name": "Marsh USA Inc.",
+    "location": {
+      "street_address": "1717 Arch Street",
+      "postal_code": "19103",
+      "city": "Philadelphia",
+      "state": "PA",
+      "country": ""
+    }
+  },
+  "insured": {
+    "name": "Smithfield Foods, Inc.",
+    "location": {
+      "street_address": "200 Commerce Street",
+      "postal_code": "23430",
+      "city": "Smithfield",
+      "state": "VA",
+      "country": ""
+    }
+  },
+  "holder": {
+    "name": "TYSON FOODS AND ITS MAJORITY OWNED SUBSIDIARIES",
+    "location": {
+      "street_address": "MAIL CODE CP355 PO BOX 2020",
+      "postal_code": "72762",
+      "city": "SPRINGDALE",
+      "state": "AR",
+      "country": ""
+    }
+  },
+  "policies": {
+    "MWZY312999 19": {
+      "number": "MWZY312999 19",
+      "effective_date": "2019-04-30T00:00:00",
+      "expire_date": "2020-04-30T00:00:00"
+    },
+    "MWTB312998 19": {
+      "number": "MWTB312998 19",
+      "effective_date": "2019-04-30T00:00:00",
+      "expire_date": "2020-04-30T00:00:00"
+    },
+    "US00067047LI19A": {
+      "number": "US00067047LI19A",
+      "effective_date": "2019-04-30T00:00:00",
+      "expire_date": "2020-04-30T00:00:00"
+    },
+    "LDC4043811 (AOS)": {
+      "number": "LDC4043811 (AOS)",
+      "effective_date": "2019-04-30T00:00:00",
+      "expire_date": "2020-04-30T00:00:00"
+    },
+    "PS4043812 (WI)": {
+      "number": "PS4043812 (WI)",
+      "effective_date": "2019-04-30T00:00:00",
+      "expire_date": "2020-04-30T00:00:00"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "_changes": {
+    "_id": "resources/edf1c4cd-9f6a-428f-b436-c26342aa01e0/_meta/_changes",
+    "_rev": 17
+  },
+  "_id": "resources/edf1c4cd-9f6a-428f-b436-c26342aa01e0/_meta",
+  "_owner": "users/default:users_sam_321",
+  "_rev": 17,
+  "_type": "application/json",
+  "filename": "SQF Audit.pdf",
+  "modified": 1580404098.445,
+  "modifiedBy": "users/default:users_sam_321",
+  "services": {
+    "ainz": {
+      "rules": {
+        "all-pdfs-to-target": {
+          "_rev": 2
+        },
+        "email-10138-signed-audits-to-approval": {
+          "_rev": 10
+        },
+        "transcribed-audits-to-signer": {
+          "_rev": 7
+        },
+        "fl-10138-signed-audits-to-approval": {
+          "_rev": 11
+        }
+      }
+    },
+    "approval": {
+      "tasks": {
+        "df9231c5-9788-4093-8657-df5e40b91f4d": {
+          "status": "pending",
+          "location": "Smithfield Packaged Meats Corp. - Arnold",
+          "with": "Tyson",
+          "like": {
+            "organization": {
+              "organizationid": {
+                "id": "10138"
+              }
+            }
+          },
+          "type": "email",
+          "to": "info@qlever.io"
+        },
+        "7c312165-2048-4194-b67d-c6752a39f879": {
+          "status": "pending",
+          "type": "fl",
+          "location": "Smithfield Packaged Meats Corp. - Arnold",
+          "like": {
+            "organization": {
+              "organizationid": {
+                "id": "10138"
+              }
+            }
+          },
+          "with": "Tyson",
+          "shares": {
+            "undefined": {
+              "communities": []
+            }
+          }
+        }
+      }
+    },
+    "target": {
+      "tasks": {
+        "601ad0fe-483a-4f54-b9c8-bfadad059c34": {
+          "status": {
+            "2587e812-110f-4e50-b8d1-b0a66d10ed8d": {
+              "status": "identifying",
+              "time": "1580386087"
+            },
+            "7fe5ce3b-ebd4-4c7f-96e9-74343f88e204": {
+              "status": "identified",
+              "information": "Recognized Type: Audit Format: MerieuxSQFAudit",
+              "type": "Audit",
+              "format": "MerieuxSQFAudit",
+              "time": "1580386087"
+            },
+            "8146e932-e4fe-4f0b-bfcb-7475e328bd09": {
+              "status": "complete",
+              "information": "Job result loaded to resource: 'b01b773c-e9de-4242-86e8-8ca5ebff06b2'",
+              "time": "1580386089"
+            }
+          }
+        }
+      }
+    },
+    "trellis-signer": {
+      "tasks": {
+        "93e414cf-6b91-47f9-b8f3-02ad84f89c0a": [
+          "c5a43dac-14ed-4f8d-bbb2-c80a89601f9c"
+        ]
+      }
+    }
+  },
+  "stats": {
+    "created": 1580404095.687,
+    "createdBy": "users/default:users_sam_321"
+  },
+  "status": "complete"
+}

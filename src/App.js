@@ -1,24 +1,38 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+/** @jsx jsx */
+import { jsx, css } from '@emotion/core'
+
+import overmind from './overmind'
+
+import TopBar from './view/TopBar';
+import SideBar from './view/SideBar';
+import Pages from './view/Pages';
+import FileDetailsModal from './view/Modals/FileDetailsModal';
+import PDFViewerModal from './view/Modals/PDFViewerModal';
 
 function App() {
+  const { state, actions } = overmind();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div css={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'stretch'
+    }}>
+      <TopBar />
+      <div css={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'stretch'
+      }}>
+        <SideBar />
+        <Pages />
+        <FileDetailsModal />
+        <PDFViewerModal />
+      </div>
     </div>
   );
 }

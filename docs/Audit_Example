@@ -1,0 +1,100 @@
+{
+  "_id": "resources/b01b773c-e9de-4242-86e8-8ca5ebff06b2",
+  "_rev": 2,
+  "_type": "application/vnd.trellisfw.audit.sqfi.1+json",
+  "_meta": {
+    "_id": "resources/b01b773c-e9de-4242-86e8-8ca5ebff06b2/_meta",
+    "_rev": 2
+  },
+  "certificationid": {
+    "id_source": "certifying_body",
+    "id": "107139"
+  },
+  "auditid": {
+    "id_source": "certifying_body",
+    "id": "56287"
+  },
+  "scheme": {
+    "name": "SQFI",
+    "edition": "8.0",
+    "audit_reference_number": "56287"
+  },
+  "certifying_body": {
+    "name": "Mrieux NutriSciences Certification",
+    "auditors": [
+      {
+        "FName": "Lee",
+        "LName": "Degner",
+        "PersonNum": "9438",
+        "Role": "Lead Auditor"
+      }
+    ]
+  },
+  "organization": {
+    "organizationid": {
+      "id_source": "certifying_body",
+      "id": "10138"
+    },
+    "GLN": "Undefined",
+    "name": "Smithfield Packaged Meats Corp. - Arnold",
+    "companyid": "10138",
+    "contacts": [
+      {
+        "name": ""
+      }
+    ],
+    "location": {
+      "street_address": "2200 Rivers Edge Drive",
+      "postal_code": "15068",
+      "city": "Arnold",
+      "state": "PA",
+      "country": "United States"
+    },
+    "phone": ""
+  },
+  "scope": {
+    "description": "beef, chicken, meatballs, pork, sausage, turkey",
+    "operation": {
+      "operation_type": "",
+      "operator": {
+        "contacts": [
+          {
+            "name": ""
+          }
+        ],
+        "name": ""
+      },
+      "shipper": {
+        "name": ""
+      },
+      "location": {
+        "address": "",
+        "city": "",
+        "state": "",
+        "postal_code": "",
+        "country": ""
+      }
+    },
+    "products_observed": []
+  },
+  "conditions_during_audit": {
+    "operation_observed_date": {
+      "start": "2018-03-20T00:00:00",
+      "end": "2018-03-23T00:00:00"
+    }
+  },
+  "score": {
+    "final": {
+      "value": "98",
+      "units": "%"
+    },
+    "rating": "Excellent"
+  },
+  "certificate_validity_period": {
+    "start": "6/5/2019",
+    "end": "1/15/2018"
+  },
+  "signatures": [
+    "eyJraWQiOiJ0cmVsbGlzZnctc2lnbmVyIiwiYWxnIjoiUlMyNTYiLCJrdHkiOiJSU0EiLCJ0eXAiOiJKV1QiLCJqa3UiOiJodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vdHJlbGxpc2Z3L3RydXN0ZWQtbGlzdC9tYXN0ZXIvamt1LXRlc3Qvc29tZS1vdGhlci1qa3Utbm90LXRydXN0ZWQuanNvbiIsImlhdCI6MTU4MDQwNDA5NX0.eyJoYXNoIjoiMDNmYTBmOWM2OGU5NzlhZTIzZDMxYjk2MzdlODI0ZmRkNWUwNWZkODkyNDE0MDQ5NjJkOWQ2MjUzNjAwOWNlNCJ9.Ti1LPIlOQH-f3LoIuLG8hZgwr2EcjO8FpkGk5-vFg0flsR9wMH2-9AqZVPMyTvqP54JAb-umQJPzsfOTj314QcpG9fjchH9x4UjYgYo51kwTKmga97nt8twabcgD1YbySuD-bAblpe8yMS5MU1U4OnsA-P8qzoD2X-ZM43mdV8Q--Y4Ke41DX2GHjf9TP_6xOaK-1QHXbBYHWmEyVkxz6r3uqtEPEgwmMho1UgJmYaYDbk64e6e4eha99ilDAjV7i0qS6CKbYifEHmSzdbzeB3hTH6RZBfAVTiSFuznbfvfTgb7CqPAFbzYjh70rHxFAlbmjJB5hzgH_ag862au_Cw"
+  ]
+}
