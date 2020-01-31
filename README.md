@@ -1,24 +1,18 @@
-Token: def
-https://smithfield.trellis.one/bookmarks/trellisfw/documents/e6db1c90-9c83-4219-8a2c-a1c19885d8ee/
+# Smithfield UI
+
+This is the UI for the Smithfield SOW1 Demo.
 
 
+## Configuration
 
-To upload a file:
-  - Create a new PDF by posting it to:
-    - https://smithfield.trellis.one/resources
-  - Maybe add filename to it's meta
-  - Create a new job for that PDF by POSTing to:
-    - https://smithfield.trellis.one/resources
-    - with link to pdf
-  - Link the new job resource to the target service
-    - https://smithfield.trellis.one/bookmarks/services/target/jobs/73f38b61-c948-4fea-a3e2-e281b3e84f22
+- Configure the trellis URL at `/src/overmind/oada/state.js`
+- Configure trellis tokens and login info at `/src/overmind/login/actions.js`
+	- `hashes` key is sha256 of `<salt>+<email>+<password>` for user creds and configures which token to use after logging in.
 
-To get list of files:
-  - Get list of documents from (just ids):
-    - https://smithfield.trellis.one/bookmarks/trellisfw/documents
-  - For each document id, GET it's meta
-    - https://smithfield.trellis.one/bookmarks/trellisfw/documents/e6db1c90-9c83-4219-8a2c-a1c19885d8ee/_meta/services/target
-  - Maybe get it's pdf meta:
-    - https://smithfield.trellis.one/bookmarks/trellisfw/documents/e6db1c90-9c83-4219-8a2c-a1c19885d8ee/pdf/_meta
+## Building
 
-Register for watch on document list:
+Currently do to a bug with the  `react-pdf` package you cannot build a production build. It will run your computer out of memory even if you increase node memory limit. We need to change to a pre-bundled copy of `react-pdf `.
+
+## Scripts
+
+For your convenience there are two useful scripts in the `/scripts` directory. `deleteAllDocs.js` deletes all the documents under `/bookmarks/trellisfw/documents` for token `god`, and `deleteAllDocsWakefern` deletes them all for token `aaa`. In both cases you **HAVE TO CONFIGURE THE URL** it is currently set to `https://smithfield.trellis.one`.

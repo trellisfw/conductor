@@ -37,7 +37,7 @@ function Login() {
           flex-direction: column;
         `} onSubmit={myActions.login}>
           <Input placeholder='Email...' value={myState.email} onChange={(evt, data) => myActions.emailChange(data)} />
-          <Input type={'password'} style={{marginTop: 7}} placeholder='Password...' onChange={(evt, data) => myActions.passwordChange(data)} />
+          <Input type={'password'} style={{marginTop: 7}} placeholder='Password...' value={myState.password} onChange={(evt, data) => myActions.passwordChange(data)} />
           <Button
             style={{marginTop: 7}} primary
             onClick={myActions.login}

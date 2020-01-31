@@ -22,7 +22,6 @@ export default {
             data: {}
           });
         }
-        console.log('trellisfw exists', exists);
       }).then(() => {
         //Create /trellisfw/documents if it does not exist
         return actions.oada.doesResourceExist('/bookmarks/trellisfw/documents').then((exists) => {
@@ -34,7 +33,6 @@ export default {
               contentType: 'application/vnd.trellisfw.documents.1+json'}
             );
           }
-          console.log('documents exists', exists);
         });
       })
     }).then(() => {
@@ -119,19 +117,21 @@ export default {
       state.oada.data.documents[documentId] = _.merge({}, orgData, response.data);
       //Load the _meta for this document
       return actions.oada.get(`/bookmarks/trellisfw/documents/${documentId}/_meta`).then((response) => {
+        if (response == null) throw Error('No data');
         const orgMeta = state.oada.data.documents[documentId]._meta;
         //Merge in status and services
         state.oada.data.documents[documentId]._meta = _.merge({}, orgMeta, _.pick(response.data, ['stats', 'services']));
       }).catch((err) => {
-        console.log('Error. Failed to load document _meta', documentId, err);
+        console.log('Error. Failed to load document _meta', documentId);
       }).then(() => {
         //Load the meta for the pdf of this doc
         if (state.oada.data.documents[documentId].pdf != null) {
           return actions.oada.get(`/bookmarks/trellisfw/documents/${documentId}/pdf/_meta`).then((response) => {
+            if (response == null) throw Error('No data');
             const orgMeta = state.oada.data.documents[documentId].pdf._meta || {};
             state.oada.data.documents[documentId].pdf._meta = _.merge({}, orgMeta, _.pick(response.data, ['filename']));
           }).catch((err) => {
-            console.log('Error. Failed to load pdf _meta', documentId, err);
+            console.log('Error. Failed to load pdf _meta', documentId);
           })
         }
       }).then(() => {
@@ -139,10 +139,11 @@ export default {
         if (state.oada.data.documents[documentId].audits != null) {
           return Promise.map(_.keys(state.oada.data.documents[documentId].audits), (auditKey) => {
             return actions.oada.get(`/bookmarks/trellisfw/documents/${documentId}/audits/${auditKey}`).then((response) => {
+              if (response == null) throw Error('No data');
               const orgAudit = state.oada.data.documents[documentId].audits[auditKey] || {};
               state.oada.data.documents[documentId].audits[auditKey] = _.merge({}, orgAudit, response.data);
             }).catch((err) => {
-              console.log('Error. Failed to load audit ', auditKey, 'from doc', documentId, err);
+              console.log('Error. Failed to load audit ', auditKey, 'from doc', documentId);
             })
           });
         }
@@ -151,10 +152,11 @@ export default {
         if (state.oada.data.documents[documentId].cois != null) {
           return Promise.map(_.keys(state.oada.data.documents[documentId].cois), (coiKey) => {
             return actions.oada.get(`/bookmarks/trellisfw/documents/${documentId}/cois/${coiKey}`).then((response) => {
+              if (response == null) throw Error('No data');
               const orgCoi = state.oada.data.documents[documentId].cois[coiKey] || {};
               state.oada.data.documents[documentId].cois[coiKey] = _.merge({}, orgCoi, response.data);
             }).catch((err) => {
-              console.log('Error. Failed to load coi ', coiKey, 'from doc', documentId, err);
+              console.log('Error. Failed to load coi ', coiKey, 'from doc', documentId);
             })
           });
         }
@@ -233,8 +235,9 @@ export default {
     return actions.oada.postHTTP({url: '/resources', data, headers})
   },
   doesResourceExist({ actions }, url) {
-    return actions.oada.head(url).then(() => {
-      return true;
+    return actions.oada.head(url).then((response) => {
+      if (response != null) return true;
+      return false;
     }).catch((error) => {
       if (error.response && error.response.status === 404) return false;
       throw error;
@@ -259,7 +262,7 @@ export default {
       headers: {
         Authorization: 'Bearer '+state.oada.token
       }
-    })
+    });
   },
   post({ effects, state }, {url, headers, data}) {
     return effects.oada.websocket.http({

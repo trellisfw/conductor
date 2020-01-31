@@ -16,6 +16,7 @@ function Sharing(props) {
     if (share.status == 'approved') return null;
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
+    if (type == 'shareWf') type = 'Trellis';
     return {
       key,
       text: `${share['with']} - ${type}`,
@@ -28,6 +29,7 @@ function Sharing(props) {
   const approvedList = _.chain(myState.share).map((share) => {
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
+    if (type == 'shareWf') type = 'Trellis';
     if (share.status == 'approved') return `${share['with']} - ${type}`;
   }).compact().value();
   return (
