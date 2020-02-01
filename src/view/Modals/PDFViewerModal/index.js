@@ -3,13 +3,11 @@ import React from 'react';
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 
-import { pdfjs, Document, Page } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import { Modal } from 'semantic-ui-react'
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function PDFViewerModal(props) {
   const { actions, state } = overmind();
