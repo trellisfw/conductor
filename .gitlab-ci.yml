@@ -7,10 +7,17 @@ cache:
 before_script:
   - yarn install
 
+developBuild:
+  stage: deploy
+  script:
+    - CI=false yarn run build #CI=false so warnings are not treated as errors
+  only:
+    - develop
+
 pages:
   stage: deploy
   script:
-    - yarn run build
+    - CI=false yarn run build #CI=false so warnings are not treated as errors
     - rm -rf public
     - mv build public
   artifacts:
