@@ -1,7 +1,6 @@
-const IS_DEV = process.env.NODE_ENV == 'development';
-
+import config from '../../config'
 export default {
   name: '',
-  email: IS_DEV ? 'michael@smithfield.com' : '',
-  password: IS_DEV ? 'password' : ''
+  email: config.login.autofill ? config.login.autofill.email : '',
+  password: config.login.autofill ? config.login.autofill.password : '',
 }

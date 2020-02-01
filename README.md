@@ -1,4 +1,3 @@
-
 # Smithfield UI
 
 This is the UI for the Smithfield SOW1 Demo.
@@ -9,9 +8,9 @@ This is the UI for the Smithfield SOW1 Demo.
 
 ## Configuration
 
-- Configure the trellis URL at `/src/overmind/oada/state.js`
-- Configure trellis tokens and login info at `/src/overmind/login/actions.js`
-	- `hashes` key is sha256 of `<salt>+<email>+<password>` for user creds and configures which token to use after logging in.
+- All configuration is done at `/src/config`
+- Login credentials are determined by the `hashes` key.
+	- The hash is a sha256 of `<salt><email><password>`.
 
 ## Building
 

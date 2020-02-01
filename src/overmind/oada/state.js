@@ -1,7 +1,8 @@
+import config from '../../config';
+
 export default {
-  count: 0,
-  url: 'https://smithfield.trellis.one', //'https://smithfield.trellis.one',
-  token: 'god',
+  url: config.oada.url,
+  token: '',
   data: {
     documents: {}
   }
