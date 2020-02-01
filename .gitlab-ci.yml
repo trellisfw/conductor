@@ -10,7 +10,7 @@ before_script:
 pages:
   stage: deploy
   script:
-    - yarn run build
+    - CI=false yarn run build #CI=false so warnings are not treated as errors
     - rm -rf public
     - mv build public
   artifacts:
@@ -18,3 +18,4 @@ pages:
       - public # GitLab pages serve from a 'public' directory
   only:
     - master # run on master branch
+    - feature/Issue2
