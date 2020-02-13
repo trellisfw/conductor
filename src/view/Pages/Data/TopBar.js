@@ -29,7 +29,7 @@ function TopBar() {
       }
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
-        <div css={{fontSize: 27, marginRight: 15}}>{'Files'}</div>
+        <div css={{fontSize: 27, marginRight: 15}}>{'Data'}</div>
         <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}} />
       </div>
       <Button icon>

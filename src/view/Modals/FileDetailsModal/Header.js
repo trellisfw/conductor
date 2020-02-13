@@ -10,13 +10,13 @@ import _ from 'lodash'
 function MyHeader(props) {
   const { state } = overmind();
   const myState = state.view.Modals.FileDetailsModal;
-  if (myState.audit != null) {
+  if (myState.audit != null && _.keys(myState.audit).length > 0) {
     return (
-      <Header>{_.get(myState, 'audit.organization.name')}</Header>
+      <Header>FSQA Audit: {_.get(myState, 'audit.organization.name')}</Header>
     );
   } else if (myState.coi != null) {
     return (
-      <Header>{_.get(myState, 'coi.producer.name')}</Header>
+      <Header>Certificate of Insurance: {_.get(myState, 'coi.producer.name')}</Header>
     );
   } else {
     return (

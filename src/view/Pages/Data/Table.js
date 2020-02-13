@@ -17,7 +17,7 @@ import classnames from 'classnames';
 
 function Table() {
   const { actions, state } = overmind();
-  const myActions = actions.view.Pages.Files.Table;
+  const myActions = actions.view.Pages.Data.Table;
   var collection = _.map(_.get(state, 'oada.data.documents'), (document, documentKey) => {
     //Pull out status from services
     const tasks = _.get(document, '_meta.services.target.tasks') || {};
@@ -39,7 +39,9 @@ function Table() {
       }
     })
     //Pull out share status
-    const shared = (_.chain(document).get('_meta.services.approval.tasks').find({status: 'approved'}).value() != null);
+    // Aaron changed this to stay bold unless ALL share tasks are approved.
+    const shared = (_.chain(document).get('_meta.services.approval.tasks').every(t => t.status === 'approved')).value();
+
     //Pull out signature from audit
     var signatures = _.chain(document).get('audits').values().get(0).get('signatures').value() || [];
     if (signatures.length == 0) signatures = _.chain(document).get('cois').values().get(0).get('signatures').value() || [];
@@ -57,7 +59,7 @@ function Table() {
   })
   //Sort collection
   collection = _.orderBy(collection, ['createdAtUnix'], ['desc']);
-  _.forEach(_.get(state, 'view.Pages.Files.uploading'), (file) => {
+  _.forEach(_.get(state, 'view.Pages.Data.uploading'), (file) => {
     collection.unshift({
       filename: file.filename,
       status: 'uploading'
