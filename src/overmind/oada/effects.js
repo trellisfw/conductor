@@ -20,6 +20,8 @@ export default {
             console.log("HTTP 404", _.get(err, 'response.headers.content-location'));
           } else if (err.response.status == 403) {
             console.log("HTTP 403", _.get(err, 'response.headers.content-location'));
+          } else {
+            console.log('HTTP Error: ', err);
           }
         } else {
           console.log('HTTP Error', err)
@@ -27,7 +29,11 @@ export default {
       });
     },
     close() {
-      return myWebsocket.close()
+      if (myWebsocket) { 
+        console.log('Closing web socket...');
+        return myWebsocket.close();
+      }
+      console.log('WARNING: tried to close a null websocket!');
     }
   }
 }

@@ -3,9 +3,9 @@ import React from 'react';
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 
-import logo from './smithfield.svg'
 import { Button, Dropdown } from 'semantic-ui-react'
 import overmind from '../../overmind'
+import config from '../../config';
 
 
 function TopBar() {
@@ -23,8 +23,8 @@ function TopBar() {
       <img css={{
         height: '50px',
         paddingLeft: '20px'
-      }} src={logo} alt="logo" />
-      <div css={{marginRight: 20}}>
+      }} src={'/skins/'+config.skin.name+'/'+config.skin.config.logo.src} alt="logo" />
+      <div css={{marginRight: 50}}>
           <Dropdown text={state.login.name}>
             <Dropdown.Menu>
               <Dropdown.Item icon='power' text='Logout' value='logout' onClick={actions.view.TopBar.logout} />

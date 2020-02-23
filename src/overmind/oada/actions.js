@@ -1,21 +1,56 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
 import request from 'axios';
+import config from '../../config';
+import { browser as oadaIdClient }from '@oada/oada-id-client/index.js';
+
+const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken);
+
+const lsKey = url => 'oada:'+url+':token'; // handy function to make a useful localStorage key
 
 export default {
-  logout({ state, effects }) {
-    effects.oada.websocket.close()
+  async logout({ state, effects }) {
+    await effects.oada.websocket.close();
     //Clear documents
     state.oada.data.documents = {};
+    delete window.localStorage[lsKey(state.oada.url)];
   },
   login({ state, actions }) {
     /*
       Connect to my OADA instance
     */
-    return actions.oada.connect().then((result) => {
+    return Promise.try(() => {
+      if (window.localStorage[lsKey(state.oada.url)]) {
+        console.log('Already have a token for URL '+state.oada.url+', logout to clear');
+        return window.localStorage[lsKey(state.oada.url)];
+      }
+      // If we don't have a token stored from last time, we'll need to 
+      // redirect browser to ask for one
+      console.log('Do not have an access token, redirecting...');
+      return getAccessToken(state.oada.url.replace(/^https?:\/\//,''), {
+        metadata: config.oada.devcert,
+        scope: 'all:all',
+        redirect: config.oada.redirect,
+      }).then(res => res.access_token)
+      .catch(err => {
+        state.login.error = 'Failed to redirect to '+state.oada.url+' for connection';
+        console.log('FAILED TO GET ACCESS TOKEN: err = ', err);
+        return false;
+      });
+
+    // Have a token now, make sure it's saved to localStorage until we logout:
+    }).then(token => {
+      if (token) window.localStorage[lsKey(state.oada.url)] = token;
+      state.oada.token = token;
+      console.log('Have token, connecting to oada...');
+      return actions.oada.connect();
+
+    }).then((result) => {
+      console.log('Websocket connected, checking resources...');
       //Create /trellisfw if it does not exist
       return actions.oada.doesResourceExist('/bookmarks/trellisfw').then((exists) => {
         if (!exists) {
+          console.log('/bookmarks/trellisfw does not exist.  Creating...');
           //Create /trellisfw
           return actions.oada.createAndPutResource({
             url: '/bookmarks/trellisfw',
@@ -36,6 +71,7 @@ export default {
         });
       })
     }).then(() => {
+      console.log('Setting watches...');
       //Watch for changes to /trellisfw/documents
       return actions.oada.watch({url: '/bookmarks/trellisfw/documents', actionName: 'oada.onDocumentsChange'}).then(() => {
         //Get all the documents ids in /trellisfw/documents
@@ -48,8 +84,9 @@ export default {
           }, {concurrency: 5});
         })
       })
-    })
+    });
   },
+
   uploadFile({ state, actions }, file) {
     //Add file to the file list, flag it as `uploading`
     //Create the pdf
@@ -265,6 +302,7 @@ export default {
     });
   },
   post({ effects, state }, {url, headers, data}) {
+    console.log('Posting to url ', url);
     return effects.oada.websocket.http({
       method: 'POST',
       url: url,
