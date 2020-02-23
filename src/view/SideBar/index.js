@@ -67,7 +67,7 @@ function SideBar() {
     }}>
       <SideSection selected={(selectedPage == 'Data')} icon={iconData}>{'Data'}</SideSection>
       <SideSection selected={(selectedPage == 'Trading Partners')} icon={iconBuisness}>{'Trading Partners'}</SideSection>
-      <SideSection selected={(selectedPage == 'Connections')} icon={iconConnections}>{'Connections'}</SideSection>
+      <SideSection selected={(selectedPage == 'Connections')} icon={iconConnections}>{'Sync Rules'}</SideSection>
     </div>
   );
 }
