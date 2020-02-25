@@ -24,11 +24,13 @@ function Content(props) {
     jsonData = _.get(myState, 'coi');
     jsonTitle = 'coi';
   }
-  jsonData = _.cloneDeep(jsonData);
-  if (jsonData._id) delete jsonData._id;
-  if (jsonData._rev) delete jsonData._rev;
-  if (jsonData._type) delete jsonData._type;
-  if (jsonData._meta) delete jsonData._meta;
+  if (jsonData) {
+    jsonData = _.cloneDeep(jsonData);
+    if (jsonData._id) delete jsonData._id;
+    if (jsonData._rev) delete jsonData._rev;
+    if (jsonData._type) delete jsonData._type;
+    if (jsonData._meta) delete jsonData._meta;
+  }
 
   return (
     <div>

@@ -8,6 +8,8 @@ export default {
       state.login.loggedIn = true;
       const me = await actions.oada.get('/users/me');
       state.login.name = me && me.data && me.data.username;
+      // Keep track of the last-used domain URL so refresh doesn't set it back to localhost all the time:
+      window.localStorage['oada:domain'] = state.oada.url;
     }
   },
   async logout({ state, actions }) {
