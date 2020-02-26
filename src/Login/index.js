@@ -24,7 +24,7 @@ function Login() {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: url(./skins/${appState.skin}/${bg}) no-repeat center center fixed;
+      background: url(skins/${appState.skin}/${bg}) no-repeat center center fixed;
       background-size: cover;
     `}>
       <div css={css`
@@ -35,7 +35,7 @@ function Login() {
         <img css={{
           height: logo.height,
           marginBottom: 25
-        }} src={`/skins/${appState.skin}/${logo.src}`} alt="logo" />
+        }} src={`skins/${appState.skin}/${logo.src}`} alt="logo" />
         <Form css={css`
           display: flex;
           flex-direction: column;

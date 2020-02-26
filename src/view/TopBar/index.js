@@ -24,7 +24,7 @@ function TopBar() {
       <img css={{
         height: '50px',
         paddingLeft: '20px'
-      }} src={'/skins/'+skin+'/'+state.app.skins[skin].logo.src} alt="logo" />
+      }} src={'skins/'+skin+'/'+state.app.skins[skin].logo.src} alt="logo" />
       <div css={{marginRight: 50}}>
           <Dropdown text={state.login.name}>
             <Dropdown.Menu>
