@@ -13,6 +13,7 @@ import moment from 'moment';
 import UploadingIcon from './icons/UploadIcon';
 import ProcessingIcon from './icons/ProcessingIcon';
 import SignedIcon from './icons/SignedIcon';
+import TargetIcon from './icons/TargetIcon';
 import classnames from 'classnames';
 
 function Table() {
@@ -38,6 +39,9 @@ function Table() {
         }
       }
     })
+    // Check if Target service exists and is handling this document:
+    const processingService = (_.keys(tasks).length > 0) ? 'target' : false;
+
     //Pull out share status
     // Aaron changed this to stay bold unless ALL share tasks are approved.
     const shared = (_.chain(document).get('_meta.services.approval.tasks').every(t => t.status === 'approved')).value();
@@ -54,7 +58,8 @@ function Table() {
       createdAt: moment.utc(_.get(document, '_meta.stats.created'), 'X').local().format('M/DD/YYYY h:mm a'),
       createdAtUnix: _.get(document, '_meta.stats.created'),
       signed: (signatures.length > 0) ? true : false,
-      shared: shared
+      shared: shared,
+      processingService,
     }
   })
   //Sort collection
@@ -114,6 +119,11 @@ function Table() {
             rowHeight={30}
             width={width}
             onRowClick={myActions.onRowClick}>
+            <Column label='' width={40} cellRenderer={({rowData}) => 
+              (!rowData || rowData.processingService !== 'target') ? '' :
+              <TargetIcon />
+            }/>
+              
             <Column label="Name" dataKey="filename" width={200} />
             <Column width={200} label="Type" dataKey="type" cellRenderer={({rowData}) => {
               if (rowData.type) {
