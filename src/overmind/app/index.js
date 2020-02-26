@@ -2,11 +2,18 @@ import state from './state'
 import actions from './actions'
 import config from '../../config'
 import _ from 'lodash'
+import packagejson from '../../../package.json';
 
 export default function (namespace) {
   return {
     onInitialize({ state, actions, effects }, instance) {
       console.log('Started app')
+
+
+      // Add the package.json version to the title
+      if (packagejson && packagejson.version) {
+        document.title = document.title + ' - v'+packagejson.version;
+      }
 
       // Populate domain from localStorage if there is a saved one:
       if (window.localStorage['oada:domain']) {
