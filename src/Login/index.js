@@ -2,16 +2,20 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
-
+import _ from 'lodash'
 import overmind from '../overmind'
-import { Input, Button, Form } from 'semantic-ui-react'
+import { Input, Button, Form, Dropdown } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
 import config from '../config';
 
 function Login() {
   const { state, actions } = overmind();
+  const appState = state.app;
   const myState = state.login;
   const myActions = actions.login;
+
+  const bg = appState.skins[appState.skin].loginBackground;
+  const logo = appState.skins[appState.skin].logo;
   return (
     <div css={css`
       height: 100vh;
@@ -20,7 +24,7 @@ function Login() {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: url(./skins/${config.skin.name}/${config.skin.config.loginBackground}) no-repeat center center fixed;
+      background: url(./skins/${appState.skin}/${bg}) no-repeat center center fixed;
       background-size: cover;
     `}>
       <div css={css`
@@ -29,9 +33,9 @@ function Login() {
         flex-direction: column;
       `}>
         <img css={{
-          height: config.skin.config.logo.height,
+          height: logo.height,
           marginBottom: 25
-        }} src={`/skins/${config.skin.name}/${config.skin.config.logo.src}`} alt="logo" />
+        }} src={`/skins/${appState.skin}/${logo.src}`} alt="logo" />
         <Form css={css`
           display: flex;
           flex-direction: column;
@@ -54,6 +58,22 @@ function Login() {
         cursor: pointer;
       `} onClick={myActions.logout}
       >Logout</a>
+
+      <div css={css`
+        position: absolute;
+        top: 5px;
+        left: 5px;
+      `}>
+        <Dropdown icon={{name: 'bars', inverted: true, size: 'large'}} text=''>
+          <Dropdown.Menu>
+            {_.map(_.keys(state.app.skins), s =>
+              <Dropdown.Item text={s} value={s} onClick={() => actions.app.skinChange(s)} />
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+
+
     </div>
   );
 }

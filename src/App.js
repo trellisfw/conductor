@@ -37,6 +37,7 @@ function App() {
         <FileDetailsModal />
         <PDFViewerModal />
       </div>
+
     </div>
   );
 }

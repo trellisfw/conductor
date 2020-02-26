@@ -10,6 +10,7 @@ import config from '../../config';
 
 function TopBar() {
   const { actions, state } = overmind();
+  const skin = state.app.skin;
   return (
     <div css={{
       display: 'flex',
@@ -23,7 +24,7 @@ function TopBar() {
       <img css={{
         height: '50px',
         paddingLeft: '20px'
-      }} src={'/skins/'+config.skin.name+'/'+config.skin.config.logo.src} alt="logo" />
+      }} src={'/skins/'+skin+'/'+state.app.skins[skin].logo.src} alt="logo" />
       <div css={{marginRight: 50}}>
           <Dropdown text={state.login.name}>
             <Dropdown.Menu>
