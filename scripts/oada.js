@@ -5,7 +5,7 @@ var request = require('axios');
 var state = {
   oada: {
     url: 'https://localhost',
-    token: 'def'
+    token: 'def' // dummy Trellis token, use your own if not running Trellis in dev mode
   }
 }
 

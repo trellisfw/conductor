@@ -2,9 +2,8 @@ var _ = require('lodash');
 var axios = require('axios');
 var Promise = require('bluebird');
 
-const token = 'god';
-const url = 'https://smithfield.trellis.one';
-//const url = 'https://localhost';
+const token = 'god'; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
+const url = 'https://localhost';
 
 return axios.request({
   url: '/bookmarks/trellisfw/documents',
