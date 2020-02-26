@@ -1,7 +1,7 @@
 module.exports = {
   "redirect_uris": [
     "http://localhost:3000/oauth2/redirect.html",
-    "https://trellisfw.github.io/rulesApp/oauth2/redirect.html",
+    "https://trellisfw.github.io/conductor/oauth2/redirect.html",
   ],
   "token_endpoint_auth_method": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
   "grant_types": [
@@ -24,11 +24,7 @@ module.exports = {
   // THERE IS NOTHING PRIVATE ABOUT THIS DEV CERT: IT IS IN GITHUB.  OVERRIDE WITH YOUR OWN FOR PRODUCTION
   "jwks": {
     "keys": [
-      {
-        "kty":"RSA",
-        "n":"75h2Mbrh27qpQyvdbBkPy5My-6Zue_fhmKc9TVdpvvVJZKWz0TfZE-JSJKxxMxIzDv6PQoEZRvBzbaTie3-NQxF63cIZmkcQKl8gGeuPaB9aH_EUiP__ySIoVHT0BgW24-iMm-mdKvsBi09NryVsash8ZEir4GjE-TSi-QKnvAoBBKQPj2znzQQz9X_QEsg4wG_XoZSmn5hbTs485ck8SkjBY8ovc6Mx9oH6GHfUrLOIv7oyZTiLCKjwIuTaQYUg018hoI76oN_E4NzKX2VF3rHmqw3FNc4gUR0fKdCWK64hgYeNvXMVlq9OjZpHR8uIWbX7FZCKlbYv1TNGJBe5mQ",
-        "e":"AQAB","kid":"a9ef7d877f7f4e58bd7dbb5414478730"
-      }
+      {"kty":"RSA","n":"vww1Kr3HU950pJL8Nyxt1VY7FHe3zxzRgUkdMnt3BS6FgxypvWGoXMa9PZXPw1_xbQW5pWIUOudmJzMLFtY39kQQbIoVt1uY_ItB46gk523KAQVKbC4-TX2OnVHdI-k0cQeNfHjItsDcdN-PXJVS-70D0Ya0D3WyiTHOhsdYzWBmbaEpl5DnDkcGBn08EpLw1eYa8z9qHte4MVsMcs2iv7fx6tM2fmPe4PyYAxeRXSDS1WJrwQyK9JrG1P_AQu_LECeziJteY6EVuiW3lb5X8Y9oq3qp5exJCVYRvssQUw5N-Wv8D5Iiy7A6bL-HJP1_9by98RY8x-XbK4z_ELR3MQ","e":"AQAB","kid":"94aabb3aa1914ec8a8cda455a473cf0d"}
     ]
   }
 }
