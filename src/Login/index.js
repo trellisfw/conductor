@@ -66,8 +66,8 @@ function Login() {
       `}>
         <Dropdown icon={{name: 'bars', inverted: true, size: 'large'}} text=''>
           <Dropdown.Menu>
-            {_.map(_.keys(state.app.skins), s =>
-              <Dropdown.Item text={s} value={s} onClick={() => actions.app.skinChange(s)} />
+            {_.map(_.keys(state.app.skins), (s,i) =>
+              <Dropdown.Item key={'skindropdownitem'+i} text={s} value={s} onClick={() => actions.app.skinChange(s)} />
             )}
           </Dropdown.Menu>
         </Dropdown>

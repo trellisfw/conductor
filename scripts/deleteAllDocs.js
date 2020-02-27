@@ -1,10 +1,13 @@
 var _ = require('lodash');
 var axios = require('axios');
 var Promise = require('bluebird');
+const argv = require('minimist')(process.argv.slice(2));
 
-const token = 'god'; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
-const url = 'https://localhost';
+const token = argv.t || process.env.TOKEN || 'god'; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
+const url = argv.u || process.env.URL || 'https://localhost';
+console.log('Using url '+url+', token ', token);
 
+console.log('Requesting /bookmarks/trellisfw/documents...');
 return axios.request({
   url: '/bookmarks/trellisfw/documents',
   baseURL: url,
@@ -32,7 +35,7 @@ return axios.request({
   })
   .catch(function (error) {
     // handle error
-    console.log(error);
+    console.log('ERROR: ', error);
   })
   .then(function () {
     // always executed

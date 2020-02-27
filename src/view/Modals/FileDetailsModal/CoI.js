@@ -22,7 +22,7 @@ function CoI(props) {
     p.expired = p.start.isAfter(now) || p.end.isBefore(now);
     return true; // keep this one in the list
   });
-  const r = 0; // keep track of which row we're on
+  let r = 0; // keep track of which row we're on
   const rowstyles = [
     { backgroundColor: '#FFFFFF' }, // even rows
     { backgroundColor: '#EEEEEE' }, // odd rows

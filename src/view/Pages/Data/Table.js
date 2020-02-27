@@ -119,7 +119,7 @@ function Table() {
             rowHeight={30}
             width={width}
             onRowClick={myActions.onRowClick}>
-            <Column label='' width={40} cellRenderer={({rowData}) => 
+            <Column label='' dataKey='processingService' width={40} cellRenderer={({rowData}) => 
               (!rowData || rowData.processingService !== 'target') ? '' :
               <TargetIcon />
             }/>

@@ -17,6 +17,7 @@
     "gh-pages": "^2.2.0",
     "hash.js": "^1.1.7",
     "lodash": "^4.17.15",
+    "minimist": "^1.2.0",
     "moment": "^2.24.0",
     "overmind": "^21.0.0",
     "overmind-devtools": "^22.0.0",

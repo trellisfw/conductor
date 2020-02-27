@@ -22,9 +22,9 @@ function Audit(props) {
     // If it starts after today, or ended before today, it's expired
     validity.expired = validity.start.isAfter(now) || validity.end.isBefore(now);
   }
-  const org = audit.organization || null;
+  const org = (audit.organization && audit.organization.name) || null;
 
-  const r = 0; // track which row we're on
+  let r = 0; // track which row we're on
   const rowstyles = [ 
     { backgroundColor: '#FFFFFF' }, // even rows
     { backgroundColor: '#EEEEEE' }, // odd rows
