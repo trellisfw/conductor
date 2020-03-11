@@ -9,7 +9,10 @@ function OADAMask ({ masked, original }) {
   const { hash, link } = masked
 
   // Check that hash matches the original
-  original = original || actions.oada.get(link)
+  // TODO: I guess this code shouldn't be in a view?
+  if (!original) {
+    ({ data: original } = await actions.oada.get(link))
+  }
   const valid = hash === hashJSON(original)
 
   const text = valid ? 'Masked, Valid' : 'Masked, Invalid'
