@@ -2,30 +2,25 @@ import React from 'react'
 
 import { hashJSON } from '@trellisfw/signatures'
 
-function OADAMask ({ masked, orig }) {
+import overmind from '../overmind'
+
+function OADAMask ({ masked, original }) {
+  const { actions } = overmind()
   const { hash, link } = masked
 
-  const valid = hash === hashJSON(orig)
-
-  const style = {
-    paddingLeft: '3px',
-    paddingRight: '3px',
-    marginLeft: '3px',
-    marginRight: '3px',
-    color: valid ? 'green' : 'red'
-  }
+  // Check that hash matches the original
+  original = original || actions.oada.get(link)
+  const valid = hash === hashJSON(original)
 
   const text = valid ? 'Masked, Valid' : 'Masked, Invalid'
 
   return (
     <div>
       {/* TODO: Add mask icon? */}
-      <span style={style}>
-        {/* TODO: Show hash in GUI? */}
-        <a style={{ color: valid ? 'green' : 'red' }} href={link}>
-          {text}
-        </a>
-      </span>
+      {/* TODO: Show hash in GUI? */}
+      <a style={{ color: valid ? 'green' : 'red' }} href={link}>
+        {text}
+      </a>
     </div>
   )
 }
