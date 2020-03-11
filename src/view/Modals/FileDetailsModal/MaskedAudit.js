@@ -3,6 +3,8 @@ import React from 'react'
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 
+import OADAMask from '../../OADAMask'
+
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import moment from 'moment'
@@ -106,7 +108,21 @@ function Audit (props) {
           </tr>
         )}
 
-        {/* Row 4: Validity */}
+        {/* Row 4: Location */}
+        {!(audit.organization && audit.organization.location) ? (
+          ''
+        ) : (
+          <tr style={rowstyles[r++ % 2]}>
+            <td align='right' style={labelstyle}>
+              Location:
+            </td>
+            <td style={contentstyle}>
+              <OADAMask masked={audit.organization.location} orig={audit} />
+            </td>
+          </tr>
+        )}
+
+        {/* Row 5: Validity */}
         {!validity ? (
           ''
         ) : (

@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@trellisfw/signatures": "^2.1.0",
     "addressbar": "^1.0.3",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
