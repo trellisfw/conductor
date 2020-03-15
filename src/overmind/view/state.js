@@ -6,6 +6,26 @@ export default {
     Data: {
       search: '',
       uploading: {}
+    },
+    Rules: {
+      rules: {
+        abc: {
+          text:[['When a', 'is from', 'send it to'],
+            ['Food Safety Audit', 'Arnold, Cudahy, or North,', 'Tyson']],
+        },
+        def: {
+          text: [['When a', 'has a ', ' of','send it to' ],
+            ['Certificate of Insurance', 'Certificate Holder', 'Tyson']],
+        },
+        ghi: {
+          text: [['When a', 'has a', 'of', 'send it to'],
+          ['Food Safety Audit', 'Product', 'Bacon', 'McDonald\'s']],
+        },
+        jkl: {
+          text: [['When a', 'has an', 'greater than', 'mark it as'],
+            ['Food Safety Audit', 'Overall Score','90%', 'Approved']],
+        },
+      }
     }
   },
   Modals: {

@@ -50,6 +50,7 @@ export default {
     }
   },
   Pages: {
+    
     Data: {
       Dropzone: {
         filesDropped({ state, actions }, files) {
@@ -78,6 +79,14 @@ export default {
           }
         }
       }
+    },
+    Rules: {
+      
     }
+  },
+  SideBar: {
+    pageSelected({state, actions}, page) {
+      state.view.Pages.selectedPage = page; 
+    },
   }
 }

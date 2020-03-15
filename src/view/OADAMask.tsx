@@ -14,7 +14,7 @@ type Masked = {
   hash: string,
   link: string
 }
-function OADAMask ({ masked } : {masked: Masked}) {
+async function OADAMask ({ masked } : {masked: Masked}) {
   const { actions, state } = overmind()
   const { hash, link } = masked
 
