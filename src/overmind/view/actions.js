@@ -9,6 +9,11 @@ export default {
     }
   },
   Modals: {
+    EditRuleModal: {
+      close({state, actions}) {
+        state.view.Modals.EditRuleModal.open = false;
+      }
+    },
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
         console.log('share', data)
@@ -81,7 +86,11 @@ export default {
       }
     },
     Rules: {
-      
+      ruleSelected({state, actions}, rule) {
+        console.log(rule);
+        state.view.Modals.EditRuleModal.open = true; 
+        state.view.Pages.Rules.selectedRule = rule; 
+      },
     }
   },
   SideBar: {

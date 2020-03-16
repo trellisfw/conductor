@@ -12,23 +12,38 @@ export default {
         abc: {
           text:[['When a', 'is from', 'send it to'],
             ['Food Safety Audit', 'Arnold, Cudahy, or North,', 'Tyson']],
+          total: 5,
+          createdBy: 'Michael Gaspers',
+          created: '12-12-2019',
         },
         def: {
           text: [['When a', 'has a ', ' of','send it to' ],
-            ['Certificate of Insurance', 'Certificate Holder', 'Tyson']],
+            ['Certificate of Insurance', 'Certificate Holder', 'Tyson', 'Tyson']],
+          total: 8,
+          createdBy: 'Michael Gaspers',
+          created: '09-28-2019',
         },
         ghi: {
           text: [['When a', 'has a', 'of', 'send it to'],
-          ['Food Safety Audit', 'Product', 'Bacon', 'McDonald\'s']],
+          ['Food Safety Audit', 'Product', 'Bacon', `McDonald\'s`]],
+          total: 15,
+          createdBy: 'Michael Gaspers',
+          created: '11-14-2019',
         },
         jkl: {
           text: [['When a', 'has an', 'greater than', 'mark it as'],
             ['Food Safety Audit', 'Overall Score','90%', 'Approved']],
+          total: 2,
+          createdBy: 'Michael Gaspers',
+          created: '08-07-2019',
         },
       }
     }
   },
   Modals: {
+    EditRuleModal: {
+      open: false,
+    },
     FileDetailsModal: {
       open: false,
       documentKey: null,

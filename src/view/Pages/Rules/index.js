@@ -7,15 +7,19 @@ import TopBar from './TopBar';
 import overmind from '../../../overmind'
 
 function Rule(props) {
+  const {state, actions} = overmind()
+  const myActions = actions.view.Pages.Rules;
   
   return (
-    <div css={css`
+    <div 
+      onClick={evt => {myActions.ruleSelected(props.id)}}
+      css={css`
       padding: 10px;
       align-content: center;
       margin: 10px;
-      border: 1px solid #2a9fd8;
+      border: 1px solid #000000;
       border-radius: 5px;
-      box-shadow: 10px 10px 5px grey;
+      box-shadow: 5px 5px 5px grey;
       text-align: center;
       font-size: 17px;
       &.hover {
@@ -23,15 +27,14 @@ function Rule(props) {
       }
     `}>
     {props.rule.text[0].map((t, i) =>
-      <sp>{t+' '}<b>{props.rule.text[1][i]+' '}</b></sp>
+      <span key={'rule'+i}>{t+' '}<b>{props.rule.text[1][i]+' '}</b></span>
     )}
    </div>
   );
 }
 
 function Rules() {
-  const {state} = overmind()
-  console.log(state);
+  const {state, actions} = overmind()
   return (
     <div css={{
       flex: 1,
@@ -48,7 +51,7 @@ function Rules() {
       <div css={{flex: 1, padding: 30, paddingTop: 15, display: 'flex'}}>
         <div css={{border: '1px solid #979797', flex: 1,  flexDirection:'column', display: 'flex'}}>
         {Object.keys(state.view.Pages.Rules.rules).map(key => 
-          <Rule rule={state.view.Pages.Rules.rules[key]} key={key}/>
+          <Rule rule={state.view.Pages.Rules.rules[key]} id={key} key={key}/>
         )}
           
         </div>
