@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import rules from './rules.state.js';
 
 export default {
   Pages: {
@@ -10,29 +11,40 @@ export default {
     Rules: {
       rules: {
         abc: {
-          text:[['When a', 'is from', 'send it to'],
-            ['Food Safety Audit', 'Arnold, Cudahy, or North,', 'Tyson']],
+          text:'When a input0 is from input1, send it to input2.',
+          input0: 'Food Safety Audit', 
+          input1: 'Arnold, Cudahy, or North',
+          input2: 'Tyson',
           total: 5,
           createdBy: 'Michael Gaspers',
           created: '12-12-2019',
         },
         def: {
-          text: [['When a', 'has a ', ' of','send it to' ],
-            ['Certificate of Insurance', 'Certificate Holder', 'Tyson', 'Tyson']],
+          text: 'When a input0 has a input1 of input2, send it to input3',
+          input0: 'Certificate of Insurance', 
+          input1: 'Certificate Holder', 
+          input2: 'Tyson',
+          input3: 'Tyson',
           total: 8,
           createdBy: 'Michael Gaspers',
           created: '09-28-2019',
         },
         ghi: {
-          text: [['When a', 'has a', 'of', 'send it to'],
-          ['Food Safety Audit', 'Product', 'Bacon', `McDonald\'s`]],
+          text: 'When a input0 has a input1 of input2, send it to input3',
+          input0: 'Food Safety Audit',
+          input1: 'Product',
+          input2: 'Bacon', 
+          input3: `McDonald\'s`,
           total: 15,
           createdBy: 'Michael Gaspers',
           created: '11-14-2019',
         },
         jkl: {
-          text: [['When a', 'has an', 'greater than', 'mark it as'],
-            ['Food Safety Audit', 'Overall Score','90%', 'Approved']],
+          text: 'When a input0 has an input1 greater than input2 mark it as input3',
+          input0: 'Food Safety Audit',
+          input1: 'Overall Score',
+          input2: '90%', 
+          input3: 'Approved',
           total: 2,
           createdBy: 'Michael Gaspers',
           created: '08-07-2019',
@@ -43,6 +55,30 @@ export default {
   Modals: {
     EditRuleModal: {
       open: false,
+    },
+    NewRuleModal: {
+      open: false,
+      page: 'List',
+      List: {
+        category: 'FSQA',
+        categories: ['FSQA','PII','Claims','Sustainability','Supply Chain'],
+        rules,
+      },
+      Edit: {
+        template: {
+          text: "When a input0 is from input1, send it to input2",
+          input0: 'Document',
+          input1: 'Location',
+          input2: 'Partner',
+          categories: ['FSQA', 'PII'],
+        },
+        rule: {
+          input0: 'Document',
+          input1: 'Location',
+          input2: 'Partner',
+          categories: ['FSQA', 'PII'],
+        },
+      },
     },
     FileDetailsModal: {
       open: false,

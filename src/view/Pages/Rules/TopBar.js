@@ -4,10 +4,13 @@ import React from 'react';
 import { jsx, css } from '@emotion/core'
 
 import { Input, Button, Icon  } from 'semantic-ui-react'
+import overmind from '../../../overmind'
 
 import 'semantic-ui-css/semantic.min.css'
 
 function TopBar() {
+  const {actions} = overmind();
+  let myActions = actions.view.Pages.Rules;
   return (
     <div css={css`
       display: flex;
@@ -32,7 +35,7 @@ function TopBar() {
         <div css={{fontSize: 27, marginRight: 15}}>{'Current Rules'}</div>
         <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}} />
       </div>
-      <Button icon>
+      <Button onClick={evt=>{myActions.addRuleClicked()}}icon>
         <Icon  name='plus' />
         <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Add</span>
       </Button>

@@ -14,7 +14,8 @@ function Content (props) {
   const myActions = actions.view.Modals.EditRuleModal
   const myState = state.view.Modals.EditRuleModal;
   const selected = state.view.Pages.Rules.selectedRule;
-  const selectedRule = state.view.Pages.Rules.rules[selected];
+  const rule = state.view.Pages.Rules.rules[selected];
+  let pattern = /(input[0-9]+)/g;
 
   return (
     <div
@@ -25,12 +26,18 @@ function Content (props) {
       }}
     >
       <div css={{flexDirection: 'row'}}>
-        {selectedRule.text[0].map((t, i) => 
-          <span key={'editrule'+i}>{t+' '}<b>{selectedRule.text[1][i]+' '}</b></span>
-        )}
+        <p>
+          {rule.text.split(pattern).map((item, j) => 
+            pattern.test(item) ? 
+              <b key={`editrule-boldword-${j}`}>{rule[item]}</b> 
+              : 
+              item
+            )
+          }
+        </p>
       </div>
-      <span>{`${selectedRule.total} Total Documents Processed`}</span>
-      <span>{`Created ${selectedRule.created} by ${selectedRule.createdBy}`}</span>
+      <span>{`${rule.total} Total Documents Processed`}</span>
+      <span>{`Created ${rule.created} by ${rule.createdBy}`}</span>
     </div>
   )
 }

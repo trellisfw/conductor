@@ -14,6 +14,32 @@ export default {
         state.view.Modals.EditRuleModal.open = false;
       }
     },
+    NewRuleModal: {
+      backClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.page = 'List';
+      },
+      close({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+      },
+      categorySelected({state, actions}, evt) {
+        console.log(evt);
+        state.view.Modals.NewRuleModal.category = evt.target;
+      },
+      newRuleSelected({state, actions}, rule) {
+        console.log('new rule selected', rule);
+        state.view.Modals.NewRuleModal.Edit = {rule};
+        state.view.Modals.NewRuleModal.page = 'Edit';
+      },
+      doneClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+      },
+      cancelClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+      },
+      textChanged({state, actions}, index, item, evt) {
+        console.log(index, item, evt);
+      },
+    },
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
         console.log('share', data)
@@ -89,6 +115,11 @@ export default {
       ruleSelected({state, actions}, rule) {
         console.log(rule);
         state.view.Modals.EditRuleModal.open = true; 
+        state.view.Pages.Rules.selectedRule = rule; 
+      },
+      addRuleClicked({state, actions}, rule) {
+        state.view.Modals.NewRuleModal.open = true; 
+        state.view.Modals.NewRuleModal.page = 'List'; 
         state.view.Pages.Rules.selectedRule = rule; 
       },
     }

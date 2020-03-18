@@ -9,6 +9,8 @@ import overmind from '../../../overmind'
 function Rule(props) {
   const {state, actions} = overmind()
   const myActions = actions.view.Pages.Rules;
+  const r = state.view.Pages.Rules.rules[props.id];
+  const pattern = /(input[0-9]+)/g;
   
   return (
     <div 
@@ -26,10 +28,15 @@ function Rule(props) {
         border: 2px solid #2a9fd8;
       }
     `}>
-    {props.rule.text[0].map((t, i) =>
-      <span key={'rule'+i}>{t+' '}<b>{props.rule.text[1][i]+' '}</b></span>
-    )}
-   </div>
+      <p key={'current-rule-'+props.id}>
+         {r.text.split(pattern).map((item, i) => 
+           pattern.test(item) ? 
+           <b key={props.id+'-boldword-'+i}>{r[item]}</b> 
+           :
+           item
+         )}
+       </p>
+    </div>
   );
 }
 
@@ -49,7 +56,7 @@ function Rules() {
         margin-right: 20px;
       `}/>
       <div css={{flex: 1, padding: 30, paddingTop: 15, display: 'flex'}}>
-        <div css={{border: '1px solid #979797', flex: 1,  flexDirection:'column', display: 'flex'}}>
+        <div css={{flex: 1,  flexDirection:'column', display: 'flex'}}>
         {Object.keys(state.view.Pages.Rules.rules).map(key => 
           <Rule rule={state.view.Pages.Rules.rules[key]} id={key} key={key}/>
         )}

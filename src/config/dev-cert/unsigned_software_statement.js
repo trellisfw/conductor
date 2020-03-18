@@ -1,6 +1,7 @@
 module.exports = {
   "redirect_uris": [
-    "http://localhost:3000/oauth2/redirect.html",
+    "http://vip3.ecn.purdue.edu:3000/oauth2/redirect.html",
+//    "http://localhost:3000/oauth2/redirect.html",
     "https://trellisfw.github.io/conductor/oauth2/redirect.html",
   ],
   "token_endpoint_auth_method": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
