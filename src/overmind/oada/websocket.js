@@ -8,8 +8,8 @@ export default function websocket(url) {
 	var messages = [];
 	//Create the socket
 	url = url.replace('https://', 'wss://').replace('http://', 'ws://');
-	console.log('Created WebSocket for', url);
-	var socket = new WebSocket(url);
+	console.log('Creating WebSocket for', url);
+	var socket;
 	var connected = false;
 	var httpCallbacks = {};
 	var watchCallbacks = {};
@@ -22,6 +22,8 @@ export default function websocket(url) {
 		messages = [];
 	}
 	return new Promise((resolve, reject) => {
+    console.log('Calling WebSocket(url)');
+    socket = new WebSocket(url);
     socket.onopen = function(event) {
 			console.log('We are connected via websocket')
 			connected = true;
@@ -29,7 +31,7 @@ export default function websocket(url) {
 			resolve(socket)
 		}
 		socket.onclose = function(event) {
-
+      console.log('Websocket closed.');
 		}
     socket.onmessage = function(event) {
       var response = JSON.parse(event.data);

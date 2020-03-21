@@ -1,21 +1,16 @@
-# Smithfield UI
+# Trellis Conductor
 
-This is the UI for the Smithfield SOW1 Demo.
-
-### [Demo SOW1 - 01/31/2020](DEMO.md)
-
-### [TODO List](TODO.md)
+This is the UI for managing the Trellis conductor service
 
 ## Configuration
 
 - All configuration is done at `/src/config`
-- Login credentials are determined by the `hashes` key.
-	- The hash is a sha256 of `<salt><email><password>`.
+- You can add your own "skins" to the public/skins folder, then update the config to choose yours by default.
 
 ## Building
+```bash
+npm install 
+npm run start
+```
 
-Currently do to a bug with the  `react-pdf` package you cannot build a production build. It will run your computer out of memory even if you increase node memory limit. We need to change to a pre-bundled copy of `react-pdf `.
 
-## Scripts
-
-For your convenience there are two useful scripts in the `/scripts` directory. `deleteAllDocs.js` deletes all the documents under `/bookmarks/trellisfw/documents` for token `god`, and `deleteAllDocsWakefern` deletes them all for token `aaa`. In both cases you **HAVE TO CONFIGURE THE URL** it is currently set to `https://smithfield.trellis.one`.

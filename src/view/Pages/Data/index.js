@@ -9,7 +9,7 @@ import Dropzone from './Dropzone';
 
 
 
-function Files() {
+function Data() {
   return (
     <div css={{
       flex: 1,
@@ -34,4 +34,4 @@ function Files() {
   );
 }
 
-export default Files;
+export default Data;

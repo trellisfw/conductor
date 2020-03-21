@@ -1,9 +1,9 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
 export default {
   Pages: {
-    selectedPage: 'Files',
-    Files: {
+    selectedPage: 'Data',
+    Data: {
       search: '',
       uploading: {}
     }
@@ -12,16 +12,45 @@ export default {
     FileDetailsModal: {
       open: false,
       documentKey: null,
-      audit: ({documentKey}, state) => {
+      showData: false,
+      audit: ({ documentKey }, state) => {
         //Get the audit from the doc
-        return  _.chain(state).get(`oada.data.documents.${documentKey}.audits`).values().get(0).value() || {};
+        return (
+          _.chain(state)
+            .get(`oada.data.documents.${documentKey}.audits`)
+            .values()
+            .get(0)
+            .value() || {}
+        )
       },
-      coi: ({documentKey}, state) => {
+      'audit-masked': ({ documentKey }, state) => {
+        //Get the audit from the doc
+        return (
+          _.chain(state)
+            .get(`oada.data.documents.${documentKey}.audits-masked`)
+            .values()
+            .get(0)
+            .value() || {}
+        )
+      },
+      coi: ({ documentKey }, state) => {
         //Get the cois from the doc
-        return  _.chain(state).get(`oada.data.documents.${documentKey}.cois`).values().get(0).value() || {};
+        return (
+          _.chain(state)
+            .get(`oada.data.documents.${documentKey}.cois`)
+            .values()
+            .get(0)
+            .value() || {}
+        )
       },
-      share: ({documentKey}, state) => {
-        return  _.chain(state).get(`oada.data.documents.${documentKey}._meta.services.approval.tasks`).value() || {};
+      share: ({ documentKey }, state) => {
+        return (
+          _.chain(state)
+            .get(
+              `oada.data.documents.${documentKey}._meta.services.approval.tasks`
+            )
+            .value() || {}
+        )
       }
     },
     PDFViewerModal: {

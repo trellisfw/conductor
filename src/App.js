@@ -25,6 +25,7 @@ function App() {
       flexDirection: 'column',
       justifyContent: 'stretch'
     }}>
+
       <TopBar />
       <div css={{
         flex: 1,
@@ -37,6 +38,7 @@ function App() {
         <FileDetailsModal />
         <PDFViewerModal />
       </div>
+
     </div>
   );
 }

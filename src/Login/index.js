@@ -2,16 +2,20 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
-
+import _ from 'lodash'
 import overmind from '../overmind'
-import { Input, Button, Form } from 'semantic-ui-react'
+import { Input, Button, Form, Dropdown } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
-import logo from './smithfield.svg'
+import config from '../config';
 
 function Login() {
   const { state, actions } = overmind();
+  const appState = state.app;
   const myState = state.login;
   const myActions = actions.login;
+
+  const bg = appState.skins[appState.skin].loginBackground;
+  const logo = appState.skins[appState.skin].logo;
   return (
     <div css={css`
       height: 100vh;
@@ -20,7 +24,7 @@ function Login() {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: url(./loginBg.jpg) no-repeat center center fixed;
+      background: url(skins/${appState.skin}/${bg}) no-repeat center center fixed;
       background-size: cover;
     `}>
       <div css={css`
@@ -29,30 +33,47 @@ function Login() {
         flex-direction: column;
       `}>
         <img css={{
-          height: 50,
+          height: logo.height,
           marginBottom: 25
-        }} src={logo} alt="logo" />
+        }} src={`skins/${appState.skin}/${logo.src}`} alt="logo" />
         <Form css={css`
           display: flex;
           flex-direction: column;
         `} onSubmit={myActions.login}>
-          <Input placeholder='Email...' value={myState.email} onChange={(evt, data) => myActions.emailChange(data)} />
-          <Input type={'password'} style={{marginTop: 7}} placeholder='Password...' value={myState.password} onChange={(evt, data) => myActions.passwordChange(data)} />
+          <Input placeholder='Trellis Domain...' value={myState.domain} onChange={(evt, data) => myActions.domainChange(data)} />
           <Button
             style={{marginTop: 7}} primary
-            onClick={myActions.login}
             loading={myState.loading}
             disabled={myState.loading}>
-            Sign In
+            Connect to Your Trellis
           </Button>
         </Form>
-        {
-          (myState.incorrect) ?
-            <div css={{textAlign: 'center', marginTop: 4, color: 'red'}}>{'Your email or password is incorrect.'}</div>
-          :
-            <div css={{height: 19, marginTop: 4}}></div>
-        }
       </div>
+      <a css={css`
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2em;
+        color: #FFFFFF;
+        cursor: pointer;
+      `} onClick={myActions.logout}
+      >Logout</a>
+
+      <div css={css`
+        position: absolute;
+        top: 5px;
+        left: 5px;
+      `}>
+        <Dropdown icon={{name: 'bars', inverted: true, size: 'large'}} text=''>
+          <Dropdown.Menu>
+            {_.map(_.keys(state.app.skins), (s,i) =>
+              <Dropdown.Item key={'skindropdownitem'+i} text={s} value={s} onClick={() => actions.app.skinChange(s)} />
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+
+
     </div>
   );
 }

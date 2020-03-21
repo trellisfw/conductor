@@ -12,6 +12,11 @@ export default function(_namespace) {
     },
     decreaseCount({ state }) {
       moduleState(state).count--;
+    },
+    skinChange({state}, newSkin) {
+      state.app.skin = newSkin;
+      // Save this to localStorage to keep for next time:
+      window.localStorage['skin'] = newSkin;
     }
   }
 }

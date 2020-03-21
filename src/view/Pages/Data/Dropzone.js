@@ -8,7 +8,7 @@ import overmind from '../../../overmind'
 
 function Dropzone(props) {
   const { actions } = overmind();
-  const myActions = actions.view.Pages.Files.Dropzone;
+  const myActions = actions.view.Pages.Data.Dropzone;
   const onDrop = useCallback(acceptedFiles => {
     if (myActions.filesDropped) myActions.filesDropped(acceptedFiles);
   }, [])

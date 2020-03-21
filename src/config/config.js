@@ -1,18 +1,22 @@
-export default {
+import _ from 'lodash';
+
+const config = {
   oada: {
-    url: 'https://smithfield.trellis.one'
+//    url: 'https://smithfield.trellis.one',
+    url: 'https://localhost',
+    devcert: require('./dev-cert/signed_software_statement'), // Don't use this public one in production unless implicit flow is OK for you
+    redirect: require('./dev-cert/unsigned_software_statement').redirect_uris[process.env.NODE_ENV === 'production' ? 1 : 0], // 0 is localhost:3000, 1 is trellisfw.github.io/conductor
   },
-  login: {
-    salt: 'pY9600eU4caV',
-    hashes: {
-      '99629e2249b2a68da494098813b3233df4b4c84a0379193869d5a270b5f41a09': {
-        token: 'god',
-        name: 'Michael Gaspers'
-      },
-      '234ed84db8085093ebbf1c2ca71dfb5e8130107436ce01f47690b886b1517c96': {
-        token: 'aaa',
-        name: 'Cyrus Bowman'
-      }
-    }
-  }
-}
+  skin: 'default', // which of the skins is the default one
+  skins: {
+    default: {}, // filled out from skin-specific config below
+    smithfield: {},
+  },
+};
+
+// Load the skin configs:
+_.each(config.skins, (v,k) => {
+  config.skins[k] = require('../../public/skins/'+k+'/config.js');
+});
+
+export default config;

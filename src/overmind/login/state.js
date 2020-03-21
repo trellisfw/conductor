@@ -1,6 +1,4 @@
 import config from '../../config'
 export default {
-  name: '',
-  email: config.login.autofill ? config.login.autofill.email : '',
-  password: config.login.autofill ? config.login.autofill.password : '',
+  domain: config.oada && config.oada.url ? config.oada.url : '',
 }

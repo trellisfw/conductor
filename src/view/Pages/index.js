@@ -2,7 +2,7 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import Files from './Files';
+import Data from './Data';
 
 function Pages() {
   return (
@@ -11,7 +11,7 @@ function Pages() {
       flex: '1',
       boxShadow: 'inset 5px 5px 5px #dddddd'
     }}>
-      <Files />
+      <Data />
     </div>
   );
 }

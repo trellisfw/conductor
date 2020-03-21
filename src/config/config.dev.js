@@ -1,11 +1,5 @@
 export default {
   oada: {
-    url: 'https://localhost'
+//    url: 'https://localhost'
   },
-  login: {
-    autofill: {
-      email: 'michael@smithfield.com',
-      password: 'password'
-    }
-  }
 }

@@ -18,6 +18,9 @@ export default {
         state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}/pdf`
         state.view.Modals.PDFViewerModal.open = true;
       },
+      toggleShowData({ state }, documentKey) {
+        state.view.Modals.FileDetailsModal.showData = !state.view.Modals.FileDetailsModal.showData;
+      },
       share({ state, actions }) {
         //Share to all the share options
         const shareKeys = _.map(state.view.Modals.FileDetailsModal.share, (share, key) => {
@@ -47,18 +50,18 @@ export default {
     }
   },
   Pages: {
-    Files: {
+    Data: {
       Dropzone: {
         filesDropped({ state, actions }, files) {
             //Start uploading the files
             return Promise.map(files, (file) => {
               //Add an `uploading` file
               const id = uuid();
-              state.view.Pages.Files.uploading[id] = {
+              state.view.Pages.Data.uploading[id] = {
                 filename: file.name
               };
               return actions.oada.uploadFile(file).then(() => {
-                delete state.view.Pages.Files.uploading[id];
+                delete state.view.Pages.Data.uploading[id];
               })
             })
         }

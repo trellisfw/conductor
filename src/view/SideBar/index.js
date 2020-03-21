@@ -2,7 +2,7 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
-import iconFiles from './files.svg';
+import iconData from './data.svg';
 import iconBuisness from './buisness.svg';
 import iconConnections from './connections.svg';
 import overmind from '../../overmind'
@@ -65,9 +65,9 @@ function SideBar() {
       flexDirection: 'column',
       borderRight: '1px solid #979797'
     }}>
-      <SideSection selected={(selectedPage == 'Files')} icon={iconFiles}>{'Files'}</SideSection>
+      <SideSection selected={(selectedPage == 'Data')} icon={iconData}>{'Data'}</SideSection>
       <SideSection selected={(selectedPage == 'Trading Partners')} icon={iconBuisness}>{'Trading Partners'}</SideSection>
-      <SideSection selected={(selectedPage == 'Connections')} icon={iconConnections}>{'Connections'}</SideSection>
+      <SideSection selected={(selectedPage == 'Connections')} icon={iconConnections}>{'Sync Rules'}</SideSection>
     </div>
   );
 }
