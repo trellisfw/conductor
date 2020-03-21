@@ -14,10 +14,13 @@ import SignedIcon from './icons/SignedIcon'
 import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
 import OADAMask from '../../OADAMask'
+import Fuse from 'fuse.js'
 
 function Table () {
   const { actions, state } = overmind()
   const myActions = actions.view.Pages.Data.Table
+  const myState = state.view.Pages.Data
+
   var collection = _.map(
     _.get(state, 'oada.data.documents'),
     (document, documentKey) => {
@@ -76,13 +79,17 @@ function Table () {
             .value() || []
 
       // Get masked location
-      const masked = _.chain(document)
-        .get('audits-masked')
-        .values()
-        .get(0)
-        .get('organization')
-        .get('location')
-        .value()
+      var masked = false;
+      if (_.get(document, 'unmask') != null) {
+        masked = _.chain(document)
+          .get('audits')
+          .values()
+          .get(0)
+          .get('organization')
+          .get('location')
+          .value();
+      }
+
       return {
         documentKey: documentKey,
         filename: _.get(document, 'pdf._meta.filename') || '',
@@ -101,6 +108,12 @@ function Table () {
       }
     }
   )
+  //Filter collection by filename
+  const fuseOptions = {keys: [{name: 'filename', weight: 0.3}], shouldSort: false};
+  var fuse = new Fuse(collection, fuseOptions);
+  if (myState.search && myState.search.length > 0) {
+    collection = _.map(fuse.search(myState.search.substr(0, 32)), 'item');
+  }
   //Sort collection
   collection = _.orderBy(collection, ['createdAtUnix'], ['desc'])
   _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
@@ -176,7 +189,6 @@ function Table () {
               )
             }
           />
-
           <Column label='Name' dataKey='filename' width={200} />
           <Column
             width={200}
@@ -184,6 +196,9 @@ function Table () {
             dataKey='type'
             cellRenderer={({ rowData }) => {
               if (rowData.type) {
+                if (rowData.masked) {
+                  return <div>{`${rowData.type} - Masked`}</div>
+                }
                 return <div>{rowData.type}</div>
               } else if (rowData.status == 'processing') {
                 return (
@@ -214,22 +229,9 @@ function Table () {
               return (
                 <div css={{ display: 'flex', alignItems: 'center' }}>
                   <SignedIcon />
-                  <div css={{ marginLeft: 3, color: '#02A12B' }}>
+                  <div css={{ marginLeft: 3, color: '#02A12B', marginRight: 7 }}>
                     {'Signed'}
                   </div>
-                </div>
-              )
-            }}
-          />
-          <Column
-            dataKey='masked'
-            className='masked'
-            width={width - 600}
-            cellRenderer={({ rowData }) => {
-              if (!rowData.masked) return null
-              return (
-                <div css={{ display: 'flex', alignItems: 'center' }}>
-                  <OADAMask masked={rowData.masked} />
                 </div>
               )
             }}

@@ -13,6 +13,13 @@ export default {
       onShareChange({state, actions}, data) {
         console.log('share', data)
       },
+      showDocument({state}, {resourceId}) {
+        //Find document key for resourceId
+        let docKey = _.chain(state.oada.data.documents).findKey({_id: resourceId}).value();
+        if (docKey) {
+          state.view.Modals.FileDetailsModal.documentKey = docKey;
+        }
+      },
       viewPDF({ state, actions }, documentKey) {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
         state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}/pdf`
@@ -51,6 +58,15 @@ export default {
   },
   Pages: {
     Data: {
+      onSearch({ state }, value) {
+        state.view.Pages.Data.search = value;
+      },
+      openFileBrowser({ state }) {
+        state.view.Pages.Data.openFileBrowser = true;
+        return Promise.delay(1000).then(() => {
+          state.view.Pages.Data.openFileBrowser = false;
+        })
+      },
       Dropzone: {
         filesDropped({ state, actions }, files) {
             //Start uploading the files

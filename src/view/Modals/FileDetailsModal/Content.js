@@ -21,9 +21,6 @@ function Content (props) {
   if (_.isEmpty(myState.audit) == false) {
     jsonData = _.get(myState, 'audit')
     jsonTitle = 'audit'
-  } else if (_.isEmpty(myState['audit-masked']) == false) {
-    jsonData = _.get(myState, 'audit-masked')
-    jsonTitle = 'masked-audit'
   } else if (_.isEmpty(myState.coi) == false) {
     jsonData = _.get(myState, 'coi')
     jsonTitle = 'coi'
@@ -39,14 +36,10 @@ function Content (props) {
   return (
     <div>
       {jsonTitle === 'audit' ? (
-        <Audit audit={jsonData} />
-      ) : jsonTitle === 'masked-audit' ? (
-        <MaskedAudit audit={jsonData} />
+        <Audit audit={myState.audit} document={myState.document} />
       ) : jsonTitle === 'coi' ? (
-        <CoI coi={jsonData} />
-      ) : (
-        <span>Unknown Document Type</span>
-      )}
+        <CoI coi={myState.coi} document={myState.document} />
+      ) : null}
 
       {!myState.showData ? (
         ''
