@@ -61,19 +61,8 @@ export default {
         categories: ['FSQA','PII','Claims','Sustainability','Supply Chain'],
       },
       Edit: {
-        template: {
-          text: "When a input0 is from input1, send it to input2",
-          input0: 'Document',
-          input1: 'Location',
-          input2: 'Partner',
-          categories: ['FSQA', 'PII'],
-        },
-        rule: {
-          input0: 'Document',
-          input1: 'Location',
-          input2: 'Partner',
-          categories: ['FSQA', 'PII'],
-        },
+        template: {},
+        rule: {},
       },
     },
     FileDetailsModal: {

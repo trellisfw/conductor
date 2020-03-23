@@ -1,40 +1,33 @@
 import _ from 'lodash'
 const FL_BUSINESS_ID = 'abc';
 
-function partnerToShare(partner) {
-  return {
-    type: 'fl',
-    location: (state) => state.partners[partner].location,
-    id: (state) => state.partners[partner].id,
-    with: partner,
-    shares: {
-      [FL_BUSINESS_ID]: {
-        communities: []
-      }
-    }
-  }
-}
-
 export default {
   templates: {
     temp0: {
       id: 'temp0',
       text: "When an Audit from input0 has a Location of input1 and a Product of input2, sync it to Food Logiq",
-      input0: 'Partner',
-      input1: 'Location',
-      input2: 'Product',
+      input0: {
+        type: 'Partner',
+        values: [],
+      },
+      input1: {
+        type: 'Location',
+        values: [],
+      },
+      input2: {
+        type: 'Product',
+        values: [],
+      },
       categories: ['FSQA', 'PII'],
-      share: ({input0, input1, input2}, state) => {
-        return {
-          type: 'fl',
-          location: state.partners[input0] ? state.partners[input0].location : '',
-          id: state.partners[input0] ? state.partners[input0].id : '',
-          products: input2,
-          with: input1,
-          shares: {
-            [FL_BUSINESS_ID]: {
-              communities: []
-            }
+      share: {
+        type: 'fl',
+        partners: 'input0',
+        locations: 'input1',
+        id: 'input1',
+        products: 'input2', 
+        shares: {
+          [FL_BUSINESS_ID]: {
+            communities: []
           }
         }
       }
@@ -49,8 +42,8 @@ export default {
         return {
           type: 'email',
           products: input0,
-          with: input1,
-          to: state.partners[input1] ? state.partners[input1].email : '',
+          partners: input1,
+          email: state.partners[input1] ? state.partners[input1].email : '',
         }
       }
     }, 
@@ -64,8 +57,8 @@ export default {
         return {
           type: 'fl',
           products: input0,
-          with: input1,
-          to: state.partners[input1] ? state.partners[input1].email : '',
+          partners: input1,
+          email: state.partners[input1] ? state.partners[input1].email : '',
         }
       }
     },
@@ -77,7 +70,7 @@ export default {
       categories: ['FSQA', 'PII'],
       share: {
         type: 'fl',
-        with: (state) => state.rules.rules.temp1.input1,
+        partners: (state) => state.rules.rules.temp1.input1,
         to: (state) => state.partners[state.rules.rules.temp1.input1].email,
       }
     },

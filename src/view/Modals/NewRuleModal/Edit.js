@@ -17,10 +17,8 @@ function Blank (props) {
   let myActions = actions.view.Modals.NewRuleModal;
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
-  console.log('ITEM', props.item)
-  console.log('VALUE', template[props.item])
-  console.log('LIST', state.rules[template[props.item]]);
-  let list = state.rules[template[props.item]];
+  let list = state.rules[template[props.item].type];
+  console.log('ITEM IS', props.item, 'VALUE IS', rule[props.item].values);
 
   return (
     <Dropdown
@@ -33,10 +31,10 @@ function Blank (props) {
         width: 'fit-content',
       }}
       options={list.map(i => ({key: i, text: i, value:i}))}
-      value={rule[props.item]}
+      value={rule[props.item].values}
       placeholder={`E.g., ${list[0]}`}
       onChange={(evt, data) => {
-        myActions.textChanged({value: data.value, index:props.item})
+        myActions.textChanged({values: data.value, key:props.item})
       }}
     /> 
   )

@@ -7,24 +7,20 @@ export default {
   Tyson: {
     locations: {
       ['Wilson, NC']: {
-        location: 'Smithfield Packaged Meats Corp. - Wilson, NC',
+        text: 'Smithfield Packaged Meats Corp. - Wilson, NC',
         id: '10151',
-        text: 'Wilson, NC',
       },
       ['Arnold, PA']: {
-        location: 'Smithfield Packaged Meats Corp. - Arnold',
+        text: 'Smithfield Packaged Meats Corp. - Arnold',
         id: '10138',
-        text: 'Arnold, PA',
       },
       ['North']: {
-        location: 'Smithfield Fresh Meats Corp. (North) - Smithfield, VA',
+        text: 'Smithfield Fresh Meats Corp. (North) - Smithfield, VA',
         id: '10132',
-        text: '(North) Smithfield, VA',
       },
       ['Martin City']: {
-        location: 'Smithfield Packaged Meats Corp. - Martin City',
+        text: 'Smithfield Packaged Meats Corp. - Martin City',
         id: '',
-        text: 'Martin City',
       }
     },
     Wakefern: {

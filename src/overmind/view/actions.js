@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
+import {json} from 'overmind';
 export default {
   TopBar: {
     logout({state, actions}) {
@@ -22,26 +23,26 @@ export default {
         state.view.Modals.NewRuleModal.open = false;
       },
       categorySelected({state, actions}, evt) {
-        console.log(evt);
         state.view.Modals.NewRuleModal.category = evt.target;
       },
       newRuleSelected({state, actions}, rule) {
-        console.log('new rule selected', rule);
-        state.view.Modals.NewRuleModal.Edit = {template: _.cloneDeep(rule), rule};
+        state.view.Modals.NewRuleModal.Edit = {
+          template: json(rule),
+          rule: json(rule)
+        };
         state.view.Modals.NewRuleModal.page = 'Edit';
       },
       doneClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
-        actions.rules.createRule();
+        actions.rules.createRules();
       },
       cancelClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
       },
       textChanged({state, actions}, data) {
-        console.log(data)
-        state.view.Modals.NewRuleModal.Edit.rule[data.index] = data.value;
-        console.log('aTEMPLATE THING', state.view.Modals.NewRuleModal.Edit.rule)
-        console.log('bTEMPLATE THING', state.view.Modals.NewRuleModal.Edit.template)
+        console.log(data.key, data.values);
+        state.view.Modals.NewRuleModal.Edit.rule[data.key].values = data.values;
+        console.log('RULE', state.view.Modals.NewRuleModal.Edit.rule);
       },
     },
     FileDetailsModal: {
