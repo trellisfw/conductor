@@ -27,17 +27,21 @@ export default {
       },
       newRuleSelected({state, actions}, rule) {
         console.log('new rule selected', rule);
-        state.view.Modals.NewRuleModal.Edit = {rule};
+        state.view.Modals.NewRuleModal.Edit = {template: _.cloneDeep(rule), rule};
         state.view.Modals.NewRuleModal.page = 'Edit';
       },
       doneClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
+        actions.rules.createRule();
       },
       cancelClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
       },
-      textChanged({state, actions}, index, item, evt) {
-        console.log(index, item, evt);
+      textChanged({state, actions}, data) {
+        console.log(data)
+        state.view.Modals.NewRuleModal.Edit.rule[data.index] = data.value;
+        console.log('aTEMPLATE THING', state.view.Modals.NewRuleModal.Edit.rule)
+        console.log('bTEMPLATE THING', state.view.Modals.NewRuleModal.Edit.template)
       },
     },
     FileDetailsModal: {
@@ -81,7 +85,6 @@ export default {
     }
   },
   Pages: {
-    
     Data: {
       Dropzone: {
         filesDropped({ state, actions }, files) {

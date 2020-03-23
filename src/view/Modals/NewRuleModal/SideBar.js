@@ -10,8 +10,9 @@ function SideBar (props) {
   const {state, actions} = overmind();
   let myActions = actions.view.Modals.NewRuleModal;
   let myState = state.view.Modals.NewRuleModal.List;
+  let templates = state.rules.templates;
   let categories = _.clone(myState.categories);
-  myState.rules.rules.forEach(r => categories.push(...r.categories))
+  Object.values(templates).forEach(r => categories.push(...r.categories))
   categories = _.uniq(categories);
 
   return (

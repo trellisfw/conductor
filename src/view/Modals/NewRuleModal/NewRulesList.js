@@ -8,9 +8,8 @@ import _ from 'lodash'
 
 function NewRulesList(props) {
   const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal.List;
+  let templates = state.rules.templates;
   let myActions = actions.view.Modals.NewRuleModal;
-  let newRules = myState.rules.rules;
   let pattern = /(input[0-9]+)/g;
 
   return (
@@ -22,7 +21,7 @@ function NewRulesList(props) {
         flex-wrap: wrap;
       `}
     >
-    {newRules.map((r, j) => 
+    {Object.values(templates).map((r, j) => 
         <div
           onClick={(evt) => {myActions.newRuleSelected(r)}}
           key={'newrulecard'+j}

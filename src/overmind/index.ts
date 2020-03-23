@@ -9,13 +9,17 @@ import * as oada from './oada'
 import * as urls from './urls'
 import * as view from './view'
 import * as login from './login'
+import * as rules from './rules'
+import * as partners from './partners'
 
 export const config = namespaced({
   app: app('app'),
   oada,
   urls,
   view,
-  login
+  login,
+  rules,
+  partners,
 })
 
 declare module 'overmind' {

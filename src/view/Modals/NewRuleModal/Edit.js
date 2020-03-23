@@ -6,32 +6,38 @@ import { jsx, css } from '@emotion/core'
 import overmind from '../../../overmind'
 import moment from 'moment'
 import ReactJson from 'react-json-view'
-import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
+import Chip from '@material-ui/core/Chip'
 import { Button } from 'semantic-ui-react'
+import { Dropdown } from 'semantic-ui-react'
 
 function Blank (props) {
   const {state, actions} = overmind();
   let myState = state.view.Modals.NewRuleModal;
   let myActions = actions.view.Modals.NewRuleModal;
   let rule = myState.Edit.rule;
-  let lists = myState.List;
+  let template = myState.Edit.template;
+  console.log('ITEM', props.item)
+  console.log('VALUE', template[props.item])
+  console.log('LIST', state.rules[template[props.item]]);
+  let list = state.rules[template[props.item]];
 
   return (
-    <Autocomplete
+    <Dropdown
+      fluid
+      search
+      selection
+      multiple
       style={{
         fontFamily: 'bold',
         width: 'fit-content',
       }}
-      options={lists.rules[rule[props.item]].enum}
-      autoHighlight
+      options={list.map(i => ({key: i, text: i, value:i}))}
       value={rule[props.item]}
-      onChange={(evt) => {
-        myActions.textChanged(props.index,props.item, evt)
+      placeholder={`E.g., ${list[0]}`}
+      onChange={(evt, data) => {
+        myActions.textChanged({value: data.value, index:props.item})
       }}
-      renderInput={params => (
-        <TextField {...params} style={{width:'fit-content'}}/>
-      )}
     /> 
   )
 }

@@ -12,10 +12,6 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "@trellisfw/signatures": "^2.1.0",
-    "@types/jest": "^25.1.4",
-    "@types/node": "^13.9.0",
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5",
     "addressbar": "^1.0.3",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
@@ -23,9 +19,11 @@
     "concurrently": "^5.1.0",
     "gh-pages": "^2.2.0",
     "hash.js": "^1.1.7",
+    "jsonschema8": "^1.0.1",
     "lodash": "^4.17.15",
     "minimist": "^1.2.0",
     "moment": "^2.24.0",
+    "nconf": "^0.10.0",
     "overmind": "^21.0.0",
     "overmind-devtools": "^22.0.0",
     "overmind-react": "^22.0.0",
@@ -39,7 +37,15 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.2",
     "superagent": "^5.2.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.0",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@types/uuid": "^7.0.2"
   },
   "scripts": {
     "predeploy": "npm run build",

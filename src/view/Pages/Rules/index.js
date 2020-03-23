@@ -9,7 +9,8 @@ import overmind from '../../../overmind'
 function Rule(props) {
   const {state, actions} = overmind()
   const myActions = actions.view.Pages.Rules;
-  const r = state.view.Pages.Rules.rules[props.id];
+  const myState = state.view.Pages.Rules;
+  const r = myState.rules[props.id];
   const pattern = /(input[0-9]+)/g;
   
   return (
@@ -31,7 +32,7 @@ function Rule(props) {
       <p key={'current-rule-'+props.id}>
          {r.text.split(pattern).map((item, i) => 
            pattern.test(item) ? 
-           <b key={props.id+'-boldword-'+i}>{r[item]}</b> 
+           <b key={props.id+'-boldword-'+i}>{r[item].join(', ')}</b> 
            :
            item
          )}
