@@ -13,7 +13,6 @@ import ProcessingIcon from './icons/ProcessingIcon'
 import SignedIcon from './icons/SignedIcon'
 import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
-import OADAMask from '../../OADAMask'
 import Fuse from 'fuse.js'
 
 function Table () {
@@ -37,7 +36,13 @@ function Table () {
         } else {
           const failed = _.find(statuses, { status: 'error' })
           if (failed != null) {
-            fileDetails.type = 'Unknown'
+            if (_.get(document, 'audits') != null) {
+              fileDetails.type = 'Audit'
+            } else if (_.get(document, 'cois') != null) {
+              fileDetails.type = 'COI'
+            } else {
+              fileDetails.type = 'Unknown'
+            }
             fileDetails.format = 'Unknown'
             return false
           }
@@ -64,14 +69,6 @@ function Table () {
       if (signatures.length == 0)
         signatures =
           _.chain(document)
-            .get('audits-masked')
-            .values()
-            .get(0)
-            .get('signatures')
-            .value() || []
-      if (signatures.length == 0)
-        signatures =
-          _.chain(document)
             .get('cois')
             .values()
             .get(0)
@@ -80,15 +77,7 @@ function Table () {
 
       // Get masked location
       var masked = false;
-      if (_.get(document, 'unmask') != null) {
-        masked = _.chain(document)
-          .get('audits')
-          .values()
-          .get(0)
-          .get('organization')
-          .get('location')
-          .value();
-      }
+      if (_.get(document, 'unmask') != null) masked = true;
 
       return {
         documentKey: documentKey,

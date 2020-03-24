@@ -8,8 +8,8 @@ import Organization from './Organization'
 import Scope from './Scope'
 import Score from './Score'
 import Validity from './Validity'
-import Unmask from './Unmask'
-import Masks from './Masks'
+import Unmask from '../common/Unmask'
+import Masks from '../common//Masks'
 
 function Audit (props) {
   const { audit, document } = props

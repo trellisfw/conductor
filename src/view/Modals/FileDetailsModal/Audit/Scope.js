@@ -26,7 +26,7 @@ function Scope (props) {
           }
         `}>
         {
-          _.map(audit.scope.products_observed, (p, idx) => (
+          _.map(_.get(audit, 'scope.products_observed'), (p, idx) => (
             <Chip key={idx} label={p.name} />
           ))
         }

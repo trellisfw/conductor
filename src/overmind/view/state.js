@@ -44,7 +44,7 @@ export default {
       },
       share: ({ document }, state) => {
         return (
-          _.chain(state)
+          _.chain(document)
             .get(`_meta.services.approval.tasks`)
             .value() || {}
         )

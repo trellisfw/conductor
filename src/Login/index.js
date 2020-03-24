@@ -28,14 +28,18 @@ function Login() {
       background-size: cover;
     `}>
       <div css={css`
-        width: 250px;
+        width: 275px;
         display: flex;
         flex-direction: column;
+        background: #fff;
+        padding: 15px;
+        padding-top: 7px;
+        border-radius: 5px;
       `}>
         <img css={{
           height: logo.height,
           marginBottom: 25
-        }} src={`skins/${appState.skin}/${logo.src}`} alt="logo" />
+        }} src={`skins/${appState.skin}/${logo.src}`} alt={logo.alt || 'logo'} />
         <Form css={css`
           display: flex;
           flex-direction: column;

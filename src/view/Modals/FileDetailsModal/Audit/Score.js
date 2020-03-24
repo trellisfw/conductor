@@ -3,6 +3,7 @@ import React from 'react'
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 import { Icon, Table } from 'semantic-ui-react'
+import _ from 'lodash';
 
 function Score (props) {
   const { audit } = props
@@ -13,19 +14,19 @@ function Score (props) {
       </Table.Cell>
       <Table.Cell>
       {
-        `${audit.score.final.value} `
+        `${_.get(audit, 'score.final.value', 'Unknown')} `
       }
-      {!audit.score.rating ? (
+      {!_.get(audit, 'score.rating') ? (
         ''
       ) : (
         <span
           style={{
-            color: audit.score.rating.match(/(good|excellent)/i)
+            color: _.get(audit, 'score.rating', '').match(/(good|excellent)/i)
               ? 'green'
               : 'red'
           }}
         >
-          ({audit.score.rating.trim()})
+          ({_.get(audit, 'score.rating', 'Unknown').trim()})
         </span>
       )}
       </Table.Cell>

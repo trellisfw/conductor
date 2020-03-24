@@ -12,6 +12,7 @@ function Masks (props) {
   const myActions = actions.view.Modals.FileDetailsModal;
   const { document } = props;
   if (!document.masks) return null;
+  let maskNumber = 0;
   return (
     <Table.Row>
       <Table.Cell collapsing css={{fontWeight: 'bold'}}>
@@ -31,9 +32,10 @@ function Masks (props) {
         `}>
         {
           _.map(document.masks, (d, idx) => {
+            maskNumber++;
             let resourceId = d._id;
             return (
-              <Chip key={idx} label={'Masked Copy'} onClick={() => myActions.showDocument({resourceId})} />
+              <Chip key={idx} label={`Masked Copy ${String.fromCharCode(64 + maskNumber)}`} onClick={() => myActions.showDocument({resourceId})} />
             )
           })
         }

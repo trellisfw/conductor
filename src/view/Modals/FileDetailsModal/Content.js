@@ -8,7 +8,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ReactJson from 'react-json-view'
 import Audit from './Audit'
-import MaskedAudit from './MaskedAudit'
 import CoI from './CoI'
 
 function Content (props) {
@@ -79,7 +78,7 @@ function Content (props) {
             myActions.toggleShowData(_.get(myState, 'documentKey'))
           }
         >
-          {'VIEW DATA'}
+          {myState.showData ? 'HIDE DATA' : 'VIEW DATA'}
         </div>
       </div>
     </div>
