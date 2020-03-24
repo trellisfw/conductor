@@ -9,8 +9,6 @@ This is the UI for managing the Trellis conductor service
 
 ## Building
 ```bash
-npm install 
-npm run start
+yarn 
+yarn run start
 ```
-
-
