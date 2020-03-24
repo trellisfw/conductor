@@ -17,6 +17,7 @@ function Sharing(props) {
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
     if (type == 'shareWf') type = 'Trellis';
+    if (type == 'ift') type = 'IBM Food Trust';
     return {
       key,
       text: `${share['partner']} - ${type}`,
@@ -30,7 +31,8 @@ function Sharing(props) {
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
     if (type == 'shareWf') type = 'Trellis';
-    if (share.status == 'approved') return `${share['partner']} - ${type}`;
+    if (type == 'ift') type = 'IBM Food Trust';
+    if (share.status == 'approved') return `${share['with']} - ${type}`;
   }).compact().value();
   return (
     <div css={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>

@@ -1,6 +1,6 @@
 module.exports = {
   "logo": {
-    src: "logo.png",
+    src: "logo.svg",
     height: 60,
   },
   "loginBackground": "login-background.jpg",
