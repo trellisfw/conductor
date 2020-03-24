@@ -4,10 +4,13 @@ import React from 'react';
 import { jsx, css } from '@emotion/core'
 
 import { Input, Button, Icon  } from 'semantic-ui-react'
+import overmind from '../../../overmind'
 
 import 'semantic-ui-css/semantic.min.css'
 
 function TopBar() {
+  const { actions } = overmind();
+  const myActions = actions.view.Pages.Data;
   return (
     <div css={css`
       display: flex;
@@ -30,9 +33,10 @@ function TopBar() {
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
         <div css={{fontSize: 27, marginRight: 15}}>{'Data'}</div>
-        <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}} />
+        <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}}
+          onChange={(evt) => myActions.onSearch(evt.target.value)} />
       </div>
-      <Button icon>
+      <Button icon onClick={()=>myActions.openFileBrowser()}>
         <Icon  name='plus' />
         <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Add</span>
       </Button>

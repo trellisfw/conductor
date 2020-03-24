@@ -10,28 +10,24 @@ import _ from 'lodash'
 function MyHeader (props) {
   const { state } = overmind()
   const myState = state.view.Modals.FileDetailsModal
+  let title = 'Unknown Document Type';
   if (myState.audit != null && _.keys(myState.audit).length > 0) {
-    return (
-      <Header>FSQA Audit: {_.get(myState, 'audit.organization.name')}</Header>
-    )
-  } else if (
-    myState['audit-masked'] != null &&
-    _.keys(myState['audit-masked']).length > 0
-  ) {
-    return (
-      <Header>
-        Masked FSQA Audit: {_.get(myState, 'audit.organization.name')}
-      </Header>
-    )
-  } else if (myState.coi != null) {
-    return (
-      <Header>
-        Certificate of Insurance: {_.get(myState, 'coi.producer.name')}
-      </Header>
-    )
-  } else {
-    return <Header>{'Unknown File'}</Header>
+    title = `FSQA Audit`;
+  } else if (myState.coi != null && _.keys(myState.coi).length > 0) {
+    title = `Certificate of Insurance`;
   }
+  return (
+    <Header>
+      <div css={{display: 'flex', justifyContent: 'space-between'}}>
+        <div>{title}</div>
+        <div css={{color: 'red', fontWeight: 'bold'}}>
+          {
+            (myState.document && myState.document.unmask) ? 'MASKED' : null
+          }
+        </div>
+      </div>
+    </Header>
+  )
 }
 
 export default MyHeader
