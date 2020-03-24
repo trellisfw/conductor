@@ -42,7 +42,7 @@ export default {
    let resource = await actions.oada.put({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
       url: `/resources/${id}`,
-      data: share, 
+      data: share,
     })
 
     let _id = resource.headers['content-location'].replace(/^\//, '');
@@ -65,7 +65,7 @@ export default {
   },
 
   async loadShares({state, actions}) {
-   let response = await actions.oada.get(SHARES_PATH);
+    let response = await actions.oada.get(SHARES_PATH);
     Object.keys(response.data)
       .filter(key => key.charAt(0) !== '_')
       .forEach(async (key) => {
@@ -81,7 +81,7 @@ export default {
   },
 
   locationStringsFromShare({state, actions}, share) {
-    return share.locations.map((location) => 
+    return share.locations.map((location) =>
       (_.find(state.rules.Location, location)).name
     )
   },
@@ -106,6 +106,6 @@ export default {
     })
 
     // Set the state
-    state.rules.rules[key] = rule; 
+    state.rules.rules[key] = rule;
   }
 }

@@ -17,12 +17,12 @@ function List (props) {
         flex: 1,
         display: 'flex',
         flexDirection: 'row',
+        alignItems: 'start'
       }}
     >
-      <SideBar />
       <NewRulesList />
     </div>
   )
 }
 
-export default List 
+export default List

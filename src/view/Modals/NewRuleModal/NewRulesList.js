@@ -18,27 +18,27 @@ function NewRulesList(props) {
         flex-wrap: wrap;
       `}
     >
-    {Object.values(templates).map((r, j) => 
+    {Object.values(templates).map((r, j) =>
         <div
           onClick={(evt) => {myActions.newRuleSelected(r)}}
           key={'newrulecard'+j}
           css={css`
             display: flex;
-            border: 1px solid #000000;
-            border-radius: 5px;
-            box-shadow: 2px 2px 2px #555555;
-            margin: 5px;
-            padding: 5px;
+            box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px;
+            cursor: pointer;
           `}>
-        <p>
-          {r.text.split(pattern).map((item, j) => 
-            pattern.test(item) ? 
-              <b key={`newrule-${j}-boldword-${j}`}>{r[item].text}</b> 
-              : 
+        <div>
+          {r.text.split(pattern).map((item, j) =>
+            pattern.test(item) ?
+              <b key={`newrule-${j}-boldword-${j}`}>{r[item].text}</b>
+              :
               item
             )
           }
-        </p>
+        </div>
       </div>
       )}
     </div>
