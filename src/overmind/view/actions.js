@@ -43,9 +43,10 @@ export default {
       },
       textChanged({state, actions}, result) {
         console.log(result);
-        let obj = {}
-        result.values.forEach(v => obj[v.key] = v);
-        state.view.Modals.NewRuleModal.Edit.rule[result.key].values = obj;
+        let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
+        let list = state.rules[type];
+        let values = result.values.map((key) => list[key])
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
       },
     },
     FileDetailsModal: {

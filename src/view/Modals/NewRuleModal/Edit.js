@@ -13,10 +13,11 @@ function Blank (props) {
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
   let type = template[props.item].type;
-  console.log(type);
   let list = json(state.rules[type]);
+  console.log('ITEM', props.item)
+  console.log('RULE', rule[props.item])
+  console.log('VALUES', rule[props.item].values)
 
-  console.log("LIST", list);
   return (
     <Dropdown
       fluid
@@ -27,11 +28,11 @@ function Blank (props) {
         fontFamily: 'bold',
         width: 'fit-content',
       }}
-      options={list.map(i => ({key: i.name, text: i.name, value:i.name}))}
-      value={Object.values(rule[props.item].values)}
+      options={Object.values(list).map(i => ({key: i.key, text: i.name, value:i.key}))}
+      value={Object.values(rule[props.item].values).map(v => v.key)}
       placeholder={`E.g., ${Object.values(list)[0].name}`}
       onChange={(evt, data) => {
-        myActions.textChanged({values: data.value, key:props.item})
+        myActions.textChanged({values: data.value, key:props.item, data})
       }}
     /> 
   )

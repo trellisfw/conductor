@@ -9,28 +9,29 @@ export default {
   templates: {
     temp0: {
       id: 'temp0',
-      text: "When an Audit from input0 has a location of input1 and a product of input2, sync it to Food LogiQ.",
-      input0: {
+      text: "When an audit has a location of input0 and a product of input1, sync it to input2 via Food LogiQ.",
+      input2: {
         text: 'Partner',
         type: 'partners',
         values: [],
       },
-      input1: {
+      input0: {
         text: 'Location',
         type: 'locations',
         values: [],
       },
-      input2: {
+      input1: {
         text: 'Product',
         type: 'products',
         values: [],
       },
       categories: ['FSQA', 'PII'],
       share: {
+        template: 'temp0',
         type: 'fl',
-        partners: 'input0',
-        locations: 'input1',
-        products: 'input2', 
+        locations: 'input0',
+        products: 'input1', 
+        partners: 'input2',
         shares: {
           [FL_BUSINESS_ID]: {
             communities: []
@@ -40,28 +41,23 @@ export default {
     },
     temp1: {
       id: 'temp1',
-      text: "When an Audit from input0 has a location of input1 and a product of input2, sync it to IBM Food Trust.",
+      text: "When an audit a location of input0 and a product of input1, sync it to IBM Food Trust.",
       input0: {
-        text: 'Partner',
-        type: 'partners',
-        values: [],
-      },
-      input1: {
         text: 'Location',
         type: 'locations',
         values: [],
       },
-      input2: {
+      input1: {
         text: 'Product',
         type: 'products',
         values: [],
       },
       categories: ['FSQA', 'PII'],
       share: {
+        template: 'temp1',
         type: 'ift',
-        partners: 'input0',
-        locations: 'input1',
-        products: 'input2', 
+        locations: 'input0',
+        products: 'input1', 
       }
     },
     temp2: {
@@ -84,6 +80,7 @@ export default {
       },
       categories: ['FSQA', 'PII'],
       share: {
+        template: 'temp2',
         type: 'email',
         locations: 'input0',
         products: 'input1', 
@@ -110,7 +107,7 @@ export default {
       _.chain(state.partners)
       .map(partner =>
         _.values(partner.locations || {}).map(location => 
-          _.assign({}, location, {partner})
+          _.assign({}, location, {partner: partner.key })
         ).map(location =>
           _.assign(location, {key: md5(JSON.stringify(location))})
         )

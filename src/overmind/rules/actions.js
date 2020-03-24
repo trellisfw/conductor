@@ -4,12 +4,17 @@ import {json} from 'overmind'
 import _ from 'lodash';
 import config from './config'
 
+const pattern = /(input[0-9]+)/g;
+
 const SHARES_PATH = config.get('shares_path')
 
-async function processShare(state, rule, share) {
+function processShare(state, rule, share) {
   share.text = rule.text;
+  console.log('PROCESS', rule);
+  console.log('PROCESS SHARE', share);
 
   if (share.products) {
+    console.log('products here', share.products, rule[share.products]);
     share.products = rule[share.products].values;
   }
 
@@ -19,6 +24,10 @@ async function processShare(state, rule, share) {
 
   if (share.emails) {
     share.emails = rule[share.emails].values;
+  }
+
+  if (share.partners) {
+    share.partners = rule[share.partners].values;
   }
 
   return share
@@ -49,89 +58,54 @@ export default {
   async createShare({state, actions}) {
     let rule = json(state.view.Modals.NewRuleModal.Edit.rule);
     let share = rule.share;
-    if (share.partners) {
-      let partners = rule[share.partners].values;
-      delete share.partners;
-      partners.forEach(async (partner) => {
-        let newShare = _.cloneDeep(share);
-        newShare.partner = partner;
-        newShare = await processShare(state, rule, newShare);
-        console.log(newShare);
-//        await actions.rules.putShare(newShare);
-      })
-    } else {
-      let newShare = _.cloneDeep(share);
-      newShare = await processShare(state, rule, newShare);
-      console.log(newShare);
-//      await actions.rules.putShare(newShare);
-    }
+    let newShare = _.cloneDeep(share);
+    newShare = processShare(state, rule, newShare);
+    console.log('NEW SHARE', newShare);
+    await actions.rules.putShare(newShare);
   },
+
   async loadShares({state, actions}) {
    let response = await actions.oada.get(SHARES_PATH);
-    Object.keys(response.data).filter(key => key.charAt(0) !== '_').forEach(async (key) => {
-      let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
-      actions.rules.mapShare({key, share: shareResponse.data});
-    })
+    Object.keys(response.data)
+      .filter(key => key.charAt(0) !== '_')
+      .forEach(async (key) => {
+        console.log('what do we have ', key)
+        let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
+        console.log('shareresponse', shareResponse);
+        actions.rules.mapShare({key, share: shareResponse.data});
+      })
   },
 
   async initialize({state, actions}) {
-  //  await actions.rules.loadShares();
+    await actions.rules.loadShares();
   },
 
   locationStringsFromShare({state, actions}, share) {
-    console.log(share)
     return share.locations.map((location) => 
       (_.find(state.rules.Location, location)).name
     )
   },
 
   async mapShare({state, actions}, obj) {
+    // Get the template and apply the share to it
     let key = obj.key;
     let share = obj.share;
-    if (share.type === 'ift') {
-      share['input0'] = {
-        type: 'Partner',
-        values: [share.partner]
-      }
-      share['input1'] = {
-        type: 'Location',
-        values: actions.rules.locationStringsFromShare(share),
-      }
-      share['input2'] = {
-        type: 'Product',
-        values: share.products,
-      }
-      state.rules.rules[key] = share;
-    }
-    if (share.type === 'fl') {
-      share['input0'] = {
-        type: 'Partner',
-        values: [share.partner]
-      }
-      share['input1'] = {
-        type: 'Location',
-        values: actions.rules.locationStringsFromShare(share),
-      }
-      share['input2'] = {
-        type: 'Product',
-        values: share.products,
-      }
-      state.rules.rules[key] = share;
-    }
-    if (share.type === 'email') {
-      share['input0'] = {
-        type: 'Location',
-        values: actions.rules.locationStringsFromShare(share),
-      }
-      share['input1'] = {
-        type: 'Product',
-        values: share.products,
-      }
-      share['input2'] = {
-        type: 'Email',
-        values: share.emails
-      }
-      state.rules.rules[key] = share;
-    }
+    let templateId = share.template;
+    console.log('t id', templateId);
+    let template = json(state.rules.templates[templateId]);
+    console.log('temp', template);
+    let rule = _.cloneDeep(template);
+
+    // Fill out the inputs
+    _.keys(template.share).filter(key =>
+      /^input/.test(template.share[key])
+//      pattern.test(template.share[key])
+    ).forEach(key => {
+      console.log('FILLING OUT', key, template.share[key], share[key])
+      rule[template.share[key]].values = share[key]
+    })
+
+    // Set the state
+    state.rules.rules[key] = rule; 
   }
 }

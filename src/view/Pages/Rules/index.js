@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
@@ -30,7 +31,7 @@ function Rule(props) {
       <p key={'current-rule-'+props.id}>
          {props.rule.text.split(pattern).map((item, i) =>
            pattern.test(item) ? 
-           <b key={props.id+'-boldword-'+i}>{props.rule[item].values.join(', ')}</b> 
+           <b key={props.id+'-boldword-'+i}>{_.values(props.rule[item].values).map(o => o.name).join(', ')}</b> 
            :
            item
          )}
