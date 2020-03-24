@@ -41,7 +41,7 @@ export default {
     },
     temp1: {
       id: 'temp1',
-      text: "When an audit a location of input0 and a product of input1, sync it to IBM Food Trust.",
+      text: "When an audit has a location of input0 and a product of input1, sync it to IBM Food Trust.",
       input0: {
         text: 'Location',
         type: 'locations',

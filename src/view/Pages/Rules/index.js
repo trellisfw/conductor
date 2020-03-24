@@ -37,7 +37,19 @@ function Rule(props) {
         `}>
          {props.rule.text.split(pattern).map((item, i) =>
            pattern.test(item) ? 
-           <b key={props.id+'-boldword-'+i}>{_.values(props.rule[item].values).map(o => o.name).join(', ')}</b> 
+           <b key={props.id+'-boldword-'+i}>{(() => {
+             let vals = _.values(props.rule[item].values).map(o => o.name)
+             return vals.length > 2 ?
+               (vals.slice(0,vals.length-1)).join(', ')+', or '+vals[vals.length-1]
+               :
+               vals.length > 1 ?
+                 vals.join(' or ')
+                 :
+                 vals.length === 1 ?
+                   vals
+                   :
+                   'Any'
+           })()}</b> 
            :
            item
          )}
