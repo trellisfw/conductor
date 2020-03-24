@@ -1,72 +1,42 @@
 import {shareToRules} from './shareRule';
+import md5 from 'md5'
 import {json} from 'overmind'
 import _ from 'lodash';
 import config from './config'
 
-const TOKEN = config.get('token')
-const DOMAIN = config.get('domain')
-const RULES_PATH = config.get('rules_path')
-const RULES_TREE = config.get('rules_tree')
-const DOCUMENTS_TREE = config.get('documents_tree')
-const TASKS_TREE = config.get('tasks_tree')
+const SHARES_PATH = config.get('shares_path')
 
 async function processShare(state, rule, share) {
-  let partner = share.partner;
-  let partnerObj = json(state.partners[partner]);
-  console.log(partner);
+  share.text = rule.text;
 
   if (share.products) {
     share.products = rule[share.products].values;
-    let newProducts = _.cloneDeep(share.products);
-    share.products.forEach((p) => {newProducts.push(p.toLowerCase())})
   }
 
   if (share.locations) {
-    let locations = rule[share.locations].values;
-    console.log('partner', partnerObj);
-    share.locations = locations.map((l) => partnerObj.locations[l]);
+    share.locations = rule[share.locations].values;
   }
 
-  if (share.email) {
-    share.email = partnerObj.email
+  if (share.emails) {
+    share.emails = rule[share.emails].values;
   }
 
   return share
 }
 
 export default {
-  async ensureJobQueue({state, actions}, destination) {
-    console.log(destination);
+  async putShare({state, actions}, share) {
+   let id = md5(JSON.stringify(share));
+   let path = `${SHARES_PATH}/${id}`;
 
-    let putesponse = await actions.oada.put({
-      
-    })
 
-  },
-
-  async putRule({state, actions}, rule) {
-   let path = `${RULES_PATH}/${rule.id}`;
-
-    console.log('PUTRULE', path)
-
-    let deleteResponse = await actions.oada.delete({
+   let resource = await actions.oada.put({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
-      url: path
+      url: `/resources/${id}`,
+      data: share, 
     })
 
-   let postResponse = await actions.oada.post({
-      headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
-      url: `/resources`,
-      data: rule
-    })
-
-    let _id = postResponse.headers['content-location'].replace(/^\//, '');
-
-    console.log('sending this:', {
-      headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
-      url: path,
-      data: {_id, _rev: 0}
-    })
+    let _id = resource.headers['content-location'].replace(/^\//, '');
 
     let putResponse = await actions.oada.put({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
@@ -76,24 +46,92 @@ export default {
     return
   },
 
-  async createRules({state, actions}) {
+  async createShare({state, actions}) {
     let rule = json(state.view.Modals.NewRuleModal.Edit.rule);
     let share = rule.share;
-    let partners = rule[share.partners].values;
-    console.log(share);
-    delete share.partners;
-    partners.forEach(async (partner) => {
+    if (share.partners) {
+      let partners = rule[share.partners].values;
+      delete share.partners;
+      partners.forEach(async (partner) => {
+        let newShare = _.cloneDeep(share);
+        newShare.partner = partner;
+        newShare = await processShare(state, rule, newShare);
+        console.log(newShare);
+//        await actions.rules.putShare(newShare);
+      })
+    } else {
       let newShare = _.cloneDeep(share);
-      newShare.partner = partner;
       newShare = await processShare(state, rule, newShare);
-      console.log('createRule share', newShare);
-      let rules = await shareToRules(newShare);
-      console.log('createRule rules', rules);
-      for (const rule of rules) {
-  //      await actions.rules.ensureJobQueue(rule.destination);
-        console.log('rule', rule, RULES_PATH+'/'+rule.id)
-  //      await actions.rules.putRule(rules);
-      }
+      console.log(newShare);
+//      await actions.rules.putShare(newShare);
+    }
+  },
+  async loadShares({state, actions}) {
+   let response = await actions.oada.get(SHARES_PATH);
+    Object.keys(response.data).filter(key => key.charAt(0) !== '_').forEach(async (key) => {
+      let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
+      actions.rules.mapShare({key, share: shareResponse.data});
     })
+  },
+
+  async initialize({state, actions}) {
+  //  await actions.rules.loadShares();
+  },
+
+  locationStringsFromShare({state, actions}, share) {
+    console.log(share)
+    return share.locations.map((location) => 
+      (_.find(state.rules.Location, location)).name
+    )
+  },
+
+  async mapShare({state, actions}, obj) {
+    let key = obj.key;
+    let share = obj.share;
+    if (share.type === 'ift') {
+      share['input0'] = {
+        type: 'Partner',
+        values: [share.partner]
+      }
+      share['input1'] = {
+        type: 'Location',
+        values: actions.rules.locationStringsFromShare(share),
+      }
+      share['input2'] = {
+        type: 'Product',
+        values: share.products,
+      }
+      state.rules.rules[key] = share;
+    }
+    if (share.type === 'fl') {
+      share['input0'] = {
+        type: 'Partner',
+        values: [share.partner]
+      }
+      share['input1'] = {
+        type: 'Location',
+        values: actions.rules.locationStringsFromShare(share),
+      }
+      share['input2'] = {
+        type: 'Product',
+        values: share.products,
+      }
+      state.rules.rules[key] = share;
+    }
+    if (share.type === 'email') {
+      share['input0'] = {
+        type: 'Location',
+        values: actions.rules.locationStringsFromShare(share),
+      }
+      share['input1'] = {
+        type: 'Product',
+        values: share.products,
+      }
+      share['input2'] = {
+        type: 'Email',
+        values: share.emails
+      }
+      state.rules.rules[key] = share;
+    }
   }
 }

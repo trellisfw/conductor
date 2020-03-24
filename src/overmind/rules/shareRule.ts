@@ -216,7 +216,7 @@ export function * shareToRules(sh: Share) {
         }
       }
       break
-    case 'fl':
+    case 'ift':
       // Rule to send approved audits to IFT (temporary?)
       yield {
         id: `${i}-approved-audits-to-ift`,
@@ -293,6 +293,8 @@ export function * shareToRules(sh: Share) {
           }
         }
       }
+      break
+    case 'fl':
       // Rule to send approved audits to Foodlogic
       yield {
         id: `${i}-approved-audits-to-fl`,

@@ -15,101 +15,91 @@ export default {
     state.oada.data.documents = {}
     delete window.localStorage[lsKey(state.oada.url)]
   },
-  login ({ state, actions }) {
+  async login ({ state, actions }) {
     /*
       Connect to my OADA instance
     */
-    return Promise.try(() => {
+    let token;
+    try {
       if (window.localStorage[lsKey(state.oada.url)]) {
         console.log(
           'Already have a token for URL ' + state.oada.url + ', logout to clear'
         )
-        return window.localStorage[lsKey(state.oada.url)]
-      }
-      // If we don't have a token stored from last time, we'll need to
-      // redirect browser to ask for one
-      console.log('Do not have an access token, redirecting...')
-      return getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
-        metadata: config.oada.devcert,
-        scope: 'all:all',
-        redirect: config.oada.redirect
-      })
-        .then(res => res.access_token)
-        .catch(err => {
-          state.login.error =
-            'Failed to redirect to ' + state.oada.url + ' for connection'
-          console.log('FAILED TO GET ACCESS TOKEN: err = ', err)
-          return false
+        token = window.localStorage[lsKey(state.oada.url)]
+      } else {
+        // If we don't have a token stored from last time, we'll need to
+        // redirect browser to ask for one
+        console.log('Do not have an access token, redirecting...')
+        let res = await getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
+          metadata: config.oada.devcert,
+          scope: 'all:all',
+          redirect: config.oada.redirect
         })
+        token = res.access_token
+      }
+    } catch (err) {
+      state.login.error =
+        'Failed to redirect to ' + state.oada.url + ' for connection'
+      console.log('FAILED TO GET ACCESS TOKEN: err = ', err)
+      token = false;
+    }
 
-      // Have a token now, make sure it's saved to localStorage until we logout:
-    })
-      .then(token => {
-        if (token) window.localStorage[lsKey(state.oada.url)] = token
-        state.oada.token = token
-        console.log('Have token, connecting to oada...')
-        return actions.oada.connect()
+    // Have a token now, make sure it's saved to localStorage until we logout:
+    if (token) window.localStorage[lsKey(state.oada.url)] = token
+    state.oada.token = token
+    console.log(token);
+    console.log('Have token, connecting to oada...')
+    let result = await actions.oada.connect()
+    console.log('Websocket connected, checking resources...')
+    //Create /trellisfw if it does not exist
+    let exists = await actions.oada
+      .doesResourceExist('/bookmarks/trellisfw')
+    if (!exists) {
+      console.log('/bookmarks/trellisfw does not exist.  Creating...')
+      //Create /trellisfw
+      await actions.oada.createAndPutResource({
+        url: '/bookmarks/trellisfw',
+        data: {}
       })
-      .then(result => {
-        console.log('Websocket connected, checking resources...')
-        //Create /trellisfw if it does not exist
-        return actions.oada
-          .doesResourceExist('/bookmarks/trellisfw')
-          .then(exists => {
-            if (!exists) {
-              console.log('/bookmarks/trellisfw does not exist.  Creating...')
-              //Create /trellisfw
-              return actions.oada.createAndPutResource({
-                url: '/bookmarks/trellisfw',
-                data: {}
-              })
-            }
-          })
-          .then(() => {
-            //Create /trellisfw/documents if it does not exist
-            return actions.oada
-              .doesResourceExist('/bookmarks/trellisfw/documents')
-              .then(exists => {
-                if (!exists) {
-                  //Create documents
-                  return actions.oada.createAndPutResource({
-                    url: '/bookmarks/trellisfw/documents',
-                    data: {},
-                    contentType: 'application/vnd.trellisfw.documents.1+json'
-                  })
-                }
-              })
-          })
+    }
+
+    //Create /trellisfw/documents if it does not exist
+    exists = await actions.oada
+      .doesResourceExist('/bookmarks/trellisfw/documents')
+    if (!exists) {
+      //Create documents
+      await actions.oada.createAndPutResource({
+        url: '/bookmarks/trellisfw/documents',
+        data: {},
+        contentType: 'application/vnd.trellisfw.documents.1+json'
       })
-      .then(() => {
-        console.log('Setting watches...')
-        //Watch for changes to /trellisfw/documents
-        return actions.oada
-          .watch({
-            url: '/bookmarks/trellisfw/documents',
-            actionName: 'oada.onDocumentsChange'
-          })
-          .then(() => {
-            //Get all the documents ids in /trellisfw/documents
-            return actions.oada
-              .get('/bookmarks/trellisfw/documents')
-              .then(response => {
-                let docKeys = _.filter(
-                  Object.keys(response.data),
-                  key => _.startsWith(key, '_') === false
-                )
-                //Load each of the documents
-                return Promise.map(
-                  docKeys,
-                  key => {
-                    //Load the documents
-                    return actions.oada.loadDocument(key)
-                  },
-                  { concurrency: 5 }
-                )
-              })
-          })
+    }
+
+    console.log('Setting watches...')
+    //Watch for changes to /trellisfw/documents
+    await actions.oada
+      .watch({
+        url: '/bookmarks/trellisfw/documents',
+        actionName: 'oada.onDocumentsChange'
       })
+
+    //Get all the documents ids in /trellisfw/documents
+    let response = await actions.oada
+      .get('/bookmarks/trellisfw/documents')
+    let docKeys = _.filter(
+      Object.keys(response.data),
+      key => _.startsWith(key, '_') === false
+    )
+
+      //Load each of the documents
+    docKeys.forEach(
+      async key => {
+        //Load the documents
+        await actions.oada.loadDocument(key)
+      },
+//      { concurrency: 5 }
+    )
+    actions.rules.initialize()
   },
 
   uploadFile ({ state, actions }, file) {
@@ -465,6 +455,20 @@ export default {
       ),
       data: data
     })
+  },
+  del ({ effects, state }, {url, headers, data }) {
+    return effects.oada.websocket.http({
+      method: 'DELETE',
+      url: url,
+      headers: _.merge(
+        {
+          Authorization: 'Bearer ' + state.oada.token
+        },
+        headers
+      ),
+      data: data
+    })
+
   },
   put ({ effects, state }, { url, headers, data }) {
     return effects.oada.websocket.http({

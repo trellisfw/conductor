@@ -7,10 +7,8 @@ import TopBar from './TopBar';
 import overmind from '../../../overmind'
 
 function Rule(props) {
-  const {state, actions} = overmind()
+  const {actions} = overmind()
   const myActions = actions.view.Pages.Rules;
-  const myState = state.view.Pages.Rules;
-  const r = myState.rules[props.id];
   const pattern = /(input[0-9]+)/g;
   
   return (
@@ -30,9 +28,9 @@ function Rule(props) {
       }
     `}>
       <p key={'current-rule-'+props.id}>
-         {r.text.split(pattern).map((item, i) => 
+         {props.rule.text.split(pattern).map((item, i) =>
            pattern.test(item) ? 
-           <b key={props.id+'-boldword-'+i}>{r[item].join(', ')}</b> 
+           <b key={props.id+'-boldword-'+i}>{props.rule[item].values.join(', ')}</b> 
            :
            item
          )}
@@ -42,7 +40,9 @@ function Rule(props) {
 }
 
 function Rules() {
-  const {state, actions} = overmind()
+  const {state} = overmind()
+  const rules = state.rules.rules;
+
   return (
     <div css={{
       flex: 1,
@@ -58,10 +58,9 @@ function Rules() {
       `}/>
       <div css={{flex: 1, padding: 30, paddingTop: 15, display: 'flex'}}>
         <div css={{flex: 1,  flexDirection:'column', display: 'flex'}}>
-        {Object.keys(state.view.Pages.Rules.rules).map(key => 
-          <Rule rule={state.view.Pages.Rules.rules[key]} id={key} key={key}/>
+        {Object.keys(rules).map(key => 
+          <Rule rule={rules[key]} id={key} key={key}/>
         )}
-          
         </div>
       </div>
     </div>

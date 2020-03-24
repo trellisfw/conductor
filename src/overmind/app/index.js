@@ -37,6 +37,10 @@ export default function (namespace) {
       state.app.skins = config.skins;
       // And select one
       state.app.skin = skin;
+
+      //Initialize modules
+      actions.examples.initialize();
+      actions.partners.initialize();
     },
     state,
     actions: actions(namespace)

@@ -1,13 +1,8 @@
-import React from 'react'
-
 /** @jsx jsx */
+import {json} from 'overmind'
 import { jsx, css } from '@emotion/core'
 
 import overmind from '../../../overmind'
-import moment from 'moment'
-import ReactJson from 'react-json-view'
-import TextField from '@material-ui/core/TextField'
-import Chip from '@material-ui/core/Chip'
 import { Button } from 'semantic-ui-react'
 import { Dropdown } from 'semantic-ui-react'
 
@@ -17,9 +12,11 @@ function Blank (props) {
   let myActions = actions.view.Modals.NewRuleModal;
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
-  let list = state.rules[template[props.item].type];
-  console.log('ITEM IS', props.item, 'VALUE IS', rule[props.item].values);
+  let type = template[props.item].type;
+  console.log(type);
+  let list = json(state.rules[type]);
 
+  console.log("LIST", list);
   return (
     <Dropdown
       fluid
@@ -30,9 +27,9 @@ function Blank (props) {
         fontFamily: 'bold',
         width: 'fit-content',
       }}
-      options={list.map(i => ({key: i, text: i, value:i}))}
-      value={rule[props.item].values}
-      placeholder={`E.g., ${list[0]}`}
+      options={list.map(i => ({key: i.name, text: i.name, value:i.name}))}
+      value={Object.values(rule[props.item].values)}
+      placeholder={`E.g., ${Object.values(list)[0].name}`}
       onChange={(evt, data) => {
         myActions.textChanged({values: data.value, key:props.item})
       }}

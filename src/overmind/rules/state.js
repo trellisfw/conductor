@@ -1,21 +1,28 @@
-import _ from 'lodash'
-const FL_BUSINESS_ID = 'abc';
+import config from './config'
+import md5 from 'md5'
+import {json} from 'overmind'
+import _ from 'lodash';
+
+const FL_BUSINESS_ID = config.get('fl_business_id')
 
 export default {
   templates: {
     temp0: {
       id: 'temp0',
-      text: "When an Audit from input0 has a Location of input1 and a Product of input2, sync it to Food Logiq",
+      text: "When an Audit from input0 has a location of input1 and a product of input2, sync it to Food LogiQ.",
       input0: {
-        type: 'Partner',
+        text: 'Partner',
+        type: 'partners',
         values: [],
       },
       input1: {
-        type: 'Location',
+        text: 'Location',
+        type: 'locations',
         values: [],
       },
       input2: {
-        type: 'Product',
+        text: 'Product',
+        type: 'products',
         values: [],
       },
       categories: ['FSQA', 'PII'],
@@ -23,7 +30,6 @@ export default {
         type: 'fl',
         partners: 'input0',
         locations: 'input1',
-        id: 'input1',
         products: 'input2', 
         shares: {
           [FL_BUSINESS_ID]: {
@@ -34,72 +40,97 @@ export default {
     },
     temp1: {
       id: 'temp1',
-      text: "When an Audit has a Product of input0, email it to input1",
-      input0: 'Product',
-      input1: 'Partner',
-      categories: ['FSQA', 'PII'],
-      share: ({input0, input1}, state) => {
-        return {
-          type: 'email',
-          products: input0,
-          partners: input1,
-          email: state.partners[input1] ? state.partners[input1].email : '',
-        }
-      }
-    }, 
-    temp2: {
-      id: 'temp2',
-      text: "When an Audit has a Location ofinput0, sync it to input1 on Food Logiq",
-      input0: 'Location',
-      input1: 'Partner',
-      categories: ['FSQA', 'PII'],
-      share: ({input0, input1}, state) => {
-        return {
-          type: 'fl',
-          products: input0,
-          partners: input1,
-          email: state.partners[input1] ? state.partners[input1].email : '',
-        }
-      }
-    },
-    /*
-    temp3: {
-      text: 'When a input0 is expired, notify input1',
-      input0: 'Document', 
-      input1: 'Partner',
+      text: "When an Audit from input0 has a location of input1 and a product of input2, sync it to IBM Food Trust.",
+      input0: {
+        text: 'Partner',
+        type: 'partners',
+        values: [],
+      },
+      input1: {
+        text: 'Location',
+        type: 'locations',
+        values: [],
+      },
+      input2: {
+        text: 'Product',
+        type: 'products',
+        values: [],
+      },
       categories: ['FSQA', 'PII'],
       share: {
-        type: 'fl',
-        partners: (state) => state.rules.rules.temp1.input1,
-        to: (state) => state.partners[state.rules.rules.temp1.input1].email,
+        type: 'ift',
+        partners: 'input0',
+        locations: 'input1',
+        products: 'input2', 
       }
     },
-    temp4: {
-      text: 'When a input0 has an input1 greater than input2, mark it as input3',
-      input0: 'Document', 
-      input1: 'Property',
-      input2: 'Value',
-      input3: 'Value',
+    temp2: {
+      id: 'temp2',
+      text: "When an Audit has a location of input0 and a product of input1, email it to input2.",
+      input0: {
+        text: 'Location',
+        type: 'locations',
+        values: [],
+      },
+      input1: {
+        text: 'Product',
+        type: 'products',
+        values: [],
+      },
+      input2: {
+        text: 'Email',
+        type: 'emails',
+        values: [],
+      },
       categories: ['FSQA', 'PII'],
-    }, 
-    temp5: {
-      text: 'When a input0, has a input1 of input2, send it to input3',
-      input0: 'Document',
-      input1: 'Property',
-      input2: 'Partner',
-      input3: 'Partner',
-      categories: ['FSQA', 'PII'],
+      share: {
+        type: 'email',
+        locations: 'input0',
+        products: 'input1', 
+        emails: 'input2',
+      }
     },
-    */
   },
-  Document: 
-    ['Audit', 'Certificate of Insurance', 'Advance Shipping Notice'],
-  Partner: 
-    ['Tyson', `McDonald\'s`, 'Wakefern'],
-  Location:
-    ['Arnold, PA', 'Cudahy, ', '(North) Smithfield, VA', 'Springfield', 'Sioux City, IA', 'Charlotte, NC', 'Cincinatti, OH', 'Wilson, NC'],
-  Value: [],
-  Property: [],
-  Product: 
-    ['Bacon', 'Ham', 'Ribs', 'Ground Pork', 'Shoulder', 'Loin', 'Sausage', 'Sausage, Smoked'],
+  rules: {},
+  partners: (local, state) =>
+    _.keyBy(
+      _.keys(state.partners)
+      .map(k => ({name: k}))
+      .map(obj =>
+        _.assign(obj, {key: md5(JSON.stringify(obj))})
+      )
+    ,'key')
+  ,
+
+  documents: (local, state) => 
+    state.examples.documents,
+
+  locations: (local, state) =>
+    _.keyBy(
+      _.chain(state.partners)
+      .map(partner =>
+        _.values(partner.locations || {}).map(location => 
+          _.assign({}, location, {partner})
+        ).map(location =>
+          _.assign(location, {key: md5(JSON.stringify(location))})
+        )
+      )
+      .flatten()
+      .compact()
+      .value()
+    , 'key')
+  ,
+  products: (local, state) => state.examples.products,
+  emails: (local, state) => 
+    _.keyBy(
+      _.chain(state.partners)
+      .map(partner => partner.email)
+      .compact()
+      .map(name => ({name}))
+      .map(obj =>
+        _.assign(obj, {key: md5(JSON.stringify(obj))})
+      )
+      .value()
+    , 'key')
+  ,
 }

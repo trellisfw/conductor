@@ -17,7 +17,9 @@ export default {
   domain: 'localhost',
   token: 'god',
   fl_business_id: '5b2a416f6923920001acd471',
-  rules_path: '/bookmarks/services/ainz/rules',
+//  rules_path: '/bookmarks/services/ainz/rules',
+  rules_path: '/bookmarks/services/ainz/testrules',
+  shares_path: '/bookmarks/services/ainz/shares',
   rules_tree: {
     bookmarks: {
       _type: 'application/vnd.oada.bookmarks.1+json',

@@ -27,6 +27,10 @@ interface BaseShare {
   products?: string[]
 }
 // Set of share destinations
+interface IFTShare extends BaseShare {
+  type: 'ift'
+  to: string // email address
+}
 interface EmailShare extends BaseShare {
   type: 'email'
   to: string // email address
@@ -39,7 +43,7 @@ interface FLShare extends BaseShare {
 interface TrellisShare extends BaseShare {
   type: 'shareWf' // 'trellis', // TODO: Make not wf specific
 }
-export type Share = EmailShare | FLShare | TrellisShare
+export type Share = EmailShare | FLShare | TrellisShare | IFTShare
 
 // Demo locations?
 const shares: Share[] = [

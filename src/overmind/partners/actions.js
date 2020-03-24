@@ -1,3 +1,11 @@
+import {json} from 'overmind'
 
-module.exports = {
+export default {
+  async getExamples({state, actions}) {
+    state.partners = json(state.examples.partners)
+  },
+
+  async initialize({state, actions}) {
+    actions.partners.getExamples();
+  }
 }

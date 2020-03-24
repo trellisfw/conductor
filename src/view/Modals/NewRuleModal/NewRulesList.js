@@ -1,10 +1,7 @@
-import React from 'react'
-
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 
 import overmind from '../../../overmind'
-import _ from 'lodash'
 
 function NewRulesList(props) {
   const {state, actions} = overmind();
@@ -36,7 +33,7 @@ function NewRulesList(props) {
         <p>
           {r.text.split(pattern).map((item, j) => 
             pattern.test(item) ? 
-              <b key={`newrule-${j}-boldword-${j}`}>{r[item].type}</b> 
+              <b key={`newrule-${j}-boldword-${j}`}>{r[item].text}</b> 
               : 
               item
             )

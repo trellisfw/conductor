@@ -8,45 +8,6 @@ export default {
       uploading: {}
     },
     Rules: {
-      rules: {
-        abc: {
-          text:'When a input0 is from input1, send it to input2.',
-          input0: ['Food Safety Audit'], 
-          input1: ['Arnold, PA', 'Cudahy', 'North'],
-          input2: ['Tyson'],
-          total: 5,
-          createdBy: 'Michael Gaspers',
-          created: '12-12-2019',
-        },
-        def: {
-          text: 'When a input0 has a input1 of input2, send it to input3',
-          input0: ['Certificate of Insurance'],
-          input1: ['Certificate Holder'], 
-          input2: ['Tyson'],
-          input3: ['Tyson'],
-          total: 8,
-          createdBy: 'Michael Gaspers',
-          created: '09-28-2019',
-        },
-        ghi: {
-          text: 'When a input0 has a Product of input1, send it to input2',
-          input0: ['Food Safety Audit'],
-          input1: ['Bacon'], 
-          input2: [`McDonald\'s`],
-          total: 15,
-          createdBy: 'Michael Gaspers',
-          created: '11-14-2019',
-        },
-        jkl: {
-          text: 'When a input0 has an overall score greater than input1 mark it as input2',
-          input0: ['Food Safety Audit'],
-          input1: ['90%'], 
-          input2: ['Approved'],
-          total: 2,
-          createdBy: 'Michael Gaspers',
-          created: '08-07-2019',
-        },
-      }
     }
   },
   Modals: {

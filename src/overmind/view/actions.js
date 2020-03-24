@@ -32,22 +32,24 @@ export default {
         };
         state.view.Modals.NewRuleModal.page = 'Edit';
       },
-      doneClicked({state, actions}) {
+      async doneClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
-        actions.rules.createRules();
+        await actions.rules.createShare();
+        await actions.rules.loadShares();
+
       },
       cancelClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
       },
-      textChanged({state, actions}, data) {
-        console.log(data.key, data.values);
-        state.view.Modals.NewRuleModal.Edit.rule[data.key].values = data.values;
-        console.log('RULE', state.view.Modals.NewRuleModal.Edit.rule);
+      textChanged({state, actions}, result) {
+        console.log(result);
+        let obj = {}
+        result.values.forEach(v => obj[v.key] = v);
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].values = obj;
       },
     },
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
-        console.log('share', data)
       },
       viewPDF({ state, actions }, documentKey) {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
@@ -117,7 +119,6 @@ export default {
     },
     Rules: {
       ruleSelected({state, actions}, rule) {
-        console.log(rule);
         state.view.Modals.EditRuleModal.open = true; 
         state.view.Pages.Rules.selectedRule = rule; 
       },
