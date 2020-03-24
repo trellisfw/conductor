@@ -6,7 +6,7 @@ cache:
 
 before_script:
   - yarn global add json
-  - json -I -f package.json -e 'this.homepage="https://qlevercompany.qlever.io/trellis/smithfield-ui"' #Replace github homepage with gitlab
+  - json -I -f package.json -e 'this.homepage="https://qlevercompany.gitlab.io/trellis/smithfield-ui/"' #Replace github homepage with gitlab
   - yarn install
 
 developBuild:
