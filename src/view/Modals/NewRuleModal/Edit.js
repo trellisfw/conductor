@@ -45,6 +45,7 @@ function Edit (props) {
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
 
+  console.log(rule.text);
   return (
     <div
       css= {{

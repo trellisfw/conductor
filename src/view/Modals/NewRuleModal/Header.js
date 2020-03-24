@@ -13,7 +13,7 @@ function MyHeader (props) {
   let myActions = actions.view.Modals.NewRuleModal;
   return (
     <Header style={{display:'flex'}}>
-    {myState.page === 'Edit' ? <Button 
+    {myState.page === 'Edit' && !myState.Edit.edit ? <Button 
         icon
         primary
         onClick={evt => {myActions.backClicked()}}>
@@ -21,7 +21,7 @@ function MyHeader (props) {
     </Button>
       : undefined
     }
-    <span style={{flex:1}}>New Rule</span>
+    <span style={{flex:1}}>{`${myState.Edit.edit ? "Edit" : "New"} Rule`}</span>
     <Button 
         icon
         primary

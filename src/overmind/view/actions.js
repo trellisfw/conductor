@@ -40,6 +40,7 @@ export default {
       },
       cancelClicked({state, actions}) {
         state.view.Modals.NewRuleModal.open = false;
+        state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
       },
       textChanged({state, actions}, result) {
         console.log(result);
@@ -128,6 +129,15 @@ export default {
         state.view.Modals.NewRuleModal.page = 'List'; 
         state.view.Pages.Rules.selectedRule = rule; 
       },
+      editRuleClicked({state, actions}, rule) {
+        state.view.Modals.NewRuleModal.Edit = {
+          template: json(rule),
+          rule: json(rule),
+          edit: true,
+        };
+        state.view.Modals.NewRuleModal.page = 'Edit';
+        state.view.Modals.NewRuleModal.open = true;
+      }
     }
   },
   SideBar: {

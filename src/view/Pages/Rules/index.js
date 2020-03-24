@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { jsx, css } from '@emotion/core'
 
 import TopBar from './TopBar';
+import {Button, Icon} from 'semantic-ui-react'
 import overmind from '../../../overmind'
 
 function Rule(props) {
@@ -14,9 +15,10 @@ function Rule(props) {
   
   return (
     <div 
-      onClick={evt => {myActions.ruleSelected(props.id)}}
       css={css`
       padding: 10px;
+      display: flex;
+      flex-direction: row;
       align-content: center;
       margin: 10px;
       border: 1px solid #000000;
@@ -28,7 +30,11 @@ function Rule(props) {
         border: 2px solid #2a9fd8;
       }
     `}>
-      <p key={'current-rule-'+props.id}>
+      <p 
+        key={'current-rule-'+props.id}
+        css={css`
+          flex: 1
+        `}>
          {props.rule.text.split(pattern).map((item, i) =>
            pattern.test(item) ? 
            <b key={props.id+'-boldword-'+i}>{_.values(props.rule[item].values).map(o => o.name).join(', ')}</b> 
@@ -36,6 +42,12 @@ function Rule(props) {
            item
          )}
        </p>
+      <Button 
+        icon
+        primary
+        onClick={evt => {myActions.editRuleClicked(props.rule)}}>
+      <Icon name='edit'/>
+    </Button>
     </div>
   );
 }
