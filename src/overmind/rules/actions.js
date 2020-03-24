@@ -4,7 +4,7 @@ import {json} from 'overmind'
 import _ from 'lodash';
 import config from './config'
 
-const pattern = /(input[0-9]+)/g;
+const pattern = /(input[0-9]+)/;
 
 const SHARES_PATH = config.get('shares_path')
 
@@ -98,8 +98,8 @@ export default {
 
     // Fill out the inputs
     _.keys(template.share).filter(key =>
-      /^input/.test(template.share[key])
-//      pattern.test(template.share[key])
+//      /^input/.test(template.share[key])
+      pattern.test(template.share[key])
     ).forEach(key => {
       console.log('FILLING OUT', key, template.share[key], share[key])
       rule[template.share[key]].values = share[key]
