@@ -51,7 +51,6 @@ function BlankB (props) {
   let list = json(state.rules[type]);
   const placeholder = template[props.item].text;
   let selected = Object.values(rule[props.item].values).map(v => v.name).join(' or ');
-  console.log('myState.page', myState.page)
   if (selected.length == 0) {
     if (isEditing) {
       selected = 'anything';
@@ -72,7 +71,7 @@ function BlankB (props) {
         position: absolute;
         left: 1px;
         right: 1px;
-        bottom: -2px;
+        bottom: 3px;
         height: 2px;
       }
     `}>
@@ -151,6 +150,7 @@ function Edit (props) {
   const {state, actions} = overmind();
   let myState = state.view.Modals.NewRuleModal.Edit;
   let myActions = actions.view.Modals.NewRuleModal;
+  let isEditing = myState.edit;
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
   return (
@@ -170,7 +170,9 @@ function Edit (props) {
         }}
       >
         <div css={css`
+          text-align: center;
           font-size: 18px;
+          line-height: 35px;
           & > span {
             display: contents;
           }
@@ -192,7 +194,15 @@ function Edit (props) {
           justifyContent: 'flex-end',
         }}>
         <Button onClick={(evt) => {myActions.backClicked()}}>Back</Button>
-        <Button style={{marginLeft: 7}} primary onClick={(evt) => {myActions.doneClicked()}}>Add Rule</Button>
+        {
+          (!isEditing) ? null :
+          <Button style={{marginLeft: 7}} color='red' onClick={(evt) => {myActions.deleteClicked()}}>Delete</Button>
+        }
+        <Button style={{marginLeft: 7}} primary onClick={(evt) => {myActions.doneClicked()}}>
+        {
+          (isEditing) ? 'Save' : 'Add Rule'
+        }
+        </Button>
       </div>
     </div>
   )
