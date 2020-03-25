@@ -17,6 +17,9 @@ function Blank (props) {
   console.log('ITEM', props.item)
   console.log('RULE', rule[props.item])
   console.log('VALUES', rule[props.item].values)
+  console.log('QUERY', rule[props.item].searchQuery);
+  let q = rule[props.item].searchQuery;
+  if (q && !list[q.key]) list[q.key] = q;
 
   return (
     <Dropdown
@@ -33,6 +36,9 @@ function Blank (props) {
       placeholder={`E.g., ${Object.values(list)[0].name}`}
       onChange={(evt, data) => {
         myActions.textChanged({values: data.value, key:props.item, data})
+      }}
+      onSearchChange={(evt, data) => {
+        myActions.searchChanged({data, key:props.item, evt})
       }}
     /> 
   )

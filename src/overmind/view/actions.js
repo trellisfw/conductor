@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 import {json} from 'overmind';
@@ -42,11 +43,21 @@ export default {
         state.view.Modals.NewRuleModal.open = false;
         state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
       },
+      searchChanged({state, actions}, result) {
+        let newText = result.data.searchQuery;
+        console.log(newText);
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
+          key: md5(JSON.stringify({name: newText})),
+          name: newText
+        }
+      },
       textChanged({state, actions}, result) {
-        console.log(result);
+        let q = state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery;
         let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
         let list = state.rules[type];
-        let values = result.values.map((key) => list[key])
+        let values = result.values.map((key) => 
+          key === q.key ? q : list[key]
+        )
         state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
       },
     },

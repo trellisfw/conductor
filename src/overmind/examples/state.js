@@ -12,6 +12,7 @@ export default {
       email: 'McDonalds <aca+McDonalds@centricity.us>',
     },
     Tyson: {
+      email: 'Tyson <aca+Tyson@centricity.us>',
       locations: utils.objFromObjArr([
         {
           text: 'Smithfield Packaged Meats Corp. - Wilson, NC',
@@ -32,6 +33,7 @@ export default {
       ]),
     },
     Wakefern: {
+      email: 'Wakefern <aca+Wakefern@centricity.us>',
       userid: 'users/123',
     }
   }
