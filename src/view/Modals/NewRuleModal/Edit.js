@@ -138,7 +138,11 @@ function Edit (props) {
           flexDirection: 'row',
           justifyContent: 'flex-end',
         }}>
-        <Button onClick={(evt) => {myActions.backClicked()}}>Back</Button>
+        {
+          (isEditing) ?
+          <Button onClick={(evt) => {myActions.cancelClicked()}}>Cancel</Button> :
+          <Button onClick={(evt) => {myActions.backClicked()}}>Back</Button>
+        }
         {
           (!isEditing) ? null :
           <Button style={{marginLeft: 7}} color='red' onClick={(evt) => {myActions.deleteClicked()}}>Delete</Button>

@@ -66,57 +66,6 @@ function Rule(props) {
       </div>
     </div>
   )
-
-
-  return (
-    <div
-      css={css`
-      padding: 10px;
-      display: flex;
-      flex-direction: row;
-      align-content: center;
-      margin: 10px;
-      border: 1px solid #000000;
-      border-radius: 5px;
-      box-shadow: 5px 5px 5px grey;
-      text-align: center;
-      font-size: 17px;
-      &.hover {
-        border: 2px solid #2a9fd8;
-      }
-    `}>
-      <p
-        key={'current-rule-'+props.id}
-        css={css`
-          flex: 1
-        `}>
-         {props.rule.text.split(pattern).map((item, i) =>
-           pattern.test(item) ?
-           <b key={props.id+'-boldword-'+i}>{(() => {
-             let vals = _.values(props.rule[item].values).map(o => o.name)
-             return vals.length > 2 ?
-               (vals.slice(0,vals.length-1)).join(', ')+', or '+vals[vals.length-1]
-               :
-               vals.length > 1 ?
-                 vals.join(' or ')
-                 :
-                 vals.length === 1 ?
-                   vals
-                   :
-                   'Any'
-           })()}</b>
-           :
-           item
-         )}
-       </p>
-      <Button
-        icon
-        primary
-        onClick={evt => {myActions.editRuleClicked(props.rule)}}>
-      <Icon name='edit'/>
-    </Button>
-    </div>
-  );
 }
 
 function Rules() {
