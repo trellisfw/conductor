@@ -429,7 +429,6 @@ export default {
     })
   },
   post ({ effects, state }, { url, headers, data }) {
-    console.log('Posting to url ', url)
     return effects.oada.websocket.http({
       method: 'POST',
       url: url,

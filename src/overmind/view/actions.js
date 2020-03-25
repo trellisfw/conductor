@@ -59,7 +59,7 @@ export default {
         let q = state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery;
         let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
         let list = state.rules[type];
-        let values = result.values.map((key) => 
+        let values = result.values.map((key) =>
           q ? (key === q.key ? q : list[key]) : list[key]
         )
         state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
@@ -139,7 +139,9 @@ export default {
       },
       Table: {
         onRowClick({ state, actions }, {rowData}) {
-          const documentKey = rowData.documentKey;
+          const documentKey = rowData.documentKey
+          console.log('Selected Document:')
+          console.log(documentKey)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data.documents[documentKey];
           if (doc.pdf != null) {
@@ -152,13 +154,13 @@ export default {
     },
     Rules: {
       ruleSelected({state, actions}, rule) {
-        state.view.Modals.EditRuleModal.open = true; 
-        state.view.Pages.Rules.selectedRule = rule; 
+        state.view.Modals.EditRuleModal.open = true;
+        state.view.Pages.Rules.selectedRule = rule;
       },
       addRuleClicked({state, actions}, rule) {
-        state.view.Modals.NewRuleModal.open = true; 
-        state.view.Modals.NewRuleModal.page = 'List'; 
-        state.view.Pages.Rules.selectedRule = rule; 
+        state.view.Modals.NewRuleModal.open = true;
+        state.view.Modals.NewRuleModal.page = 'List';
+        state.view.Pages.Rules.selectedRule = rule;
       },
       editRuleClicked({state, actions}, rule) {
         state.view.Modals.NewRuleModal.Edit = {
@@ -174,7 +176,7 @@ export default {
   },
   SideBar: {
     pageSelected({state, actions}, page) {
-      state.view.Pages.selectedPage = page; 
+      state.view.Pages.selectedPage = page;
     },
   }
 }

@@ -7,6 +7,9 @@ import { jsx, css } from '@emotion/core'
 import TopBar from './TopBar';
 import {Button, Icon} from 'semantic-ui-react'
 import overmind from '../../../overmind'
+import iconIFT from './icons/ift.svg';
+import iconFoodLogiq from './icons/foodlogiq.svg';
+import iconEmail from './icons/email.svg';
 
 function Rule(props) {
   const {actions} = overmind()
@@ -32,91 +35,69 @@ function Rule(props) {
           border: 1px solid #fff;
         }
       `}>
-        <div css={{fontSize: 16}}>
-        {
-          r.text.split(pattern).map((item, j) => {
-            if (pattern.test(item)) {
-              let text = _.values(r[item].values).map(o => o.name);
-              if (text.length == 0) {
+        <div css={{display: 'flex', alignItems: 'center'}}>
+          <div css={{display: 'flex', alignItems: 'center', marginRight: 20}}>
+          {
+            _.map(r.icons, (i) => {
+              if (i == 'ift.svg') {
                 return (
-                  <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
-                    {'anything'}
-                  </span>
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconIFT} alt={i} />
                 )
-              } else {
-                return _.map(text, (t, idx) => {
-                  return (
-                    <div css={{display: 'contents'}} key={`newrule-${j}-boldword-${idx}`}>
-                      <span css={{fontWeight: 800}}>{t}</span>
-                      {
-                        (idx == (text.length-1)) ? null :<span>{' or '}</span>
-                      }
-                    </div>
-                  )
-                })
               }
-            } else {
-              return (
-                <span css={{fontWeight: 100}} key={`newrule-${j}-word-${j}`}>{item}</span>
-              )
-            }
-          })
-        }
+              if (i == 'foodlogiq.svg') {
+                return (
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconFoodLogiq} alt={i} />
+                )
+              }
+              if (i == 'email.svg') {
+                return (
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconEmail} alt={i} />
+                )
+              }
+            })
+          }
+          </div>
+          <div css={{fontSize: 16}}>
+          {
+            r.text.split(pattern).map((item, j) => {
+              if (pattern.test(item)) {
+                let text = _.values(r[item].values).map(o => o.name);
+                if (text.length == 0) {
+                  return (
+                    <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
+                      {'anything'}
+                    </span>
+                  )
+                } else {
+                  return _.map(text, (t, idx) => {
+                    return (
+                      <div css={{display: 'contents'}} key={`newrule-${j}-boldword-${idx}`}>
+                        <span css={{fontWeight: 800}}>{t}</span>
+                        {
+                          (idx == (text.length-1)) ? null :<span>{' or '}</span>
+                        }
+                      </div>
+                    )
+                  })
+                }
+              } else {
+                return (
+                  <span css={{fontWeight: 100}} key={`newrule-${j}-word-${j}`}>{item}</span>
+                )
+              }
+            })
+          }
+          </div>
         </div>
       </div>
     </div>
   )
-
-
-  return (
-    <div
-      css={css`
-      padding: 10px;
-      display: flex;
-      flex-direction: row;
-      align-content: center;
-      margin: 10px;
-      border: 1px solid #000000;
-      border-radius: 5px;
-      box-shadow: 5px 5px 5px grey;
-      text-align: center;
-      font-size: 17px;
-      &.hover {
-        border: 2px solid #2a9fd8;
-      }
-    `}>
-      <p
-        key={'current-rule-'+props.id}
-        css={css`
-          flex: 1
-        `}>
-         {props.rule.text.split(pattern).map((item, i) =>
-           pattern.test(item) ?
-           <b key={props.id+'-boldword-'+i}>{(() => {
-             let vals = _.values(props.rule[item].values).map(o => o.name)
-             return vals.length > 2 ?
-               (vals.slice(0,vals.length-1)).join(', ')+', or '+vals[vals.length-1]
-               :
-               vals.length > 1 ?
-                 vals.join(' or ')
-                 :
-                 vals.length === 1 ?
-                   vals
-                   :
-                   'Any'
-           })()}</b>
-           :
-           item
-         )}
-       </p>
-      <Button
-        icon
-        primary
-        onClick={evt => {myActions.editRuleClicked(props.rule)}}>
-      <Icon name='edit'/>
-    </Button>
-    </div>
-  );
 }
 
 function Rules() {

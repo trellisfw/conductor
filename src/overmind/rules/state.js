@@ -9,21 +9,27 @@ export default {
   templates: {
     temp0: {
       id: 'temp0',
+      icons: ['foodlogiq.svg'],
       text: "When an audit has a location of input0 and a product of input1, sync it to input2 via Food LogiQ.",
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
       },
       input2: {
         text: 'this partner',
         type: 'partners',
-        values: [],
+        values: {},
+      },
+      input3: {
+        text: 'masked/unmasked',
+        type: 'mask',
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {
@@ -32,6 +38,7 @@ export default {
         locations: 'input0',
         products: 'input1',
         partners: 'input2',
+        mask: 'input3',
         shares: {
           [FL_BUSINESS_ID]: {
             communities: []
@@ -41,16 +48,22 @@ export default {
     },
     temp1: {
       id: 'temp1',
-      text: "When an audit has a location of input0 and a product of input1, sync it to IBM Food Trust.",
+      icons: ['ift.svg'],
+      text: "When an audit has a location of input0 and a product of input1, sync the input3 copy to IBM Food Trust.",
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
+      },
+      input3: {
+        text: 'masked/unmasked',
+        type: 'mask',
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {
@@ -62,21 +75,22 @@ export default {
     },
     temp2: {
       id: 'temp2',
-      text: "When an Audit has a location of input0 and a product of input1, email it to input2.",
+      icons: ['email.svg'],
+      text: "When an audit has a location of input0 and a product of input1, email it to input2.",
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
       },
       input2: {
         text: 'this email',
         type: 'emails',
-        values: [],
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {
@@ -129,5 +143,8 @@ export default {
       )
       .value()
     , 'key')
+  ,
+  mask: (local, state) =>
+    state.examples.mask
   ,
 }

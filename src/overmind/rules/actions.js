@@ -76,7 +76,8 @@ export default {
       .filter(key => key.charAt(0) !== '_')
       .forEach(async (key) => {
         let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
-        if (shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
+        //TODO: this 404s immediately after deleting
+        if (shareResponse && shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
       })
   },
 

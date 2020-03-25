@@ -7,6 +7,9 @@ export default {
   documents: utils.objFromStrArr(
     ['Audit', 'Certificate of Insurance', 'Advance Shipping Notice']
   ),
+  mask: utils.objFromStrArr(
+    ['masked', 'unmasked']
+  ),
   partners: {
     [`McDonald\'s`]: {
       email: 'McDonalds <aca+McDonalds@centricity.us>',
@@ -19,7 +22,7 @@ export default {
           id: '10151',
           name: 'Wilson, NC'
         }, {
-          text: 'Smithfield Packaged Meats Corp. - Arnold',
+          text: 'Smithfield Packaged Meats Corp . - Arnold',
           id: '10138',
           name: 'Arnold, PA',
         }, {
