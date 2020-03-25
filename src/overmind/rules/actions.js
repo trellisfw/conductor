@@ -76,7 +76,7 @@ export default {
       .filter(key => key.charAt(0) !== '_')
       .forEach(async (key) => {
         let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
-        actions.rules.mapShare({key, share: shareResponse.data});
+        if (shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
       })
   },
 

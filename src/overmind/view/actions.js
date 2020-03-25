@@ -60,7 +60,7 @@ export default {
         let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
         let list = state.rules[type];
         let values = result.values.map((key) => 
-          key === q.key ? q : list[key]
+          q ? (key === q.key ? q : list[key]) : list[key]
         )
         state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
       },
