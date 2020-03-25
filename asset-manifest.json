@@ -1,23 +1,26 @@
 {
   "files": {
     "main.css": "/conductor/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/conductor/static/js/main.29342f4c.chunk.js",
-    "main.js.map": "/conductor/static/js/main.29342f4c.chunk.js.map",
+    "main.js": "/conductor/static/js/main.5d7f98cc.chunk.js",
+    "main.js.map": "/conductor/static/js/main.5d7f98cc.chunk.js.map",
     "runtime-main.js": "/conductor/static/js/runtime-main.13b6049f.js",
     "runtime-main.js.map": "/conductor/static/js/runtime-main.13b6049f.js.map",
     "static/css/2.ed7135c9.chunk.css": "/conductor/static/css/2.ed7135c9.chunk.css",
-    "static/js/2.2cd477d7.chunk.js": "/conductor/static/js/2.2cd477d7.chunk.js",
-    "static/js/2.2cd477d7.chunk.js.map": "/conductor/static/js/2.2cd477d7.chunk.js.map",
+    "static/js/2.345123ec.chunk.js": "/conductor/static/js/2.345123ec.chunk.js",
+    "static/js/2.345123ec.chunk.js.map": "/conductor/static/js/2.345123ec.chunk.js.map",
     "index.html": "/conductor/index.html",
-    "precache-manifest.c748223bc7fd86601216f1978b8ef7cc.js": "/conductor/precache-manifest.c748223bc7fd86601216f1978b8ef7cc.js",
+    "precache-manifest.b21601931a1d90a4c3b2aa7afa908e41.js": "/conductor/precache-manifest.b21601931a1d90a4c3b2aa7afa908e41.js",
     "service-worker.js": "/conductor/service-worker.js",
     "static/css/2.ed7135c9.chunk.css.map": "/conductor/static/css/2.ed7135c9.chunk.css.map",
     "static/css/main.5ecd60fb.chunk.css.map": "/conductor/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.2cd477d7.chunk.js.LICENSE": "/conductor/static/js/2.2cd477d7.chunk.js.LICENSE",
+    "static/js/2.345123ec.chunk.js.LICENSE": "/conductor/static/js/2.345123ec.chunk.js.LICENSE",
     "static/media/semantic.min.css": "/conductor/static/media/outline-icons.ef60a4f6.woff",
     "static/media/buisness.svg": "/conductor/static/media/buisness.6b54fc90.svg",
     "static/media/connections.svg": "/conductor/static/media/connections.7c7332c0.svg",
     "static/media/data.svg": "/conductor/static/media/data.9d31a249.svg",
+    "static/media/email.svg": "/conductor/static/media/email.bbacab65.svg",
+    "static/media/foodlogiq.svg": "/conductor/static/media/foodlogiq.f5e4df28.svg",
+    "static/media/ift.svg": "/conductor/static/media/ift.42032f0c.svg",
     "static/media/processing.svg": "/conductor/static/media/processing.a0fb5f7a.svg",
     "static/media/signed.svg": "/conductor/static/media/signed.32666418.svg",
     "static/media/upload.svg": "/conductor/static/media/upload.0c074248.svg"
@@ -25,8 +28,8 @@
   "entrypoints": [
     "static/js/runtime-main.13b6049f.js",
     "static/css/2.ed7135c9.chunk.css",
-    "static/js/2.2cd477d7.chunk.js",
+    "static/js/2.345123ec.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.29342f4c.chunk.js"
+    "static/js/main.5d7f98cc.chunk.js"
   ]
 }
