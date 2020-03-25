@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 import {json} from 'overmind';
@@ -42,11 +43,25 @@ export default {
         state.view.Modals.NewRuleModal.open = false;
         state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
       },
+      deleteClicked({state, actions}, rule) {
+        actions.rules.deleteShare(rule);
+        actions.rules.loadShares();
+        actions.view.Modals.NewRuleModal.cancelClicked();
+      },
+      searchChanged({state, actions}, result) {
+        let newText = result.data.searchQuery;
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
+          key: md5(JSON.stringify({name: newText})),
+          name: newText
+        }
+      },
       textChanged({state, actions}, result) {
-        console.log(result);
+        let q = state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery;
         let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
         let list = state.rules[type];
-        let values = result.values.map((key) => list[key])
+        let values = result.values.map((key) => 
+          q ? (key === q.key ? q : list[key]) : list[key]
+        )
         state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
       },
     },
@@ -150,6 +165,7 @@ export default {
           template: json(rule),
           rule: json(rule),
           edit: true,
+          key: rule.key,
         };
         state.view.Modals.NewRuleModal.page = 'Edit';
         state.view.Modals.NewRuleModal.open = true;

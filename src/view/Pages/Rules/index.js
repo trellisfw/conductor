@@ -38,15 +38,23 @@ function Rule(props) {
             if (pattern.test(item)) {
               let text = _.values(r[item].values).map(o => o.name);
               if (text.length == 0) {
-                text = 'anything';
+                return (
+                  <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
+                    {'anything'}
+                  </span>
+                )
               } else {
-                text = text.join(', ');
+                return _.map(text, (t, idx) => {
+                  return (
+                    <div css={{display: 'contents'}} key={`newrule-${j}-boldword-${idx}`}>
+                      <span css={{fontWeight: 800}}>{t}</span>
+                      {
+                        (idx == (text.length-1)) ? null :<span>{' or '}</span>
+                      }
+                    </div>
+                  )
+                })
               }
-              return (
-                <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
-                  {text}
-                </span>
-              )
             } else {
               return (
                 <span css={{fontWeight: 100}} key={`newrule-${j}-word-${j}`}>{item}</span>
@@ -84,7 +92,19 @@ function Rule(props) {
         `}>
          {props.rule.text.split(pattern).map((item, i) =>
            pattern.test(item) ?
-           <b key={props.id+'-boldword-'+i}>{_.values(props.rule[item].values).map(o => o.name).join(', ')}</b>
+           <b key={props.id+'-boldword-'+i}>{(() => {
+             let vals = _.values(props.rule[item].values).map(o => o.name)
+             return vals.length > 2 ?
+               (vals.slice(0,vals.length-1)).join(', ')+', or '+vals[vals.length-1]
+               :
+               vals.length > 1 ?
+                 vals.join(' or ')
+                 :
+                 vals.length === 1 ?
+                   vals
+                   :
+                   'Any'
+           })()}</b>
            :
            item
          )}

@@ -33,6 +33,7 @@ function processShare(state, rule, share) {
 export default {
   async putShare({state, actions}, share) {
    let id = md5(JSON.stringify(share));
+   share.key = id;
    let path = `${SHARES_PATH}/${id}`;
 
 
@@ -52,6 +53,15 @@ export default {
     return
   },
 
+  async deleteShare({state, actions}) {
+    let key = state.view.Modals.NewRuleModal.Edit.key;
+    let path = `${SHARES_PATH}/${key}`;
+    let response = await actions.oada.del({
+      headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
+      url: path,
+    })
+  },
+
   async createShare({state, actions}) {
     let rule = json(state.view.Modals.NewRuleModal.Edit.rule);
     let share = rule.share;
@@ -66,7 +76,7 @@ export default {
       .filter(key => key.charAt(0) !== '_')
       .forEach(async (key) => {
         let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
-        actions.rules.mapShare({key, share: shareResponse.data});
+        if (shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
       })
   },
 
@@ -95,6 +105,7 @@ export default {
     ).forEach(key => {
       rule[template.share[key]].values = share[key]
     })
+    rule.key = share.key;
 
     // Set the state
     state.rules.rules[key] = rule;

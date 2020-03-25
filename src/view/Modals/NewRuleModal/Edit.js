@@ -15,6 +15,9 @@ function Blank (props) {
   let template = myState.Edit.template;
   let type = template[props.item].type;
   let list = json(state.rules[type]);
+  let q = rule[props.item].searchQuery;
+  if (q && !list[q.key]) list[q.key] = q;
+
   return (
     <Dropdown
       fluid
@@ -39,14 +42,21 @@ function BlankB (props) {
   const {state, actions} = overmind();
   let myState = state.view.Modals.NewRuleModal;
   let myActions = actions.view.Modals.NewRuleModal;
+  let isEditing = myState.Edit.edit;
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
   let type = template[props.item].type;
   let list = json(state.rules[type]);
   const placeholder = template[props.item].text;
-
-  let selected = Object.values(rule[props.item].values).map(v => v.name).join(', ');
-  if (selected.length == 0) selected = placeholder;
+  let selected = Object.values(rule[props.item].values).map(v => v.name).join(' or ');
+  console.log('myState.page', myState.page)
+  if (selected.length == 0) {
+    if (isEditing) {
+      selected = 'anything';
+    } else {
+      selected = placeholder;
+    }
+  }
 
   const trigger = (
     <span css={css`
@@ -117,13 +127,6 @@ function Edit (props) {
               :
               <span key={'edit-new-rule-'+j}>{item}</span>
             )
-            /*
-            <span>{'When an audit has a location of'}</span>
-            <BlankB />
-            <span>{'and a product of'}</span>
-            <BlankB />
-            <span>{'sync it to food logic.'}</span>
-            */
           }
         </div>
       </div>
