@@ -7,6 +7,9 @@ export default {
   documents: utils.objFromStrArr(
     ['Audit', 'Certificate of Insurance', 'Advance Shipping Notice']
   ),
+  mask: utils.objFromStrArr(
+    ['masked', 'unmasked']
+  ),
   partners: {
     [`McDonald\'s`]: {
       email: 'McDonalds <aca+McDonalds@centricity.us>',

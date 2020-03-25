@@ -9,7 +9,7 @@ export default {
   templates: {
     temp0: {
       id: 'temp0',
-      text: "When an audit has a location of input0 and a product of input1, sync it to input2 via Food LogiQ.",
+      text: "When an audit has a location of input0 and a product of input1, sync the input3 copy to input2 via Food LogiQ.",
       input0: {
         text: 'this location',
         type: 'locations',
@@ -25,6 +25,11 @@ export default {
         type: 'partners',
         values: [],
       },
+      input3: {
+        text: 'masked/unmasked',
+        type: 'mask',
+        values: [],
+      },
       categories: ['FSQA', 'PII'],
       share: {
         template: 'temp0',
@@ -32,6 +37,7 @@ export default {
         locations: 'input0',
         products: 'input1',
         partners: 'input2',
+        mask: 'input3',
         shares: {
           [FL_BUSINESS_ID]: {
             communities: []
@@ -129,5 +135,8 @@ export default {
       )
       .value()
     , 'key')
+  ,
+  mask: (local, state) =>
+    state.examples.mask
   ,
 }
