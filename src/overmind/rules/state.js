@@ -13,22 +13,22 @@ export default {
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
       },
       input2: {
         text: 'this partner',
         type: 'partners',
-        values: [],
+        values: {},
       },
       input3: {
         text: 'masked/unmasked',
         type: 'mask',
-        values: [],
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {
@@ -51,17 +51,17 @@ export default {
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
       },
       input3: {
         text: 'masked/unmasked',
         type: 'mask',
-        values: [],
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {
@@ -77,17 +77,17 @@ export default {
       input0: {
         text: 'this location',
         type: 'locations',
-        values: [],
+        values: {},
       },
       input1: {
         text: 'this product',
         type: 'products',
-        values: [],
+        values: {},
       },
       input2: {
         text: 'this email',
         type: 'emails',
-        values: [],
+        values: {},
       },
       categories: ['FSQA', 'PII'],
       share: {

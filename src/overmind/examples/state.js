@@ -22,7 +22,7 @@ export default {
           id: '10151',
           name: 'Wilson, NC'
         }, {
-          text: 'Smithfield Packaged Meats Corp. - Arnold',
+          text: 'Smithfield Packaged Meats Corp . - Arnold',
           id: '10138',
           name: 'Arnold, PA',
         }, {
