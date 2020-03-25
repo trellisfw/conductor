@@ -9,7 +9,6 @@ import TopBar from './view/TopBar';
 import SideBar from './view/SideBar';
 import Pages from './view/Pages';
 import FileDetailsModal from './view/Modals/FileDetailsModal';
-import EditRuleModal from './view/Modals/EditRuleModal';
 import NewRuleModal from './view/Modals/NewRuleModal';
 import PDFViewerModal from './view/Modals/PDFViewerModal';
 import Login from './Login';
@@ -38,7 +37,6 @@ function App() {
         <SideBar />
         <Pages />
         <FileDetailsModal />
-        <EditRuleModal />
         <NewRuleModal />
         <PDFViewerModal />
       </div>

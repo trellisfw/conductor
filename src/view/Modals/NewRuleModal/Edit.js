@@ -46,8 +46,6 @@ function BlankB (props) {
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
   let type = template[props.item].type;
-  // TODO: make this cleaner
-//  if (type === 'mask') return <MaskBlank key={'mask-blank'+props.index} item={props.item} index={props.index}/>
   let list = json(state.rules[type]);
   const placeholder = template[props.item].text;
   let selected = Object.values(rule[props.item].values).map(v => v.name).join(' or ');
@@ -87,59 +85,6 @@ function BlankB (props) {
               myActions.textChanged({values: [i.key], key: props.item})
             }} key={i.key}>{i.name}</Dropdown.Item>
           })
-        }
-      </Dropdown.Menu>
-    </Dropdown>
-  )
-}
-
-function MaskBlank (props) {
-  const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal;
-  let myActions = actions.view.Modals.NewRuleModal;
-  let isEditing = myState.Edit.edit;
-  let rule = myState.Edit.rule;
-  let template = myState.Edit.template;
-  let type = template[props.item].type;
-  let list = json(state.rules[type]);
-  const placeholder = template[props.item].text;
-  let selected = Object.values(rule[props.item].values).map(v => v.name).join(' or ');
-  console.log('myState.page', myState.page)
-  if (selected.length == 0) {
-    if (isEditing) {
-      selected = 'anything';
-    } else {
-      selected = placeholder;
-    }
-  }
-
-  const trigger = (
-    <span css={css`
-      color: rgba(0, 0, 0, 0.4);
-      &:hover {
-        color: #000;
-      }
-      &::before {
-        content: "";
-        background: #000;
-        position: absolute;
-        left: 1px;
-        right: 1px;
-        bottom: -2px;
-        height: 2px;
-      }
-    `}>
-      &nbsp;{selected}&nbsp;
-    </span>
-  )
-  return (
-    <Dropdown trigger={trigger} icon={null} pointing='top left'>
-      <Dropdown.Menu>{
-          _.map([{name: 'masked', key:'masked'}, {name: 'unmasked', key: 'unmasked'}], (i) =>
-            <Dropdown.Item onClick={()=>{
-              myActions.textChanged({values: [i.key], key: props.item})
-            }} key={i.key}>{i.name}</Dropdown.Item>
-          )
         }
       </Dropdown.Menu>
     </Dropdown>

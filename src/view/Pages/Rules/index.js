@@ -7,6 +7,9 @@ import { jsx, css } from '@emotion/core'
 import TopBar from './TopBar';
 import {Button, Icon} from 'semantic-ui-react'
 import overmind from '../../../overmind'
+import iconIFT from './icons/ift.svg';
+import iconFoodLogiq from './icons/foodlogiq.svg';
+import iconEmail from './icons/email.svg';
 
 function Rule(props) {
   const {actions} = overmind()
@@ -32,36 +35,65 @@ function Rule(props) {
           border: 1px solid #fff;
         }
       `}>
-        <div css={{fontSize: 16}}>
-        {
-          r.text.split(pattern).map((item, j) => {
-            if (pattern.test(item)) {
-              let text = _.values(r[item].values).map(o => o.name);
-              if (text.length == 0) {
+        <div css={{display: 'flex', alignItems: 'center'}}>
+          <div css={{display: 'flex', alignItems: 'center', marginRight: 20}}>
+          {
+            _.map(r.icons, (i) => {
+              if (i == 'ift.svg') {
                 return (
-                  <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
-                    {'anything'}
-                  </span>
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconIFT} alt={i} />
                 )
-              } else {
-                return _.map(text, (t, idx) => {
-                  return (
-                    <div css={{display: 'contents'}} key={`newrule-${j}-boldword-${idx}`}>
-                      <span css={{fontWeight: 800}}>{t}</span>
-                      {
-                        (idx == (text.length-1)) ? null :<span>{' or '}</span>
-                      }
-                    </div>
-                  )
-                })
               }
-            } else {
-              return (
-                <span css={{fontWeight: 100}} key={`newrule-${j}-word-${j}`}>{item}</span>
-              )
-            }
-          })
-        }
+              if (i == 'foodlogiq.svg') {
+                return (
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconFoodLogiq} alt={i} />
+                )
+              }
+              if (i == 'email.svg') {
+                return (
+                  <img key={i} css={{
+                    height: '25px'
+                  }} src={iconEmail} alt={i} />
+                )
+              }
+            })
+          }
+          </div>
+          <div css={{fontSize: 16}}>
+          {
+            r.text.split(pattern).map((item, j) => {
+              if (pattern.test(item)) {
+                let text = _.values(r[item].values).map(o => o.name);
+                if (text.length == 0) {
+                  return (
+                    <span css={{fontWeight: 800}} key={`newrule-${j}-boldword-${j}`}>
+                      {'anything'}
+                    </span>
+                  )
+                } else {
+                  return _.map(text, (t, idx) => {
+                    return (
+                      <div css={{display: 'contents'}} key={`newrule-${j}-boldword-${idx}`}>
+                        <span css={{fontWeight: 800}}>{t}</span>
+                        {
+                          (idx == (text.length-1)) ? null :<span>{' or '}</span>
+                        }
+                      </div>
+                    )
+                  })
+                }
+              } else {
+                return (
+                  <span css={{fontWeight: 100}} key={`newrule-${j}-word-${j}`}>{item}</span>
+                )
+              }
+            })
+          }
+          </div>
         </div>
       </div>
     </div>
