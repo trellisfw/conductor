@@ -71,6 +71,7 @@ export default {
         type: 'ift',
         locations: 'input0',
         products: 'input1',
+        mask: 'input3'
       }
     },
     temp2: {
