@@ -20,7 +20,7 @@ function Sharing(props) {
     if (type == 'ift') type = 'IBM Food Trust';
     return {
       key,
-      text: `${share['with']} - ${type}`,
+      text: `${share['partner']} - ${type}`,
       value: key
     }
   }).compact().value();

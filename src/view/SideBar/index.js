@@ -18,8 +18,11 @@ const activeSideSelection = {
 }
 
 function SideSection(props) {
+  const { state, actions } = overmind();
+  const myActions = actions.view.SideBar
   return (
     <div
+      onClick={evt => {myActions.pageSelected(props.name)}}
       css={css`
         display: flex;
         flex-direction: column;
@@ -57,16 +60,17 @@ function SideSection(props) {
 }
 
 function SideBar() {
-  const { state } = overmind();
+  const { state, actions } = overmind();
   const selectedPage = state.view.Pages.selectedPage;
+  const pageSelected = actions.view.SideBar.pageSelected;
   return (
     <div css={{
       display: 'flex',
       flexDirection: 'column',
       borderRight: '1px solid #979797'
     }}>
-      <SideSection selected={(selectedPage == 'Data')} icon={iconData}>{'Data'}</SideSection>
-      <SideSection selected={(selectedPage == 'Connections')} icon={iconConnections}>{'Rules'}</SideSection>
+      <SideSection selected={(selectedPage == 'Data')} name={'Data'} icon={iconData}>{'Data'}</SideSection>
+      <SideSection selected={(selectedPage == 'Rules')} name={'Rules'} icon={iconConnections}>{'Rules'}</SideSection>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import * as serviceWorker from './serviceWorker';
 
 const app = createOvermind(config,
 {
-    devtools: true,
+  devtools: true,
 });
 
 ReactDOM.render(

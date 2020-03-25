@@ -7,9 +7,26 @@ export default {
       search: '',
       openFileBrowser: false,
       uploading: {}
+    },
+    Rules: {
     }
   },
   Modals: {
+    EditRuleModal: {
+      open: false,
+    },
+    NewRuleModal: {
+      open: false,
+      page: 'List',
+      List: {
+        category: 'FSQA',
+        categories: ['FSQA','PII','Claims','Sustainability','Supply Chain'],
+      },
+      Edit: {
+        template: {},
+        rule: {},
+      },
+    },
     FileDetailsModal: {
       open: false,
       documentKey: null,

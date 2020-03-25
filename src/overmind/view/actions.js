@@ -1,6 +1,8 @@
 import _ from 'lodash';
+import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
+import {json} from 'overmind';
 export default {
   TopBar: {
     logout({state, actions}) {
@@ -9,9 +11,62 @@ export default {
     }
   },
   Modals: {
+    EditRuleModal: {
+      close({state, actions}) {
+        state.view.Modals.EditRuleModal.open = false;
+      }
+    },
+    NewRuleModal: {
+      backClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.page = 'List';
+      },
+      close({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+      },
+      categorySelected({state, actions}, evt) {
+        state.view.Modals.NewRuleModal.category = evt.target;
+      },
+      newRuleSelected({state, actions}, rule) {
+        state.view.Modals.NewRuleModal.Edit = {
+          template: json(rule),
+          rule: json(rule)
+        };
+        state.view.Modals.NewRuleModal.page = 'Edit';
+      },
+      async doneClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+        await actions.rules.createShare();
+        await actions.rules.loadShares();
+
+      },
+      cancelClicked({state, actions}) {
+        state.view.Modals.NewRuleModal.open = false;
+        state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
+      },
+      deleteClicked({state, actions}, rule) {
+        actions.rules.deleteShare(rule);
+        actions.rules.loadShares();
+        actions.view.Modals.NewRuleModal.cancelClicked();
+      },
+      searchChanged({state, actions}, result) {
+        let newText = result.data.searchQuery;
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
+          key: md5(JSON.stringify({name: newText})),
+          name: newText
+        }
+      },
+      textChanged({state, actions}, result) {
+        let q = state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery;
+        let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
+        let list = state.rules[type];
+        let values = result.values.map((key) => 
+          q ? (key === q.key ? q : list[key]) : list[key]
+        )
+        state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
+      },
+    },
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
-        console.log('share', data)
       },
       showDocument({state}, {resourceId}) {
         //Find document key for resourceId
@@ -94,6 +149,32 @@ export default {
           }
         }
       }
+    },
+    Rules: {
+      ruleSelected({state, actions}, rule) {
+        state.view.Modals.EditRuleModal.open = true; 
+        state.view.Pages.Rules.selectedRule = rule; 
+      },
+      addRuleClicked({state, actions}, rule) {
+        state.view.Modals.NewRuleModal.open = true; 
+        state.view.Modals.NewRuleModal.page = 'List'; 
+        state.view.Pages.Rules.selectedRule = rule; 
+      },
+      editRuleClicked({state, actions}, rule) {
+        state.view.Modals.NewRuleModal.Edit = {
+          template: json(rule),
+          rule: json(rule),
+          edit: true,
+          key: rule.key,
+        };
+        state.view.Modals.NewRuleModal.page = 'Edit';
+        state.view.Modals.NewRuleModal.open = true;
+      }
     }
+  },
+  SideBar: {
+    pageSelected({state, actions}, page) {
+      state.view.Pages.selectedPage = page; 
+    },
   }
 }
