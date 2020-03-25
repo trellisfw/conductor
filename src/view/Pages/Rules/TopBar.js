@@ -33,7 +33,6 @@ function TopBar() {
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
         <div css={{fontSize: 27, marginRight: 15}}>{'Current Rules'}</div>
-        <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}} />
       </div>
       <Button onClick={evt=>{myActions.addRuleClicked()}}icon>
         <Icon  name='plus' />

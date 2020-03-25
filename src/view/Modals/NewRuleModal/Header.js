@@ -15,14 +15,6 @@ function MyHeader (props) {
     <Header>
       <div css={{display: 'flex', justifyContent: 'space-between'}}>
         <div css={{display: 'flex', alignItems: 'center'}}>
-          {
-            (myState.page === 'Edit' && !myState.Edit.edit) ?
-              <Button
-                icon='arrow left'
-                primary
-                onClick={evt => {myActions.backClicked()}} />
-            : null
-          }
           <div css={{fontSize: 24}}>{myState.Edit.edit ? 'Edit Rule' : 'New Rule'}</div>
         </div>
         <div>

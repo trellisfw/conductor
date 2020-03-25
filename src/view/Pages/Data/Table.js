@@ -36,18 +36,20 @@ function Table () {
         } else {
           const failed = _.find(statuses, { status: 'error' })
           if (failed != null) {
-            if (_.get(document, 'audits') != null) {
-              fileDetails.type = 'Audit'
-            } else if (_.get(document, 'cois') != null) {
-              fileDetails.type = 'COI'
-            } else {
-              fileDetails.type = 'Unknown'
-            }
             fileDetails.format = 'Unknown'
             return false
           }
         }
       })
+      if (fileDetails.type == null) {
+        if (_.get(document, 'audits') != null) {
+          fileDetails.type = 'Audit'
+        } else if (_.get(document, 'cois') != null) {
+          fileDetails.type = 'COI'
+        } else {
+          fileDetails.type = 'Unknown'
+        }
+      }
       // Check if Target service exists and is handling this document:
       const processingService = _.keys(tasks).length > 0 ? 'target' : false
 

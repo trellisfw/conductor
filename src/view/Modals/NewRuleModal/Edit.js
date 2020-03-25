@@ -5,6 +5,7 @@ import { jsx, css } from '@emotion/core'
 import overmind from '../../../overmind'
 import { Button } from 'semantic-ui-react'
 import { Dropdown } from 'semantic-ui-react'
+import _ from 'lodash';
 
 function Blank (props) {
   const {state, actions} = overmind();
@@ -14,10 +15,6 @@ function Blank (props) {
   let template = myState.Edit.template;
   let type = template[props.item].type;
   let list = json(state.rules[type]);
-  console.log('ITEM', props.item)
-  console.log('RULE', rule[props.item])
-  console.log('VALUES', rule[props.item].values)
-
   return (
     <Dropdown
       fluid
@@ -32,9 +29,56 @@ function Blank (props) {
       value={Object.values(rule[props.item].values).map(v => v.key)}
       placeholder={`E.g., ${Object.values(list)[0].name}`}
       onChange={(evt, data) => {
-        myActions.textChanged({values: data.value, key:props.item, data})
+        myActions.textChanged({values: data.value, key:props.item})
       }}
-    /> 
+    />
+  )
+}
+
+function BlankB (props) {
+  const {state, actions} = overmind();
+  let myState = state.view.Modals.NewRuleModal;
+  let myActions = actions.view.Modals.NewRuleModal;
+  let rule = myState.Edit.rule;
+  let template = myState.Edit.template;
+  let type = template[props.item].type;
+  let list = json(state.rules[type]);
+  const placeholder = template[props.item].text;
+
+  let selected = Object.values(rule[props.item].values).map(v => v.name).join(', ');
+  if (selected.length == 0) selected = placeholder;
+
+  const trigger = (
+    <span css={css`
+      color: rgba(0, 0, 0, 0.4);
+      &:hover {
+        color: #000;
+      }
+      &::before {
+        content: "";
+        background: #000;
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        bottom: -2px;
+        height: 2px;
+      }
+    `}>
+      &nbsp;{selected}&nbsp;
+    </span>
+  )
+  return (
+    <Dropdown trigger={trigger} icon={null} pointing='top left'>
+      <Dropdown.Menu>
+        {
+          _.map(list, (i) => {
+            return <Dropdown.Item onClick={()=>{
+              myActions.textChanged({values: [i.key], key: props.item})
+            }} key={i.key}>{i.name}</Dropdown.Item>
+          })
+        }
+      </Dropdown.Menu>
+    </Dropdown>
   )
 }
 
@@ -44,8 +88,6 @@ function Edit (props) {
   let myActions = actions.view.Modals.NewRuleModal;
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
-
-  console.log(rule.text);
   return (
     <div
       css= {{
@@ -62,22 +104,37 @@ function Edit (props) {
           justifyContent: 'center',
         }}
       >
-        {rule.text.split(pattern).map((item, j) => 
-          pattern.test(item) ? 
-            <Blank key={'edit-new-rule-'+j} item={item} index={j}/>
-            : 
-            item
-          )
-        }
+        <div css={css`
+          font-size: 18px;
+          & > span {
+            display: contents;
+          }
+        `}>
+          {
+            rule.text.split(pattern).map((item, j) =>
+            pattern.test(item) ?
+              <BlankB key={'edit-new-rule-'+j} item={item} index={j}/>
+              :
+              <span key={'edit-new-rule-'+j}>{item}</span>
+            )
+            /*
+            <span>{'When an audit has a location of'}</span>
+            <BlankB />
+            <span>{'and a product of'}</span>
+            <BlankB />
+            <span>{'sync it to food logic.'}</span>
+            */
+          }
+        </div>
       </div>
       <div
         css={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-evenly',
+          justifyContent: 'flex-end',
         }}>
-        <Button onClick={(evt) => {myActions.cancelClicked()}}>Cancel</Button>
-        <Button onClick={(evt) => {myActions.doneClicked()}}>Done</Button>
+        <Button onClick={(evt) => {myActions.backClicked()}}>Back</Button>
+        <Button style={{marginLeft: 7}} primary onClick={(evt) => {myActions.doneClicked()}}>Add Rule</Button>
       </div>
     </div>
   )

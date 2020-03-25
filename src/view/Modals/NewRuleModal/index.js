@@ -18,7 +18,7 @@ function NewRuleModal(props) {
     <Modal open={myState.open} onClose={myActions.close}>
       <Header />
       <Modal.Content >
-        <div css={{minHeight: 350, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+        <div css={{minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
         {myState.page === 'List' ? <List /> : <Edit />}
         </div>
       </Modal.Content>
