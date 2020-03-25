@@ -11,14 +11,23 @@ function MyHeader (props) {
   const {state, actions} = overmind();
   let myState = state.view.Modals.NewRuleModal;
   let myActions = actions.view.Modals.NewRuleModal;
+  let editPage = myState.page === 'Edit';
   return (
     <Header style={{display:'flex'}}>
-    {myState.page === 'Edit' && !myState.Edit.edit ? <Button 
+    {editPage && !myState.Edit.edit ? <Button 
         icon
         primary
         onClick={evt => {myActions.backClicked()}}>
-      <Icon name='arrow left'/>
-    </Button>
+        <Icon name='arrow left'/>
+      </Button>
+      : undefined
+    }
+    { editPage && myState.Edit.edit ? <Button 
+        icon
+        primary
+        onClick={evt => {myActions.deleteClicked()}}>
+        <Icon name='trash'/>
+      </Button>
       : undefined
     }
     <span style={{flex:1}}>{`${myState.Edit.edit ? "Edit" : "New"} Rule`}</span>

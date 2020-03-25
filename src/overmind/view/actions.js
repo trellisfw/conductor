@@ -43,6 +43,11 @@ export default {
         state.view.Modals.NewRuleModal.open = false;
         state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
       },
+      deleteClicked({state, actions}, rule) {
+        actions.rules.deleteShare(rule);
+        actions.rules.loadShares();
+        actions.view.Modals.NewRuleModal.cancelClicked();
+      },
       searchChanged({state, actions}, result) {
         let newText = result.data.searchQuery;
         state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
@@ -144,6 +149,7 @@ export default {
           template: json(rule),
           rule: json(rule),
           edit: true,
+          key: rule.key,
         };
         state.view.Modals.NewRuleModal.page = 'Edit';
         state.view.Modals.NewRuleModal.open = true;
