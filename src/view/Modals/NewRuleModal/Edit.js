@@ -14,10 +14,6 @@ function Blank (props) {
   let template = myState.Edit.template;
   let type = template[props.item].type;
   let list = json(state.rules[type]);
-  console.log('ITEM', props.item)
-  console.log('RULE', rule[props.item])
-  console.log('VALUES', rule[props.item].values)
-  console.log('QUERY', rule[props.item].searchQuery);
   let q = rule[props.item].searchQuery;
   if (q && !list[q.key]) list[q.key] = q;
 
@@ -51,7 +47,6 @@ function Edit (props) {
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
 
-  console.log(rule.text);
   return (
     <div
       css= {{

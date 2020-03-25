@@ -45,7 +45,6 @@ export default {
       },
       searchChanged({state, actions}, result) {
         let newText = result.data.searchQuery;
-        console.log(newText);
         state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
           key: md5(JSON.stringify({name: newText})),
           name: newText

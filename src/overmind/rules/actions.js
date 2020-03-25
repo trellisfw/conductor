@@ -10,11 +10,8 @@ const SHARES_PATH = config.get('shares_path')
 
 function processShare(state, rule, share) {
   share.text = rule.text;
-  console.log('PROCESS', rule);
-  console.log('PROCESS SHARE', share);
 
   if (share.products) {
-    console.log('products here', share.products, rule[share.products]);
     share.products = rule[share.products].values;
   }
 
@@ -60,7 +57,6 @@ export default {
     let share = rule.share;
     let newShare = _.cloneDeep(share);
     newShare = processShare(state, rule, newShare);
-    console.log('NEW SHARE', newShare);
     await actions.rules.putShare(newShare);
   },
 
@@ -69,9 +65,7 @@ export default {
     Object.keys(response.data)
       .filter(key => key.charAt(0) !== '_')
       .forEach(async (key) => {
-        console.log('what do we have ', key)
         let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
-        console.log('shareresponse', shareResponse);
         actions.rules.mapShare({key, share: shareResponse.data});
       })
   },
@@ -91,9 +85,7 @@ export default {
     let key = obj.key;
     let share = obj.share;
     let templateId = share.template;
-    console.log('t id', templateId);
     let template = json(state.rules.templates[templateId]);
-    console.log('temp', template);
     let rule = _.cloneDeep(template);
 
     // Fill out the inputs
@@ -101,7 +93,6 @@ export default {
 //      /^input/.test(template.share[key])
       pattern.test(template.share[key])
     ).forEach(key => {
-      console.log('FILLING OUT', key, template.share[key], share[key])
       rule[template.share[key]].values = share[key]
     })
 
