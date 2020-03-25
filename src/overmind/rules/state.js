@@ -9,7 +9,7 @@ export default {
   templates: {
     temp0: {
       id: 'temp0',
-      text: "When an audit has a location of input0 and a product of input1, sync the input3 copy to input2 via Food LogiQ.",
+      text: "When an audit has a location of input0 and a product of input1, sync it to input2 via Food LogiQ.",
       input0: {
         text: 'this location',
         type: 'locations',
@@ -47,7 +47,7 @@ export default {
     },
     temp1: {
       id: 'temp1',
-      text: "When an audit has a location of input0 and a product of input1, sync it to IBM Food Trust.",
+      text: "When an audit has a location of input0 and a product of input1, sync the input3 copy to IBM Food Trust.",
       input0: {
         text: 'this location',
         type: 'locations',
@@ -56,6 +56,11 @@ export default {
       input1: {
         text: 'this product',
         type: 'products',
+        values: [],
+      },
+      input3: {
+        text: 'masked/unmasked',
+        type: 'mask',
         values: [],
       },
       categories: ['FSQA', 'PII'],
