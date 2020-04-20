@@ -1,0 +1,86 @@
+{
+  "c60a1fa4618262bb8ac9f7ef8e997349": {
+    "template": "temp2",
+    "type": "email",
+    "locations": [],
+    "products": {
+      "2f940a63b1f177cdf8b8cb6771c03253": {
+        "name": "Bacon",
+        "key": "2f940a63b1f177cdf8b8cb6771c03253"
+      }
+    },
+    "emails": {
+      "6d5290c960c774ab9ba094af21760807": {
+        "name": "McDonalds <aca+McDonalds@centricity.us>",
+        "key": "6d5290c960c774ab9ba094af21760807"
+      }
+    },
+    "text": "When an Audit has a location of input0 and a product of input1, email it to input2.",
+    "key": "c60a1fa4618262bb8ac9f7ef8e997349"
+  },
+  "e4e63866e92e33d0c28ff6c596c1efac": {
+    "_id": "resources/e4e63866e92e33d0c28ff6c596c1efac",
+    "template": "temp0",
+    "type": "fl",
+    "locations": {
+      "361e364f32022b12328df7f6121481ba": {
+        "text": "Smithfield Packaged Meats Corp. - Cudahy, WI",
+        "name": "Cudahy, WI",
+        "key": "361e364f32022b12328df7f6121481ba"
+      },
+      "5b30749a2bf74cee837eca7dab686b6c": {
+        "text": "Smithfield Packaged Meats Corp. - Arnold",
+        "id": "10138",
+        "name": "Arnold, PA",
+        "key": "5b30749a2bf74cee837eca7dab686b6c"
+      },
+      "1970efd2e6fd2c227c18971f442e85b5": {
+        "text": "Smithfield Fresh Meats Corp. (North) - Smithfield, VA",
+        "id": "10132",
+        "name": "North",
+        "key": "1970efd2e6fd2c227c18971f442e85b5"
+      }
+    },
+    "products": [],
+    "partners": {
+      "8532762650eb0ef21cba9056f30cfc15": {
+        "name": "Tyson",
+        "key": "8532762650eb0ef21cba9056f30cfc15"
+      }
+    },
+    "shares": {
+      "5b2a416f6923920001acd471": {
+        "communities": []
+      }
+    },
+    "text": "When an audit has a location of input0 and a product of input1, sync it to input2 via Food LogiQ.",
+    "key": "e4e63866e92e33d0c28ff6c596c1efac"
+  }, 
+  "7c38bfbcfee0e65a7a82a0f0bfc65909": {
+    "_id": "resources/7c38bfbcfee0e65a7a82a0f0bfc65909",
+    "template": "temp1",
+    "type": "ift",
+    "locations": {
+      "1970efd2e6fd2c227c18971f442e85b5": {
+        "text": "Smithfield Fresh Meats Corp. (North) - Smithfield, VA",
+        "id": "10132",
+        "name": "North",
+        "key": "1970efd2e6fd2c227c18971f442e85b5"
+      },
+      "5b30749a2bf74cee837eca7dab686b6c": {
+        "text": "Smithfield Packaged Meats Corp. - Arnold",
+        "id": "10138",
+        "name": "Arnold, PA",
+        "key": "5b30749a2bf74cee837eca7dab686b6c"
+      },
+      "361e364f32022b12328df7f6121481ba": {
+        "text": "Smithfield Packaged Meats Corp. - Cudahy, WI",
+        "name": "Cudahy, WI",
+        "key": "361e364f32022b12328df7f6121481ba"
+      }
+    },
+    "products": {},
+    "text": "When an audit has a location of input0 and a product of input1, sync it to IBM Food Trust.",
+    "key": "7c38bfbcfee0e65a7a82a0f0bfc65909"
+  }
+}
