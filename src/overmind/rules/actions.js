@@ -27,6 +27,10 @@ function processShare(state, rule, share) {
     share.partners = rule[share.partners].values;
   }
 
+  if (share.mask) {
+    share.mask = rule[share.mask].values;
+  }
+
   return share
 }
 
