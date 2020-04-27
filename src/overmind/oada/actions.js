@@ -91,14 +91,11 @@ export default {
       key => _.startsWith(key, '_') === false
     )
 
-      //Load each of the documents
-    docKeys.forEach(
-      async key => {
-        //Load the documents
-        await actions.oada.loadDocument(key)
-      },
-//      { concurrency: 5 }
-    )
+    //Save space for documents
+    _.forEach(docKeys, (key) => {
+      state.oada.data.documents[key] = null;
+    })
+
     actions.rules.initialize()
   },
 

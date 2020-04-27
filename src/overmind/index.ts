@@ -6,7 +6,6 @@ import { namespaced } from 'overmind/config'
 
 import app from './app'
 import * as oada from './oada'
-import * as urls from './urls'
 import * as view from './view'
 import * as login from './login'
 import * as examples from './examples'
@@ -16,7 +15,6 @@ import * as rules from './rules'
 export const config = namespaced({
   app: app('app'),
   oada,
-  urls,
   view,
   login,
   examples,

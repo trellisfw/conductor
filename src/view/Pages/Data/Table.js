@@ -4,7 +4,7 @@ import React from 'react'
 import { jsx, css } from '@emotion/core'
 
 import 'react-virtualized/styles.css'
-import { Column, Table as RTable, AutoSizer } from 'react-virtualized'
+import { Column, Table as RTable, AutoSizer, InfiniteLoader } from 'react-virtualized'
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import moment from 'moment'
@@ -13,221 +13,142 @@ import ProcessingIcon from './icons/ProcessingIcon'
 import SignedIcon from './icons/SignedIcon'
 import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
-import Fuse from 'fuse.js'
 
 function Table () {
   const { actions, state } = overmind()
   const myActions = actions.view.Pages.Data.Table
   const myState = state.view.Pages.Data
 
-  var collection = _.map(
-    _.get(state, 'oada.data.documents'),
-    (document, documentKey) => {
-      //Pull out status from services
-      const tasks = _.get(document, '_meta.services.target.tasks') || {}
-      const fileDetails = {}
-      _.forEach(tasks, task => {
-        const statuses = _.get(task, 'status') || {}
-        const identify = _.find(statuses, { status: 'identified' })
-        if (identify != null) {
-          fileDetails.type = _.get(identify, 'type')
-          fileDetails.format = _.get(identify, 'format')
-          return false
-        } else {
-          const failed = _.find(statuses, { status: 'error' })
-          if (failed != null) {
-            fileDetails.format = 'Unknown'
-            return false
-          }
-        }
-      })
-      if (fileDetails.type == null) {
-        if (_.get(document, 'audits') != null) {
-          fileDetails.type = 'Audit'
-        } else if (_.get(document, 'cois') != null) {
-          fileDetails.type = 'COI'
-        } else {
-          fileDetails.type = 'Unknown'
-        }
-      }
-      // Check if Target service exists and is handling this document:
-      const processingService = _.keys(tasks).length > 0 ? 'target' : false
-
-      //Pull out share status
-      // Aaron changed this to stay bold unless ALL share tasks are approved.
-      const shared = _.chain(document)
-        .get('_meta.services.approval.tasks')
-        .every(t => t.status === 'approved')
-        .value()
-
-      //Pull out signature from audit
-      var signatures =
-        _.chain(document)
-          .get('audits')
-          .values()
-          .get(0)
-          .get('signatures')
-          .value() || []
-      if (signatures.length == 0)
-        signatures =
-          _.chain(document)
-            .get('cois')
-            .values()
-            .get(0)
-            .get('signatures')
-            .value() || []
-
-      // Get masked location
-      var masked = false;
-      if (_.get(document, 'unmask') != null) masked = true;
-
-      return {
-        documentKey: documentKey,
-        filename: _.get(document, 'pdf._meta.filename') || '',
-        type: fileDetails.type,
-        status: fileDetails.type == null ? 'processing' : null,
-        format: fileDetails.format,
-        createdAt: moment
-          .utc(_.get(document, '_meta.stats.created'), 'X')
-          .local()
-          .format('M/DD/YYYY h:mm a'),
-        createdAtUnix: _.get(document, '_meta.stats.created'),
-        signed: signatures.length > 0 ? true : false,
-        masked: masked,
-        shared: shared,
-        processingService
-      }
-    }
-  )
-  //Filter collection by filename
-  const fuseOptions = {keys: [{name: 'filename', weight: 0.3}], shouldSort: false};
-  var fuse = new Fuse(collection, fuseOptions);
-  if (myState.search && myState.search.length > 0) {
-    collection = _.map(fuse.search(myState.search.substr(0, 32)), 'item');
-  }
-  //Sort collection
-  collection = _.orderBy(collection, ['createdAtUnix'], ['desc'])
-  _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
-    collection.unshift({
-      filename: file.filename,
-      status: 'uploading'
-    })
-  })
+  const collection = myState.Table;
   return (
     <AutoSizer>
       {({ height, width }) => (
-        <RTable
-          css={css`
-            & .ReactVirtualized__Table__headerRow.odd {
-              background: rgb(0, 106, 211);
-              background: linear-gradient(
-                180deg,
-                rgba(0, 106, 211, 1) 0%,
-                rgba(0, 84, 166, 1) 100%
-              );
-            }
-            & .header > span {
-              color: #fff;
-              text-transform: none;
-            }
-            & .row {
-              cursor: pointer;
-            }
-            & .odd {
-              background-color: #efefef;
-            }
-            & .row:hover {
-              background-color: #9accfd;
-            }
-            & .row .signature {
-              display: flex;
-              flex: 1;
-              justify-content: flex-end;
-            }
-            & .row.unshared {
-              font-weight: bold;
-            }
-          `}
-          headerClassName={'header'}
-          headerHeight={40}
-          height={height}
-          rowCount={collection.length}
-          rowGetter={({ index }) => collection[index]}
-          rowClassName={({ index }) => {
-            var className = null
-            if (index % 2 === 0) {
-              className = 'row even'
-            } else {
-              className = 'row odd'
-            }
-            if (collection[index] && !collection[index].shared)
-              className = classnames(className, 'unshared')
-            return className
+        <InfiniteLoader
+          isRowLoaded={({index}) => {
+            return !_.isEmpty(_.omit(collection[index], 'documentKey'))
           }}
-          rowHeight={30}
-          width={width}
-          onRowClick={myActions.onRowClick}
+          loadMoreRows={myActions.loadMoreRows}
+          rowCount={collection.length}
         >
-          <Column
-            label=''
-            dataKey='processingService'
-            width={40}
-            cellRenderer={({ rowData }) =>
-              !rowData || rowData.processingService !== 'target' ? (
-                ''
-              ) : (
-                <TargetIcon />
-              )
-            }
-          />
-          <Column label='Name' dataKey='filename' width={200} />
-          <Column
-            width={200}
-            label='Type'
-            dataKey='type'
-            cellRenderer={({ rowData }) => {
-              if (rowData.type) {
-                if (rowData.masked) {
-                  return <div>{`${rowData.type} - Masked`}</div>
-                }
-                return <div>{rowData.type}</div>
-              } else if (rowData.status == 'processing') {
-                return (
-                  <div css={{ display: 'flex', alignItems: 'center' }}>
-                    <ProcessingIcon />
-                    <div css={{ marginLeft: 3 }}>{'Processing...'}</div>
-                  </div>
-                )
-              } else if (rowData.status == 'uploading') {
-                return (
-                  <div css={{ display: 'flex', alignItems: 'center' }}>
-                    <UploadingIcon />
-                    <div css={{ marginLeft: 3 }}>{'Uploading...'}</div>
-                  </div>
-                )
-              } else {
-                return <div>{'Unknown'}</div>
+        {({ onRowsRendered, registerChild }) => (
+          <RTable
+            css={css`
+              & .ReactVirtualized__Table__headerRow.odd {
+                background: rgb(0, 106, 211);
+                background: linear-gradient(
+                  180deg,
+                  rgba(0, 106, 211, 1) 0%,
+                  rgba(0, 84, 166, 1) 100%
+                );
               }
+              & .header > span {
+                color: #fff;
+                text-transform: none;
+              }
+              & .row {
+                cursor: pointer;
+              }
+              & .odd {
+                background-color: #efefef;
+              }
+              & .row:hover {
+                background-color: #9accfd;
+              }
+              & .row .signature {
+                display: flex;
+                flex: 1;
+                justify-content: flex-end;
+              }
+              & .row.unshared {
+                font-weight: bold;
+              }
+            `}
+            onRowsRendered={onRowsRendered}
+            ref={registerChild}
+            headerClassName={'header'}
+            headerHeight={40}
+            height={height}
+            rowCount={collection.length}
+            rowGetter={({ index }) => collection[index]}
+            rowClassName={({ index }) => {
+              var className = null
+              if (index % 2 === 0) {
+                className = 'row even'
+              } else {
+                className = 'row odd'
+              }
+              if (collection[index] && !collection[index].shared)
+                className = classnames(className, 'unshared')
+              return className
             }}
-          />
-          <Column width={140} label='Added' dataKey='createdAt' />
-          <Column
-            dataKey='name'
-            className='signature'
-            width={width - 600}
-            cellRenderer={({ rowData }) => {
-              if (!rowData.signed) return null
-              return (
-                <div css={{ display: 'flex', alignItems: 'center' }}>
-                  <SignedIcon />
-                  <div css={{ marginLeft: 3, color: '#02A12B', marginRight: 7 }}>
-                    {'Signed'}
+            rowHeight={30}
+            width={width}
+            onRowClick={myActions.onRowClick}
+          >
+            <Column
+              label=''
+              dataKey='processingService'
+              width={40}
+              cellRenderer={({ rowData }) =>
+                !rowData || rowData.processingService !== 'target' ? (
+                  ''
+                ) : (
+                  <TargetIcon />
+                )
+              }
+            />
+            <Column label='Name' dataKey='filename' width={200} />
+            <Column
+              width={200}
+              label='Type'
+              dataKey='type'
+              cellRenderer={({ rowData }) => {
+                if (rowData.type) {
+                  if (rowData.masked) {
+                    return <div>{`${rowData.type} - Masked`}</div>
+                  }
+                  return <div>{rowData.type}</div>
+                } else if (rowData.status == 'processing') {
+                  return (
+                    <div css={{ display: 'flex', alignItems: 'center' }}>
+                      <ProcessingIcon />
+                      <div css={{ marginLeft: 3 }}>{'Processing...'}</div>
+                    </div>
+                  )
+                } else if (rowData.status == 'uploading') {
+                  return (
+                    <div css={{ display: 'flex', alignItems: 'center' }}>
+                      <UploadingIcon />
+                      <div css={{ marginLeft: 3 }}>{'Uploading...'}</div>
+                    </div>
+                  )
+                } else if (_.isEmpty(_.omit(rowData, 'documentKey'))) {
+                  return <div></div>
+                } else {
+                  return <div>{'Unknown'}</div>
+                }
+              }}
+            />
+            <Column width={140} label='Added' dataKey='createdAt' />
+            <Column
+              dataKey='name'
+              className='signature'
+              width={width - 600}
+              cellRenderer={({ rowData }) => {
+                if (!rowData.signed) return null
+                return (
+                  <div css={{ display: 'flex', alignItems: 'center' }}>
+                    <SignedIcon />
+                    <div css={{ marginLeft: 3, color: '#02A12B', marginRight: 7 }}>
+                      {'Signed'}
+                    </div>
                   </div>
-                </div>
-              )
-            }}
-          />
-        </RTable>
+                )
+              }}
+            />
+          </RTable>
+        )}
+        </InfiniteLoader>
       )}
     </AutoSizer>
   )

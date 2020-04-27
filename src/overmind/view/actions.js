@@ -138,6 +138,14 @@ export default {
         }
       },
       Table: {
+        loadMoreRows({state, actions}, {startIndex, stopIndex}) {
+          const table = _.get(state, 'view.Pages.Data.Table');
+          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
+          keys = keys.sort();
+          Promise.map(keys, async (key) => {
+            await actions.oada.loadDocument(key)
+          }, {concurrency: 5})
+        },
         onRowClick({ state, actions }, {rowData}) {
           const documentKey = rowData.documentKey
           console.log('Selected Document:')
