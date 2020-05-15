@@ -79,9 +79,10 @@ export default {
           }
         })
       },
-      viewPDF({ state, actions }, documentKey) {
+      viewPDF({ state, actions }, {documentKey, docType}) {
+        const pdfResource = _.get(state.oada.data, `${docType}.${documentKey}._meta.vdoc.pdf._id`)
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}/pdf`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/${pdfResource}`
         state.view.Modals.PDFViewerModal.open = true;
       },
       toggleShowData({ state }, documentKey) {
@@ -132,6 +133,36 @@ export default {
     }
   },
   Pages: {
+    Audits: {
+      onSearch({ state }, value) {
+        state.view.Pages.Data.search = value;
+      },
+      Table: {
+        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
+          //Load parsed COI data and it's meta
+          const table = _.get(state, `view.Pages.Audits.Table`);
+          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
+          keys = keys.sort();
+          return Promise.map(keys, async (key) => {
+            await actions.oada.loadDocument({docType, documentId: key})
+          }, {concurrency: 5})
+        },
+        async onRowClick({ state, actions }, {rowData}) {
+          const documentKey = rowData.documentKey
+          const docType = rowData.docType;
+          console.log('Selected Document:')
+          console.log('key', documentKey, 'data', rowData)
+          if (documentKey == null) return; //Uploading doc
+          const doc = state.oada.data[docType][documentKey];
+          console.log('doc', doc)
+          //Show file detial model
+          state.view.Modals.FileDetailsModal.docType = docType;
+          state.view.Modals.FileDetailsModal.documentKey = documentKey;
+          state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+        }
+      }
+    },
     COIS: {
       onSearch({ state }, value) {
         state.view.Pages.Data.search = value;
@@ -150,15 +181,14 @@ export default {
           const documentKey = rowData.documentKey
           const docType = rowData.docType;
           console.log('Selected Document:')
-          console.log(documentKey, rowData)
+          console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          if (doc.pdf != null) {
-            //Set view data for audit modal
-            state.view.Modals.FileDetailsModal.documentKey = documentKey;
-            state.view.Modals.FileDetailsModal.open = true;
-          }
-          await actions.oada.getTradingPartners({docType, documentKey});
+          //Show file detial model
+          state.view.Modals.FileDetailsModal.docType = docType;
+          state.view.Modals.FileDetailsModal.documentKey = documentKey;
+          state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
     },
@@ -174,17 +204,18 @@ export default {
       },
       Dropzone: {
         filesDropped({ state, actions }, files) {
-            //Start uploading the files
-            return Promise.map(files, (file) => {
-              //Add an `uploading` file
-              const id = uuid();
-              state.view.Pages.Data.uploading[id] = {
-                filename: file.name
-              };
-              return actions.oada.uploadFile(file).then(() => {
-                delete state.view.Pages.Data.uploading[id];
-              })
+          //TODO upload only 5 at a time
+          //Start uploading the files
+          return Promise.map(files, (file) => {
+            //Add an `uploading` file
+            const id = uuid();
+            state.view.Pages.Data.uploading[id] = {
+              filename: file.name
+            };
+            return actions.oada.uploadFile(file).then(() => {
+              delete state.view.Pages.Data.uploading[id];
             })
+          });
         }
       },
       Table: {

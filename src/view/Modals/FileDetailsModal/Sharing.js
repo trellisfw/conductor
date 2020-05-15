@@ -27,7 +27,7 @@ function Sharing(props) {
   const shareValue = _.chain(myState.share).map((share, key) => {
     if (share.status == 'pending') return key;
   }).compact().value();
-  const approvedList = _.chain(myState.share).map((share) => {
+  const approvedList = _.chain(myState.sharedWith).map((share) => {
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
     if (type == 'shareWf') type = 'Trellis';

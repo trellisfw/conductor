@@ -11,9 +11,9 @@ function MyHeader (props) {
   const { state } = overmind()
   const myState = state.view.Modals.FileDetailsModal
   let title = 'Unknown Document Type';
-  if (myState.audit != null && _.keys(myState.audit).length > 0) {
+  if (myState.docType == 'fsqa-audits') {
     title = `FSQA Audit`;
-  } else if (myState.coi != null && _.keys(myState.coi).length > 0) {
+  } else if (myState.docType == 'cois') {
     title = `Certificate of Insurance`;
   }
   return (
