@@ -27,7 +27,7 @@ function Data() {
       <div css={{flex: 1, padding: 30, paddingTop: 15, display: 'flex'}}>
         <div css={{border: '1px solid #979797', flex: 1, display: 'flex'}}>
           <Dropzone open={myState.openFileBrowser}>
-            <Table />
+            <Table docType='cois'/>
           </Dropzone>
         </div>
       </div>

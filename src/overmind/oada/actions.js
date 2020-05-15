@@ -9,12 +9,15 @@ const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken)
 const lsKey = url => 'oada:' + url + ':token' // handy function to make a useful localStorage key
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
+let COI_HOLDERS = {};
+let TRADING_PARTNERS = {};
+let FACILITIES = {};
 
 export default {
   async logout ({ state, effects }) {
     await effects.oada.websocket.close()
     //Clear documents
-    state.oada.data.documents = {}
+    state.oada.data = {}
     delete window.localStorage[lsKey(state.oada.url)]
   },
   async login ({ state, actions }) {
@@ -53,7 +56,30 @@ export default {
     console.log('Have token, connecting to oada...')
     let result = await actions.oada.connect()
     console.log('Websocket connected, checking resources...')
-    //Create /trellisfw if it does not exist
+   
+    actions.oada.initializeLookups();
+    actions.oada.initializeDocuments();
+    actions.rules.initialize()
+  },
+
+  async initializeLookups({state, actions}) {
+  // Get expanded list of trading partners
+    let response = await actions.oada
+      .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+    let TRADING_PARTNERS = response.data
+
+  // Get expanded list of coi-holders 
+    response = await actions.oada
+      .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+    COI_HOLDERS = response.data;
+
+    response = await actions.oada
+      .get(`/bookmarks/trellisfw/facilities/expand-index`)
+    FACILITIES = response.data;
+  },
+
+  async initializeDocuments({state, actions}) {
+   //Create /trellisfw if it does not exist
     let exists = await actions.oada
       .doesResourceExist('/bookmarks/trellisfw')
     if (!exists) {
@@ -84,6 +110,9 @@ export default {
 
       console.log('Setting watches...')
       //Watch for changes to /trellisfw/documents
+      //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
+      // are many other keys with changes being made at that level
+      // need to figure out how to pluck docType out of responses
       await actions.oada
         .watch({
           url: `/bookmarks/trellisfw/${docType}`,
@@ -104,9 +133,48 @@ export default {
       })
     })
 
-    actions.rules.initialize()
   },
 
+  async getTradingPartners({state, actions}, {docType, documentKey}) {
+    let doc = state.oada.data[docType][documentKey];
+    switch(docType) {
+      case 'cois':
+        //One CoI holder to many TPs
+        let ref = doc._meta.lookups.coi.holder._ref;
+        let holder = await actions.oada.get(ref)
+        let tps = holder.data['trading-partners']
+        tps = Object.keys(tps).map(masterid => 
+          _.find(TRADING_PARTNERS, {masterid}))
+          .map(tp => tp.name)
+
+        return tps
+      case 'fsqa-audits':
+        ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
+        let organization = await actions.oada.get(ref)
+        let masterid = organization.data.masterid;
+
+        tps = _.filter(TRADING_PARTNERS, (tp) => {
+          return tp.facilities[masterid] ? true: false
+        }).map(tp => tp.name)
+
+        return tps;
+
+      case 'fsqa-certificates': 
+        ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
+        organization = await actions.oada.get(ref)
+        masterid = organization.data.masterid;
+
+        tps = _.filter(TRADING_PARTNERS, (tp) => {
+          return tp.facilities[masterid] ? true: false
+        }).map(tp => tp.name)
+
+        return tps;
+      case 'letters-of-guarantee':
+
+      case 'documents':
+        return []
+    }
+  },
   uploadFile ({ state, actions }, file) {
     //Add file to the file list, flag it as `uploading`
     //Create the pdf
@@ -161,9 +229,12 @@ export default {
         Object.keys(_.get(response, 'change.body')),
         key => _.startsWith(key, '_') === false
       )
+      // TODO: Fix this. Parse out of watch path
+      let docType = 'documents';
+      console.log('ONDOCUMENTSCHANGE', response)
       //If these keys are links, then load them as documents
       return Promise.map(keys, documentId => {
-        return actions.oada.loadDocument(documentId)
+        return actions.oada.loadDocument({docType, documentId})
       })
     } else if (_.get(response, 'change.type') == 'delete') {
       //Get all the keys that do not start with _
@@ -172,30 +243,37 @@ export default {
         key => _.startsWith(key, '_') === false
       )
       //If these keys are links, then load them as documents
+      //TODO: fix this -- watch should just specify the docType when its setup under the payload key
+      console.log(response);
+      let docType = 'documents'
       _.forEach(keys, key => {
-        delete state.oada.data.documents[key]
+        delete state.oada.data[docType][key]
       })
     }
   },
-  loadDocument ({ state, actions }, documentId) {
+  loadDocument ({ state, actions }, {documentId, docType}) {
+    console.log('LOADDOC', docType);
+    //TODO: Temporary. Shouldn't need this.
+    docType = docType || 'documents';
+    let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
     return actions.oada
-      .get('/bookmarks/trellisfw/documents/' + documentId)
+      .get(path)
       .then(response => {
         //If doc already exists merge in data
-        const orgData = state.oada.data.documents[documentId] || {}
-        state.oada.data.documents[documentId] = _.merge(
+        const orgData = state.oada.data[docType][documentId] || {}
+        state.oada.data[docType][documentId] = _.merge(
           {},
           orgData,
           response.data
         )
         //Load the _meta for this document
         return actions.oada
-          .get(`/bookmarks/trellisfw/documents/${documentId}/_meta`)
+          .get(path+`/_meta`)
           .then(response => {
             if (response == null) throw Error('No data')
-            const orgMeta = state.oada.data.documents[documentId]._meta
+            const orgMeta = state.oada.data[docType][documentId]._meta
             //Merge in status and services
-            state.oada.data.documents[documentId]._meta = _.merge(
+            state.oada.data[docType][documentId]._meta = _.merge(
               {},
               orgMeta,
               _.pick(response.data, ['stats', 'services'])
@@ -206,14 +284,14 @@ export default {
           })
           .then(() => {
             //Load the meta for the pdf of this doc
-            if (state.oada.data.documents[documentId].pdf != null) {
+            if (state.oada.data[docType][documentId].pdf != null) {
               return actions.oada
-                .get(`/bookmarks/trellisfw/documents/${documentId}/pdf/_meta`)
+                .get(path+`/pdf/_meta`)
                 .then(response => {
                   if (response == null) throw Error('No data')
                   const orgMeta =
-                    state.oada.data.documents[documentId].pdf._meta || {}
-                  state.oada.data.documents[documentId].pdf._meta = _.merge(
+                    state.oada.data[docType][documentId].pdf._meta || {}
+                  state.oada.data[docType][documentId].pdf._meta = _.merge(
                     {},
                     orgMeta,
                     _.pick(response.data, ['filename'])
@@ -226,21 +304,19 @@ export default {
           })
           .then(() => {
             //Load the audit info for this document if it exists
-            if (state.oada.data.documents[documentId].audits != null) {
+            if (state.oada.data[docType][documentId].audits != null) {
               return Promise.map(
-                _.keys(state.oada.data.documents[documentId].audits),
+                _.keys(state.oada.data[docType][documentId].audits),
                 auditKey => {
                   return actions.oada
-                    .get(
-                      `/bookmarks/trellisfw/documents/${documentId}/audits/${auditKey}`
-                    )
+                    .get(path+`/audits/${auditKey}`)
                     .then(response => {
                       if (response == null) throw Error('No data')
                       const orgAudit =
-                        state.oada.data.documents[documentId].audits[
+                        state.oada.data[docType][documentId].audits[
                           auditKey
                         ] || {}
-                      state.oada.data.documents[documentId].audits[
+                      state.oada.data[docType][documentId].audits[
                         auditKey
                       ] = _.merge({}, orgAudit, response.data)
                     })
@@ -259,22 +335,20 @@ export default {
           .then(() => {
             //Load the masked audit info for this document if it exists
             if (
-              state.oada.data.documents[documentId]['audits-masked'] != null
+              state.oada.data[docType][documentId]['audits-masked'] != null
             ) {
               return Promise.map(
-                _.keys(state.oada.data.documents[documentId]['audits-masked']),
+                _.keys(state.oada.data[docType][documentId]['audits-masked']),
                 auditKey => {
                   return actions.oada
-                    .get(
-                      `/bookmarks/trellisfw/documents/${documentId}/audits-masked/${auditKey}`
-                    )
+                    .get(path+`/audits-masked/${auditKey}`)
                     .then(response => {
                       if (response == null) throw Error('No data')
                       const orgAudit =
-                        state.oada.data.documents[documentId]['audits-masked'][
+                        state.oada.data[docType][documentId]['audits-masked'][
                           auditKey
                         ] || {}
-                      state.oada.data.documents[documentId]['audits-masked'][
+                      state.oada.data[docType][documentId]['audits-masked'][
                         auditKey
                       ] = _.merge({}, orgAudit, response.data)
                     })
@@ -292,19 +366,19 @@ export default {
           })
           .then(() => {
             //Load the cois info for this document if it exists
-            if (state.oada.data.documents[documentId].cois != null) {
+            if (state.oada.data[docType][documentId].cois != null) {
               return Promise.map(
-                _.keys(state.oada.data.documents[documentId].cois),
+                _.keys(state.oada.data[docType][documentId].cois),
                 coiKey => {
                   return actions.oada
                     .get(
-                      `/bookmarks/trellisfw/documents/${documentId}/cois/${coiKey}`
+                      `/bookmarks/trellisfw/${docType}/${documentId}/cois/${coiKey}`
                     )
                     .then(response => {
                       if (response == null) throw Error('No data')
                       const orgCoi =
-                        state.oada.data.documents[documentId].cois[coiKey] || {}
-                      state.oada.data.documents[documentId].cois[
+                        state.oada.data[docType][documentId].cois[coiKey] || {}
+                      state.oada.data[docType][documentId].cois[
                         coiKey
                       ] = _.merge({}, orgCoi, response.data)
                     })

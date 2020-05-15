@@ -3,6 +3,7 @@ import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 import {json} from 'overmind';
+let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 export default {
   TopBar: {
     logout({state, actions}) {
@@ -70,10 +71,13 @@ export default {
       },
       showDocument({state}, {resourceId}) {
         //Find document key for resourceId
-        let docKey = _.chain(state.oada.data.documents).findKey({_id: resourceId}).value();
-        if (docKey) {
-          state.view.Modals.FileDetailsModal.documentKey = docKey;
-        }
+        DOC_TYPES.forEach((docType) => {
+          let docKey = _.chain(state.oada.data[docType]).findKey({_id: resourceId}).value();
+          if (docKey) {
+            state.view.Modals.FileDetailsModal.documentKey = docKey;
+            state.view.Modals.FileDetailsModal.docType = docType;
+          }
+        })
       },
       viewPDF({ state, actions }, documentKey) {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
@@ -89,9 +93,10 @@ export default {
           return key;
         });
         const documentKey = state.view.Modals.FileDetailsModal.documentKey;
+        const docType = state.view.Modals.FileDetailsModal.docType;
         return Promise.map(shareKeys, (taskKey) => {
           return actions.oada.put({
-            url: `/bookmarks/trellisfw/documents/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
+            url: `/bookmarks/trellisfw/${docType}/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
             data: {status: "approved"},
             headers: {
               'Content-Type': 'application/json',
@@ -138,25 +143,27 @@ export default {
         }
       },
       Table: {
-        loadMoreRows({state, actions}, {startIndex, stopIndex}) {
+        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
           const table = _.get(state, 'view.Pages.Data.Table');
           let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
           keys = keys.sort();
           Promise.map(keys, async (key) => {
-            await actions.oada.loadDocument(key)
+            await actions.oada.loadDocument({docType, documentId: key})
           }, {concurrency: 5})
         },
-        onRowClick({ state, actions }, {rowData}) {
+        async onRowClick({ state, actions }, {rowData}) {
           const documentKey = rowData.documentKey
+          const docType = rowData.docType;
           console.log('Selected Document:')
-          console.log(documentKey)
+          console.log(documentKey, rowData)
           if (documentKey == null) return; //Uploading doc
-          const doc = state.oada.data.documents[documentKey];
+          const doc = state.oada.data[docType][documentKey];
           if (doc.pdf != null) {
             //Set view data for audit modal
             state.view.Modals.FileDetailsModal.documentKey = documentKey;
             state.view.Modals.FileDetailsModal.open = true;
           }
+          await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
     },

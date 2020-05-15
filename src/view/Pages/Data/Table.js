@@ -14,12 +14,12 @@ import SignedIcon from './icons/SignedIcon'
 import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
 
-function Table () {
+function Table ({docType}) {
+  console.log('DOCTYPE', docType);
   const { actions, state } = overmind()
   const myActions = actions.view.Pages.Data.Table
   const myState = state.view.Pages.Data
-
-  const collection = myState.Table;
+  const collection = myState.Table[docType] || [];
   return (
     <AutoSizer>
       {({ height, width }) => (
