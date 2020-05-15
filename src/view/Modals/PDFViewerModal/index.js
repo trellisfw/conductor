@@ -22,8 +22,6 @@ function PDFViewerModal(props) {
     [url]
   );
 
-  //console.log(file);
-
   return (
     <Modal open={myState.open} onClose={myActions.close}>
       <Modal.Content>
@@ -34,34 +32,32 @@ function PDFViewerModal(props) {
               justify-content: center;
             }
           `}>
-          <Button
-            onClick={myActions.close}
-            >
-            <Button.Content visible>
-              <Icon name='close' />
-            </Button.Content>
-          </Button>
+          <div css={{display: 'flex', justifyContent: 'flex-end'}}>
+            <Button
+              onClick={myActions.close}
+              icon="close" />
+          </div>
           <Document
             file={file}
             onLoadSuccess={myActions.onLoadSuccess}>
             <Page className={'pdfPage'} pageNumber={pageNumber} />
           </Document>
-          <div>
-            <p>
+          <div css={{display: 'flex', justifyContent: 'space-between'}}>
+            <div>
               Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
-            </p>
-            <Button
-              disabled={pageNumber <= 1}
-              onClick={myActions.previousPage}
-            >
-              Previous
-            </Button>
-            <Button
-              disabled={pageNumber >= numPages}
-              onClick={myActions.nextPage}
-            >
-              Next
-            </Button>
+            </div>
+            <div>
+              <Button
+                disabled={pageNumber <= 1}
+                onClick={myActions.previousPage}>
+                Previous
+              </Button>
+              <Button
+                disabled={pageNumber >= numPages}
+                onClick={myActions.nextPage}>
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </Modal.Content>
