@@ -13,6 +13,7 @@ function PDFViewerModal(props) {
   const { actions, state } = overmind();
   const myActions = actions.view.Modals.PDFViewerModal;
   const myState = state.view.Modals.PDFViewerModal;
+  const { pageNumber, numPages } = myState;
   return (
     <Modal open={myState.open} onClose={myActions.close}>
       <Modal.Content>
@@ -30,9 +31,28 @@ function PDFViewerModal(props) {
                 httpHeaders: myState.headers
               }
             }
-            onLoadSuccess={({numPages}) => {}}>
-            <Page className={'pdfPage'} pageNumber={1} />
+            onLoadSuccess={myActions.onLoadSuccess}>
+            <Page className={'pdfPage'} pageNumber={pageNumber} />
           </Document>
+          <div>
+          <p>
+            Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
+          </p>
+          <button
+            type="button"
+            disabled={pageNumber <= 1}
+            onClick={myActions.previousPage}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            disabled={pageNumber >= numPages}
+            onClick={myActions.nextPage}
+          >
+            Next
+          </button>
+        </div>
         </div>
       </Modal.Content>
     </Modal>

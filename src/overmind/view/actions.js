@@ -110,6 +110,16 @@ export default {
       }
     },
     PDFViewerModal: {
+      nextPage({state}) {
+        state.view.Modals.PDFViewer.pageNumber = state.view.Modals.PDFViewer.pageNumber + 1;
+      },
+      previousPage({state}) {
+        state.view.Modals.PDFViewer.pageNumber = state.view.Modals.PDFViewer.pageNumber - 1;
+      },
+      onLoadSuccess({state, actions}, stuff) {
+        state.view.Modals.PDFViewer.pageNumber = stuff.pageNumber;
+        state.view.Modals.PDFViewer.numPages = stuff.numPages;
+      },
       close({state, actions}) {
         //Close my window
         state.view.Modals.PDFViewerModal.open = false;
