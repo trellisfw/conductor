@@ -91,7 +91,6 @@ export default {
       })
     }
 
-
     //Create document endpoints if they do not exist
     DOC_TYPES.forEach(async (docType) => {
 
