@@ -15,6 +15,10 @@ export default {
       email: 'Tyson <aca+Tyson@centricity.us>',
       locations: utils.objFromObjArr([
         {
+          text: 'Smithfield Packaged Meats Corp. - Cudahy, WI',
+          id: '45735',
+          name: 'Cudahy, WI'
+        }, {
           text: 'Smithfield Packaged Meats Corp. - Wilson, NC',
           id: '10151',
           name: 'Wilson, NC'
