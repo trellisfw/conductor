@@ -32,7 +32,7 @@ function TopBar() {
       }
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
-        <div css={{fontSize: 27, marginRight: 15}}>{'Data'}</div>
+        <div css={{fontSize: 27, marginRight: 15}}>{'Unidentified Files'}</div>
         <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}}
           onChange={(evt) => myActions.onSearch(evt.target.value)} />
       </div>
