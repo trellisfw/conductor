@@ -57,7 +57,8 @@ export default function websocket(url) {
 					delete httpCallbacks[response.requestId];
         } else if (watchCallbacks[response.requestId]) {
 					if (watchCallbacks[response.requestId].resolve) {
-						if (response.status === 'success') {
+						if (response.status === 200) {
+						//if (response.status === 'success') {
 							//Successfully setup websocket, resolve promise
 							watchCallbacks[response.requestId].resolve(response);
             } else {
@@ -125,6 +126,7 @@ export default function websocket(url) {
 		}
 
     function _watch(request, callback) {
+      console.log(request)
 			//Watch for changes on requested resource and trigger provided signal
 			let urlObj = urlLib.parse(request.url);
 			return new Promise((resolve, reject) => {

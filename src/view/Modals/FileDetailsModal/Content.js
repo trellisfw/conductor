@@ -15,15 +15,7 @@ function Content (props) {
   const myActions = actions.view.Modals.FileDetailsModal
   const myState = state.view.Modals.FileDetailsModal
 
-  var jsonData = null
-  var jsonTitle = ''
-  if (_.isEmpty(myState.audit) == false) {
-    jsonData = _.get(myState, 'audit')
-    jsonTitle = 'audit'
-  } else if (_.isEmpty(myState.coi) == false) {
-    jsonData = _.get(myState, 'coi')
-    jsonTitle = 'coi'
-  }
+  var jsonData = _.get(myState, 'document')
   if (jsonData) {
     jsonData = _.cloneDeep(jsonData)
     if (jsonData._id) delete jsonData._id
@@ -34,10 +26,10 @@ function Content (props) {
 
   return (
     <div>
-      {jsonTitle === 'audit' ? (
-        <Audit audit={myState.audit} document={myState.document} />
-      ) : jsonTitle === 'coi' ? (
-        <CoI coi={myState.coi} document={myState.document} />
+      {myState.type === 'audit' ? (
+        <Audit audit={myState.document} />
+      ) : myState.type === 'coi' ? (
+        <CoI coi={myState.document} />
       ) : null}
 
       {!myState.showData ? (
@@ -47,7 +39,7 @@ function Content (props) {
       ) : (
         <ReactJson
           src={jsonData}
-          name={jsonTitle}
+          name={myState.type}
           collapsed={1}
           collapseStringsAfterLength={50}
           displayDataTypes={false}
@@ -67,7 +59,7 @@ function Content (props) {
       >
         <div
           css={{ cursor: 'pointer' }}
-          onClick={() => myActions.viewPDF(_.get(myState, 'documentKey'))}
+          onClick={() => myActions.viewPDF({documentKey: myState.documentKey, docType: myState.docType})}
         >
           {'VIEW PDF'}
         </div>

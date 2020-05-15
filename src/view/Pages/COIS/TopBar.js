@@ -10,7 +10,7 @@ import 'semantic-ui-css/semantic.min.css'
 
 function TopBar() {
   const { actions } = overmind();
-  const myActions = actions.view.Pages.Data;
+  const myActions = actions.view.Pages.COIS;
   return (
     <div css={css`
       display: flex;
@@ -32,14 +32,10 @@ function TopBar() {
       }
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
-        <div css={{fontSize: 27, marginRight: 15}}>{'Unidentified Files'}</div>
+        <div css={{fontSize: 27, marginRight: 15}}>{'COIS'}</div>
         <Input type="search" id="user-search" icon='search' iconPosition='left'  placeholder='Search...' style={{borderRadius: 38}}
           onChange={(evt) => myActions.onSearch(evt.target.value)} />
       </div>
-      <Button icon onClick={()=>myActions.openFileBrowser()}>
-        <Icon  name='plus' />
-        <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Add</span>
-      </Button>
     </div>
   );
 }

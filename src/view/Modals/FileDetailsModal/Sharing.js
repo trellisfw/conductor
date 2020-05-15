@@ -27,12 +27,13 @@ function Sharing(props) {
   const shareValue = _.chain(myState.share).map((share, key) => {
     if (share.status == 'pending') return key;
   }).compact().value();
-  const approvedList = _.chain(myState.share).map((share) => {
+  const approvedList = _.chain(myState.sharedWith).map((share) => {
     var type = share.type;
     if (type == 'fl') type = 'FoodLogiQ';
     if (type == 'shareWf') type = 'Trellis';
     if (type == 'ift') type = 'IBM Food Trust';
-    if (share.status == 'approved') return `${share['with']} - ${type}`;
+    //if (share.status == 'approved') return `${share['with']} - ${type}`;
+    return `${share['with']} - ${type}`;
   }).compact().value();
   return (
     <div css={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>

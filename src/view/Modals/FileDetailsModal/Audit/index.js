@@ -8,11 +8,9 @@ import Organization from './Organization'
 import Scope from './Scope'
 import Score from './Score'
 import Validity from './Validity'
-import Unmask from '../common/Unmask'
-import Masks from '../common//Masks'
 
 function Audit (props) {
-  const { audit, document } = props
+  const { audit } = props
   return (
     <Table celled striped>
       <Table.Body css={{fontSize: 16}}>
@@ -20,8 +18,6 @@ function Audit (props) {
         <Score audit={audit} />
         <Scope audit={audit} />
         <Validity audit={audit} />
-        <Unmask document={document} />
-        <Masks document={document} />
       </Table.Body>
     </Table>
   )

@@ -78,7 +78,7 @@ export default {
         let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
         //TODO: this 404s immediately after deleting
         if (shareResponse && shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
-      })
+    })
   },
 
   async initialize({state, actions}) {
@@ -100,6 +100,7 @@ export default {
     let rule = _.cloneDeep(template);
 
     // Fill out the inputs
+    console.log(obj, templateId, template);
     _.keys(template.share).filter(key =>
 //      /^input/.test(template.share[key])
       pattern.test(template.share[key])

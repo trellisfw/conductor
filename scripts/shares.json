@@ -1,0 +1,22 @@
+{
+  "share-cois-with-holders": {
+    "text": "When a Certificate of Insurance has an identifield holder, share it with the associated trading partners.",
+    "key": "share-cois-with-holders",
+    "template": "tempA"
+  },
+  "share-certificates": {
+    "text": "When a FSQA Certificate has an identifield facility location, share it with the associated trading partners.",
+    "key": "share-certificates",
+    "template": "tempB"
+  },
+  "share-audits": {
+    "text": "When a FSQA Audit has an identifield facility location, share it with the associated trading partners.",
+    "key": "share-audits",
+    "template": "tempC"
+  },
+  "share-logs": {
+    "text": "When a Letter of Guarantee has an identifield vendor, share it with the associated trading partners.",
+    "key": "share-logs",
+    "template": "tempD"
+  }
+}

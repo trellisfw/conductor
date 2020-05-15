@@ -1,11 +1,12 @@
 {
   "name": "smithfield-ui",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "homepage": "https://trellisfw.github.io/conductor/",
   "dependencies": {
     "@emotion/core": "^10.0.27",
     "@material-ui/core": "^4.9.7",
+    "@oada/oada-cache": "^3.1.8",
     "@oada/oada-id-client": "^1.0.4",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
