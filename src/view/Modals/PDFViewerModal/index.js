@@ -8,13 +8,25 @@ import { Document, Page } from 'react-pdf';
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import { Modal, Icon, Button } from 'semantic-ui-react'
+import {useMemo} from 'react';
 
 function PDFViewerModal(props) {
   const { actions, state } = overmind();
   const myActions = actions.view.Modals.PDFViewerModal;
   const myState = state.view.Modals.PDFViewerModal;
-  let { pageNumber, numPages } = myState;
+  let { pageNumber, numPages, url, headers } = myState;
   pageNumber = pageNumber || 1;
+
+/*
+  console.log(url);
+  const file = useMemo(
+    () => ({ url, httpHeaders: headers}),
+    []
+  );
+  */
+
+  //console.log(file);
+
   return (
     <Modal open={myState.open} onClose={myActions.close}>
       <Modal.Content>
@@ -33,12 +45,7 @@ function PDFViewerModal(props) {
             </Button.Content>
           </Button>
           <Document
-            file={
-              {
-                url: myState.url,
-                httpHeaders: myState.headers
-              }
-            }
+            file={{url, httpHeaders: headers}}
             onLoadSuccess={myActions.onLoadSuccess}>
             <Page className={'pdfPage'} pageNumber={pageNumber} />
           </Document>
