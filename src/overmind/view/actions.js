@@ -79,9 +79,10 @@ export default {
           }
         })
       },
-      viewPDF({ state, actions }, documentKey) {
+      viewPDF({ state, actions }, {documentKey, docType}) {
+        const pdfResource = _.get(state.oada.data, `${docType}.${documentKey}._meta.vdoc.pdf._id`)
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}/pdf`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/${pdfResource}`
         state.view.Modals.PDFViewerModal.open = true;
       },
       toggleShowData({ state }, documentKey) {
@@ -135,15 +136,16 @@ export default {
           const documentKey = rowData.documentKey
           const docType = rowData.docType;
           console.log('Selected Document:')
-          console.log(documentKey, rowData)
+          console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          if (doc.pdf != null) {
-            //Set view data for audit modal
-            state.view.Modals.FileDetailsModal.documentKey = documentKey;
-            state.view.Modals.FileDetailsModal.open = true;
-          }
-          await actions.oada.getTradingPartners({docType, documentKey});
+          console.log('doc', doc)
+          //Show file detial model
+          state.view.Modals.FileDetailsModal.docType = docType;
+          state.view.Modals.FileDetailsModal.documentKey = documentKey;
+          state.view.Modals.FileDetailsModal.open = true;
+          /*
+          await actions.oada.getTradingPartners({docType, documentKey});*/
         }
       }
     },

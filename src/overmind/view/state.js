@@ -148,34 +148,24 @@ export default {
     FileDetailsModal: {
       open: false,
       documentKey: null,
+      docType: null,
       showData: false,
-      document: ({ documentKey }, state) => {
+      document: ({ documentKey, docType }, state) => {
         //Get the document
         return (
           _.chain(state)
-            .get(`oada.data.documents.${documentKey}`)
+            .get(`oada.data.${docType}.${documentKey}`)
             .value() || {}
         )
       },
-      audit: ({ document }, state) => {
-        //Get the audit from the doc
-        return (
-          _.chain(document)
-            .get(`audits`)
-            .values()
-            .get(0)
-            .value() || {}
-        )
-      },
-      coi: ({ document }, state) => {
-        //Get the cois from the doc
-        return (
-          _.chain(document)
-            .get(`cois`)
-            .values()
-            .get(0)
-            .value() || {}
-        )
+      type: ({ document }, state) => {
+        if (document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
+          return 'coi'
+        } else if (document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
+          return 'audit'
+        } else {
+          return null;
+        }
       },
       share: ({ document }, state) => {
         return (
