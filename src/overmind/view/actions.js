@@ -111,6 +111,21 @@ export default {
       }
     },
     PDFViewerModal: {
+      nextPage({state}) {
+        console.log('called nextpage');
+        console.log('called nextpage', state.view.Modals.PDFViewerModal.pageNumber);
+        state.view.Modals.PDFViewerModal.pageNumber++;
+      },
+      previousPage({state}) {
+        state.view.Modals.PDFViewerModal.pageNumber--;
+      },
+      onLoadSuccess({state, actions}, document) {
+        console.log('called onload');
+        let { numPages } = document;
+        let { pageNumber } = document;
+        state.view.Modals.PDFViewerModal.pageNumber = pageNumber || 1;
+        state.view.Modals.PDFViewerModal.numPages = numPages;
+      },
       close({state, actions}) {
         //Close my window
         state.view.Modals.PDFViewerModal.open = false;
@@ -224,6 +239,8 @@ export default {
           if (rowData.type == 'application/pdf') {
             state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
             state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}`
+        console.log('set');
+        console.log('now opening');
             state.view.Modals.PDFViewerModal.open = true;
           }
         }

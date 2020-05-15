@@ -10,7 +10,7 @@
     "template": "tempB"
   },
   "share-audits": {
-    "text": "When a FSQA Certificate has an identifield facility location, share it with the associated trading partners.",
+    "text": "When a FSQA Audit has an identifield facility location, share it with the associated trading partners.",
     "key": "share-audits",
     "template": "tempC"
   },
