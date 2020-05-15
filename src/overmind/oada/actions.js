@@ -8,6 +8,8 @@ const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken)
 
 const lsKey = url => 'oada:' + url + ':token' // handy function to make a useful localStorage key
 
+let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
+
 export default {
   async logout ({ state, effects }) {
     await effects.oada.websocket.close()
@@ -63,37 +65,43 @@ export default {
       })
     }
 
-    //Create /trellisfw/documents if it does not exist
-    exists = await actions.oada
-      .doesResourceExist('/bookmarks/trellisfw/documents')
-    if (!exists) {
-      //Create documents
-      await actions.oada.createAndPutResource({
-        url: '/bookmarks/trellisfw/documents',
-        data: {},
-        contentType: 'application/vnd.trellisfw.documents.1+json'
+
+    //Create document endpoints if they do not exist
+    DOC_TYPES.forEach(async (docType) => {
+
+      state.oada.data[docType] = {}
+
+      exists = await actions.oada
+        .doesResourceExist(`/bookmarks/trellisfw/${docType}`)
+      if (!exists) {
+        //Create documents
+        await actions.oada.createAndPutResource({
+          url: `/bookmarks/trellisfw/${docType}`,
+          data: {},
+          contentType: `application/vnd.trellis.${docType}.1+json`
+        })
+      }
+
+      console.log('Setting watches...')
+      //Watch for changes to /trellisfw/documents
+      await actions.oada
+        .watch({
+          url: `/bookmarks/trellisfw/${docType}`,
+          actionName: 'oada.onDocumentsChange'
+        })
+
+      //Get all the documents ids in /trellisfw/documents
+      let response = await actions.oada
+        .get(`/bookmarks/trellisfw/${docType}`)
+      let docKeys = _.filter(
+        Object.keys(response.data),
+        key => _.startsWith(key, '_') === false
+      )
+
+      //Save space for documents
+      _.forEach(docKeys, (key) => {
+        state.oada.data[docType][key] = null;
       })
-    }
-
-    console.log('Setting watches...')
-    //Watch for changes to /trellisfw/documents
-    await actions.oada
-      .watch({
-        url: '/bookmarks/trellisfw/documents',
-        actionName: 'oada.onDocumentsChange'
-      })
-
-    //Get all the documents ids in /trellisfw/documents
-    let response = await actions.oada
-      .get('/bookmarks/trellisfw/documents')
-    let docKeys = _.filter(
-      Object.keys(response.data),
-      key => _.startsWith(key, '_') === false
-    )
-
-    //Save space for documents
-    _.forEach(docKeys, (key) => {
-      state.oada.data.documents[key] = null;
     })
 
     actions.rules.initialize()
