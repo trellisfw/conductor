@@ -3,6 +3,7 @@ import React from 'react';
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 import Data from './Data';
+import COIS from './COIS';
 import Rules from './Rules';
 import overmind from '../../overmind'
 
@@ -16,6 +17,7 @@ function Pages() {
       boxShadow: 'inset 5px 5px 5px #dddddd'
     }}>
       {selectedPage === 'Data' ? <Data /> : null}
+      {selectedPage === 'COIS' ? <COIS /> : null}
       {selectedPage === 'Rules' ? <Rules /> : null}
     </div>
   );

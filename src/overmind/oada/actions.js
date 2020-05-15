@@ -56,7 +56,7 @@ export default {
     console.log('Have token, connecting to oada...')
     let result = await actions.oada.connect()
     console.log('Websocket connected, checking resources...')
-   
+
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
     actions.rules.initialize()
@@ -68,7 +68,7 @@ export default {
       .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
     let TRADING_PARTNERS = response.data
 
-  // Get expanded list of coi-holders 
+  // Get expanded list of coi-holders
     response = await actions.oada
       .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
     COI_HOLDERS = response.data;
@@ -142,7 +142,7 @@ export default {
         let ref = doc._meta.lookups.coi.holder._ref;
         let holder = await actions.oada.get(ref)
         let tps = holder.data['trading-partners']
-        tps = Object.keys(tps).map(masterid => 
+        tps = Object.keys(tps).map(masterid =>
           _.find(TRADING_PARTNERS, {masterid}))
           .map(tp => tp.name)
 
@@ -158,7 +158,7 @@ export default {
 
         return tps;
 
-      case 'fsqa-certificates': 
+      case 'fsqa-certificates':
         ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
@@ -250,153 +250,58 @@ export default {
       })
     }
   },
+  loadMeta ({ state, actions }, {documentId, docType}) {
+    let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
+    return actions.oada
+      .get(path+`/_meta`)
+      .then(response => {
+        if (response == null) throw Error('No meta data for ' + documentId)
+        const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
+        const newMeta = _.merge(
+          {},
+          orgMeta,
+          _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc'])
+        )
+        //Merge in stats and services
+        _.set(state.oada.data, `${docType}.${documentId}._meta`, newMeta);
+      }).catch(err => {
+        console.log('Error. Failed to load document _meta', documentId)
+      });
+  },
   loadDocument ({ state, actions }, {documentId, docType}) {
-    console.log('LOADDOC', docType);
-    //TODO: Temporary. Shouldn't need this.
-    docType = docType || 'documents';
+    console.log('LOADDOC', docType, documentId);
     let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
     return actions.oada
       .get(path)
       .then(response => {
+        if (response == null) throw Error('No data for ' + documentId)
         //If doc already exists merge in data
-        const orgData = state.oada.data[docType][documentId] || {}
-        state.oada.data[docType][documentId] = _.merge(
+        const orgData = _.get(state.oada.data, `${docType}.${documentId}`) || {}
+        _.set(state.oada.data, `${docType}.${documentId}`, _.merge(
           {},
           orgData,
           response.data
-        )
+        ));
+      }).catch(err => {
+        console.log('Error. Failed to load document', documentId)
+      }).then(() => {
         //Load the _meta for this document
         return actions.oada
           .get(path+`/_meta`)
           .then(response => {
-            if (response == null) throw Error('No data')
-            const orgMeta = state.oada.data[docType][documentId]._meta
-            //Merge in status and services
-            state.oada.data[docType][documentId]._meta = _.merge(
+            if (response == null) throw Error('No meta data for ' + documentId)
+            const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
+            const newMeta = _.merge(
               {},
               orgMeta,
-              _.pick(response.data, ['stats', 'services'])
+              _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc'])
             )
+            //Merge in stats and services
+            _.set(state.oada.data, `${docType}.${documentId}._meta`, newMeta);
           })
-          .catch(err => {
-            console.log('Error. Failed to load document _meta', documentId)
-          })
-          .then(() => {
-            //Load the meta for the pdf of this doc
-            if (state.oada.data[docType][documentId].pdf != null) {
-              return actions.oada
-                .get(path+`/pdf/_meta`)
-                .then(response => {
-                  if (response == null) throw Error('No data')
-                  const orgMeta =
-                    state.oada.data[docType][documentId].pdf._meta || {}
-                  state.oada.data[docType][documentId].pdf._meta = _.merge(
-                    {},
-                    orgMeta,
-                    _.pick(response.data, ['filename'])
-                  )
-                })
-                .catch(err => {
-                  console.log('Error. Failed to load pdf _meta', documentId)
-                })
-            }
-          })
-          .then(() => {
-            //Load the audit info for this document if it exists
-            if (state.oada.data[docType][documentId].audits != null) {
-              return Promise.map(
-                _.keys(state.oada.data[docType][documentId].audits),
-                auditKey => {
-                  return actions.oada
-                    .get(path+`/audits/${auditKey}`)
-                    .then(response => {
-                      if (response == null) throw Error('No data')
-                      const orgAudit =
-                        state.oada.data[docType][documentId].audits[
-                          auditKey
-                        ] || {}
-                      state.oada.data[docType][documentId].audits[
-                        auditKey
-                      ] = _.merge({}, orgAudit, response.data)
-                    })
-                    .catch(err => {
-                      console.log(
-                        'Error. Failed to load audit ',
-                        auditKey,
-                        'from doc',
-                        documentId
-                      )
-                    })
-                }
-              )
-            }
-          })
-          .then(() => {
-            //Load the masked audit info for this document if it exists
-            if (
-              state.oada.data[docType][documentId]['audits-masked'] != null
-            ) {
-              return Promise.map(
-                _.keys(state.oada.data[docType][documentId]['audits-masked']),
-                auditKey => {
-                  return actions.oada
-                    .get(path+`/audits-masked/${auditKey}`)
-                    .then(response => {
-                      if (response == null) throw Error('No data')
-                      const orgAudit =
-                        state.oada.data[docType][documentId]['audits-masked'][
-                          auditKey
-                        ] || {}
-                      state.oada.data[docType][documentId]['audits-masked'][
-                        auditKey
-                      ] = _.merge({}, orgAudit, response.data)
-                    })
-                    .catch(err => {
-                      console.log(
-                        'Error. Failed to load audit ',
-                        auditKey,
-                        'from doc',
-                        documentId
-                      )
-                    })
-                }
-              )
-            }
-          })
-          .then(() => {
-            //Load the cois info for this document if it exists
-            if (state.oada.data[docType][documentId].cois != null) {
-              return Promise.map(
-                _.keys(state.oada.data[docType][documentId].cois),
-                coiKey => {
-                  return actions.oada
-                    .get(
-                      `/bookmarks/trellisfw/${docType}/${documentId}/cois/${coiKey}`
-                    )
-                    .then(response => {
-                      if (response == null) throw Error('No data')
-                      const orgCoi =
-                        state.oada.data[docType][documentId].cois[coiKey] || {}
-                      state.oada.data[docType][documentId].cois[
-                        coiKey
-                      ] = _.merge({}, orgCoi, response.data)
-                    })
-                    .catch(err => {
-                      console.log(
-                        'Error. Failed to load coi ',
-                        coiKey,
-                        'from doc',
-                        documentId
-                      )
-                    })
-                }
-              )
-            }
-          })
-      })
-      .catch(err => {
-        console.log('Error. Failed to load document', documentId, err)
-      })
+      }).catch(err => {
+        console.log('Error. Failed to load document _meta', documentId)
+      });
   },
   createAndPostResource ({ actions }, { url, data, contentType }) {
     return actions.oada.createResource({ data, contentType }).then(response => {
