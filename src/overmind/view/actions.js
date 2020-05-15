@@ -144,8 +144,7 @@ export default {
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
-          /*
-          await actions.oada.getTradingPartners({docType, documentKey});*/
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
     },
@@ -170,13 +169,11 @@ export default {
           console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          console.log('doc', doc)
           //Show file detial model
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
-          /*
-          await actions.oada.getTradingPartners({docType, documentKey});*/
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
     },

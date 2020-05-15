@@ -106,7 +106,6 @@ export default {
         let unloadedDocs = [];
         const documents = _.get(state, `oada.data.documents`);
         const docKeys = _.keys(documents).sort().reverse();
-        console.log('docKeys', docKeys[1]);
         let collection = _.map(docKeys,
           (documentKey) => {
             const document = documents[documentKey];

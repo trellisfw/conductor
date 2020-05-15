@@ -66,7 +66,7 @@ export default {
   // Get expanded list of trading partners
     let response = await actions.oada
       .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-    let TRADING_PARTNERS = response.data
+    TRADING_PARTNERS = response.data;
 
   // Get expanded list of coi-holders
     response = await actions.oada
@@ -150,40 +150,53 @@ export default {
 
   async getTradingPartners({state, actions}, {docType, documentKey}) {
     let doc = state.oada.data[docType][documentKey];
+    let ref = null;
+    let organization = null;
+    let masterid = null;
+    let holder = null;
+    let tps = null;
     switch(docType) {
       case 'cois':
+        if (_.get(doc, '_meta.lookups.coi') == null) return [];
         //One CoI holder to many TPs
-        let ref = doc._meta.lookups.coi.holder._ref;
-        let holder = await actions.oada.get(ref)
-        let tps = holder.data['trading-partners']
-        tps = Object.keys(tps).map(masterid =>
-          _.find(TRADING_PARTNERS, {masterid}))
-          .map(tp => tp.name)
-
+        ref = doc._meta.lookups.coi.holder._ref;
+        holder = await actions.oada.get(ref)
+        tps = holder.data['trading-partners']
+        tps = Object.keys(tps).map(masterid => {
+          const partner = _.find(TRADING_PARTNERS, {masterid});
+          if (partner) return {
+            with: partner.name,
+            type: 'shareWf'
+          }
+        })
+        tps = _.compact(tps);
         return tps
       case 'fsqa-audits':
+        if (_.get(doc, '_meta.lookups.fsqa-audit.organization') == null) return [];
         ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
-        let organization = await actions.oada.get(ref)
-        let masterid = organization.data.masterid;
-
+        organization = await actions.oada.get(ref)
+        masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
+          if (tp.facilities == null) return false;
           return tp.facilities[masterid] ? true: false
-        }).map(tp => tp.name)
-
+        }).map((tp) => {
+          if (tp) return {
+            with: tp.name,
+            type: 'shareWf'
+          }
+        });
+        tps = _.compact(tps);
         return tps;
-
       case 'fsqa-certificates':
         ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
-
         tps = _.filter(TRADING_PARTNERS, (tp) => {
           return tp.facilities[masterid] ? true: false
         }).map(tp => tp.name)
-
         return tps;
       case 'letters-of-guarantee':
-
+        return []
       case 'documents':
         return []
     }
@@ -356,7 +369,7 @@ export default {
             const newMeta = _.merge(
               {},
               orgMeta,
-              _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc'])
+              _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc', 'lookups'])
             )
             //Merge in stats and services
             _.set(state.oada.data, `${docType}.${documentId}._meta`, newMeta);
