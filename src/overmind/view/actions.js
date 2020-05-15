@@ -117,6 +117,36 @@ export default {
     }
   },
   Pages: {
+    COIS: {
+      onSearch({ state }, value) {
+        state.view.Pages.Data.search = value;
+      },
+      Table: {
+        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
+          //Load parsed COI data and it's meta
+          const table = _.get(state, `view.Pages.COIS.Table`);
+          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
+          keys = keys.sort();
+          return Promise.map(keys, async (key) => {
+            await actions.oada.loadDocument({docType, documentId: key})
+          }, {concurrency: 5})
+        },
+        async onRowClick({ state, actions }, {rowData}) {
+          const documentKey = rowData.documentKey
+          const docType = rowData.docType;
+          console.log('Selected Document:')
+          console.log(documentKey, rowData)
+          if (documentKey == null) return; //Uploading doc
+          const doc = state.oada.data[docType][documentKey];
+          if (doc.pdf != null) {
+            //Set view data for audit modal
+            state.view.Modals.FileDetailsModal.documentKey = documentKey;
+            state.view.Modals.FileDetailsModal.open = true;
+          }
+          await actions.oada.getTradingPartners({docType, documentKey});
+        }
+      }
+    },
     Data: {
       onSearch({ state }, value) {
         state.view.Pages.Data.search = value;
@@ -144,26 +174,27 @@ export default {
       },
       Table: {
         loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
-          const table = _.get(state, 'view.Pages.Data.Table');
+          //Load meta of pdfs to get their filename
+          const table = _.get(state, `view.Pages.Data.Table`);
           let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
           keys = keys.sort();
-          Promise.map(keys, async (key) => {
-            await actions.oada.loadDocument({docType, documentId: key})
+          return Promise.map(keys, async (key) => {
+            await actions.oada.loadMeta({docType, documentId: key})
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
           const documentKey = rowData.documentKey
           const docType = rowData.docType;
           console.log('Selected Document:')
-          console.log(documentKey, rowData)
+          console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
-          const doc = state.oada.data[docType][documentKey];
-          if (doc.pdf != null) {
-            //Set view data for audit modal
-            state.view.Modals.FileDetailsModal.documentKey = documentKey;
-            state.view.Modals.FileDetailsModal.open = true;
+
+          //If this is a PDF show pdf viewer
+          if (rowData.type == 'application/pdf') {
+            state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
+            state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}`
+            state.view.Modals.PDFViewerModal.open = true;
           }
-          await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
     },

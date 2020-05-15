@@ -16,8 +16,8 @@ import classnames from 'classnames'
 
 function Table ({docType}) {
   const { actions, state } = overmind()
-  const myActions = actions.view.Pages.Data.Table
-  const myState = state.view.Pages.Data
+  const myActions = actions.view.Pages.COIS.Table
+  const myState = state.view.Pages.COIS
   const collection = myState.Table || [];
   return (
     <AutoSizer>

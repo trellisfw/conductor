@@ -8,3 +8,8 @@
 - Remove shares from a doc before sharing
 
 - Better 404/403 catching.
+
+- Catch 401 and logout automatically
+
+
+https://dev.trellis.one
