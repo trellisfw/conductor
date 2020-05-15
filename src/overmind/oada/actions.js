@@ -269,7 +269,6 @@ export default {
       });
   },
   loadDocument ({ state, actions }, {documentId, docType}) {
-    console.log('LOADDOC', docType, documentId);
     let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
     return actions.oada
       .get(path)

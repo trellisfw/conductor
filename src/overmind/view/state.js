@@ -10,6 +10,50 @@ export default {
     Documents: {
 
     },
+    Audits: {
+      search: '',
+      openFileBrowser: false,
+      Table: ({search}, state) => {
+        let unloadedDocs = [];
+        const documents = _.get(state, `oada.data.fsqa-audits`);
+        const docKeys = _.keys(documents).sort().reverse();
+        let collection = _.map(docKeys,
+          (documentKey) => {
+            const document = documents[documentKey];
+            if (!document) {
+              unloadedDocs.push({documentKey})
+              return {documentKey};
+            }
+            return {
+              documentKey: documentKey,
+              docType: 'fsqa-audits',
+              filename: _.get(document, 'organization.name') || '',
+              type: 'FSQA Audit',
+              createdAt: moment
+                .utc(_.get(document, '_meta.stats.created'), 'X')
+                .local()
+                .format('M/DD/YYYY h:mm a'),
+              createdAtUnix: _.get(document, '_meta.stats.created')
+            }
+          }
+        )
+        //Filter collection by filename
+        const fuseOptions = {keys: [{name: 'filename', weight: 0.3}], shouldSort: false};
+        var fuse = new Fuse(collection, fuseOptions);
+        if (search && search.length > 0) {
+          collection = _.map(fuse.search(search.substr(0, 32)), 'item');
+          //Add back in unloaded docs at the end
+          collection = _.concat(collection, unloadedDocs);
+        }
+        _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
+          collection.unshift({
+            filename: file.filename,
+            status: 'uploading'
+          })
+        })
+        return collection;
+      }
+    },
     COIS: {
       search: '',
       openFileBrowser: false,
