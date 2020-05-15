@@ -17,13 +17,10 @@ function PDFViewerModal(props) {
   let { pageNumber, numPages, url, headers } = myState;
   pageNumber = pageNumber || 1;
 
-/*
-  console.log(url);
   const file = useMemo(
     () => ({ url, httpHeaders: headers}),
-    []
+    [url]
   );
-  */
 
   //console.log(file);
 
@@ -45,7 +42,7 @@ function PDFViewerModal(props) {
             </Button.Content>
           </Button>
           <Document
-            file={{url, httpHeaders: headers}}
+            file={file}
             onLoadSuccess={myActions.onLoadSuccess}>
             <Page className={'pdfPage'} pageNumber={pageNumber} />
           </Document>
