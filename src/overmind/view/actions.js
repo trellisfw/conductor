@@ -111,14 +111,18 @@ export default {
     },
     PDFViewerModal: {
       nextPage({state}) {
-        state.view.Modals.PDFViewer.pageNumber = state.view.Modals.PDFViewer.pageNumber + 1;
+        console.log('called nextpage');
+        state.view.Modals.PDFViewerModal.pageNumber = state.view.Modals.PDFViewerModal.pageNumber + 1;
       },
       previousPage({state}) {
-        state.view.Modals.PDFViewer.pageNumber = state.view.Modals.PDFViewer.pageNumber - 1;
+        state.view.Modals.PDFViewerModal.pageNumber = state.view.Modals.PDFViewerModal.pageNumber - 1;
       },
-      onLoadSuccess({state, actions}, stuff) {
-        state.view.Modals.PDFViewer.pageNumber = stuff.pageNumber;
-        state.view.Modals.PDFViewer.numPages = stuff.numPages;
+      onLoadSuccess({state, actions}, document) {
+        console.log('called onload');
+        let { numPages } = document;
+        let { pageNumber } = document;
+        state.view.Modals.PDFViewerModal.pageNumber = pageNumber || 1;
+        state.view.Modals.PDFViewerModal.numPages = numPages;
       },
       close({state, actions}) {
         //Close my window

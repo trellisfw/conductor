@@ -7,13 +7,14 @@ import { Document, Page } from 'react-pdf';
 
 import overmind from '../../../overmind'
 import _ from 'lodash'
-import { Modal } from 'semantic-ui-react'
+import { Modal, Icon, Button } from 'semantic-ui-react'
 
 function PDFViewerModal(props) {
   const { actions, state } = overmind();
   const myActions = actions.view.Modals.PDFViewerModal;
   const myState = state.view.Modals.PDFViewerModal;
-  const { pageNumber, numPages } = myState;
+  let { pageNumber, numPages } = myState;
+  pageNumber = pageNumber || 1;
   return (
     <Modal open={myState.open} onClose={myActions.close}>
       <Modal.Content>
@@ -24,6 +25,13 @@ function PDFViewerModal(props) {
               justify-content: center;
             }
           `}>
+          <Button
+            onClick={myActions.close}
+            >
+            <Button.Content visible>
+              <Icon name='close' />
+            </Button.Content>
+          </Button>
           <Document
             file={
               {
@@ -35,24 +43,22 @@ function PDFViewerModal(props) {
             <Page className={'pdfPage'} pageNumber={pageNumber} />
           </Document>
           <div>
-          <p>
-            Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
-          </p>
-          <button
-            type="button"
-            disabled={pageNumber <= 1}
-            onClick={myActions.previousPage}
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            disabled={pageNumber >= numPages}
-            onClick={myActions.nextPage}
-          >
-            Next
-          </button>
-        </div>
+            <p>
+              Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
+            </p>
+            <Button
+              disabled={pageNumber <= 1}
+              onClick={myActions.previousPage}
+            >
+              Previous
+            </Button>
+            <Button
+              disabled={pageNumber >= numPages}
+              onClick={myActions.nextPage}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </Modal.Content>
     </Modal>
