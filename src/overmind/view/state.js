@@ -106,6 +106,7 @@ export default {
         let unloadedDocs = [];
         const documents = _.get(state, `oada.data.documents`);
         const docKeys = _.keys(documents).sort().reverse();
+        console.log('docKeys', docKeys[1]);
         let collection = _.map(docKeys,
           (documentKey) => {
             const document = documents[documentKey];
@@ -113,8 +114,10 @@ export default {
               unloadedDocs.push({documentKey})
               return {documentKey};
             }
-            //TODO filter out docs with vdoc in meta, don't show them
-
+            //Filter out docs with vdoc in meta, don't show them
+            if (_.get(document, '_meta.vdoc') != null) {
+              return null;
+            }
             //Pull out status from target
             const tasks = _.get(document, '_meta.services.target.jobs') || {}
             const fileDetails = {
@@ -153,6 +156,7 @@ export default {
             }
           }
         )
+        collection = _.compact(collection); // Remove null docs, ones that have a vdoc
         //Filter collection by filename
         const fuseOptions = {keys: [{name: 'filename', weight: 0.3}], shouldSort: false};
         var fuse = new Fuse(collection, fuseOptions);

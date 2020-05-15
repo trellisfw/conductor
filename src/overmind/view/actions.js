@@ -192,17 +192,18 @@ export default {
       },
       Dropzone: {
         filesDropped({ state, actions }, files) {
-            //Start uploading the files
-            return Promise.map(files, (file) => {
-              //Add an `uploading` file
-              const id = uuid();
-              state.view.Pages.Data.uploading[id] = {
-                filename: file.name
-              };
-              return actions.oada.uploadFile(file).then(() => {
-                delete state.view.Pages.Data.uploading[id];
-              })
+          //TODO upload only 5 at a time
+          //Start uploading the files
+          return Promise.map(files, (file) => {
+            //Add an `uploading` file
+            const id = uuid();
+            state.view.Pages.Data.uploading[id] = {
+              filename: file.name
+            };
+            return actions.oada.uploadFile(file).then(() => {
+              delete state.view.Pages.Data.uploading[id];
             })
+          });
         }
       },
       Table: {

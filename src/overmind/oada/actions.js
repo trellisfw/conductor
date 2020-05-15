@@ -112,11 +112,25 @@ export default {
       //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
       // are many other keys with changes being made at that level
       // need to figure out how to pluck docType out of responses
-      await actions.oada
-        .watch({
-          url: `/bookmarks/trellisfw/${docType}`,
-          actionName: 'oada.onDocumentsChange'
-        })
+      if (docType == 'documents') {
+        await actions.oada
+          .watch({
+            url: `/bookmarks/trellisfw/${docType}`,
+            actionName: 'oada.onDocumentsChange'
+          })
+      } else if (docType == 'cois') {
+        await actions.oada
+          .watch({
+            url: `/bookmarks/trellisfw/${docType}`,
+            actionName: 'oada.onCOISChange'
+          })
+      } else if (docType == 'audits') {
+        await actions.oada
+          .watch({
+            url: `/bookmarks/trellisfw/${docType}`,
+            actionName: 'oada.onAuditsChange'
+          })
+      }
 
       //Get all the documents ids in /trellisfw/documents
       let response = await actions.oada
@@ -193,6 +207,7 @@ export default {
         //Pull out location of pdf and link it to the document under the 'pdf' key
         var id = response.headers['content-location'].split('/')
         id = id[id.length - 1]
+        console.log('Uploaded new PDF at', id);
         //Add filename info to the pdf
         return actions.oada
           .put({
@@ -205,50 +220,98 @@ export default {
             }
           })
           .then(() => {
-            //Create a document with a `pdf` key linking the pdf, and link the document to `documents`
-            return actions.oada.createAndPostResource({
-              url: '/bookmarks/trellisfw/documents',
-              data: {
-                pdf: {
+            //Create a link to the new pdf in /documents
+            return actions.oada
+              .put({
+                url: `/bookmarks/trellisfw/documents/${id}`,
+                data: {
                   _id: 'resources/' + id,
                   _rev: 0
+                },
+                headers: {
+                  'Content-Type': 'application/vnd.trellis.documents.1+json'
                 }
-              }
-            })
-          })
+              });
+          });
       })
   },
   onDocumentsChange ({ state, actions }, response) {
     //If a key was added or changed reload that document
     console.log('onDocumentsChange', response)
-    //Check if change was a merge
-    if (_.get(response, 'change.type') == 'merge') {
-      //Get all the keys that do not start with _
-      let keys = _.filter(
-        Object.keys(_.get(response, 'change.body')),
-        key => _.startsWith(key, '_') === false
-      )
-      // TODO: Fix this. Parse out of watch path
-      let docType = 'documents';
-      console.log('ONDOCUMENTSCHANGE', response)
-      //If these keys are links, then load them as documents
-      return Promise.map(keys, documentId => {
-        return actions.oada.loadDocument({docType, documentId})
-      })
-    } else if (_.get(response, 'change.type') == 'delete') {
-      //Get all the keys that do not start with _
-      let keys = _.filter(
-        Object.keys(_.get(response, 'change.body')),
-        key => _.startsWith(key, '_') === false
-      )
-      //If these keys are links, then load them as documents
-      //TODO: fix this -- watch should just specify the docType when its setup under the payload key
-      console.log(response);
-      let docType = 'documents'
-      _.forEach(keys, key => {
-        delete state.oada.data[docType][key]
-      })
-    }
+    return Promise.map(_.get(response, 'change'), (change) => {
+      if (_.get(change, 'type') == 'merge') {
+        //Get all the keys that do not start with _
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        //Reload meta for all these pdfs
+        return Promise.map(keys, documentId => {
+          return actions.oada.loadMeta({docType: 'documents', documentId})
+        })
+      } else if (_.get(change, 'type') == 'delete') {
+        //Remove documents with these keys
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        _.forEach(keys, key => {
+          delete state.oada.data['documents'][key]
+        })
+      }
+    })
+  },
+  onCOISChange ({ state, actions }, response) {
+    //If a key was added or changed reload that document
+    console.log('onCOISChange', response)
+    return Promise.map(_.get(response, 'change'), (change) => {
+      if (_.get(change, 'type') == 'merge') {
+        //Get all the keys that do not start with _
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        //Reload meta for all these pdfs
+        return Promise.map(keys, documentId => {
+          return actions.oada.loadDocument({docType: 'cois', documentId})
+        })
+      } else if (_.get(change, 'type') == 'delete') {
+        //Remove documents with these keys
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        _.forEach(keys, key => {
+          delete state.oada.data['cois'][key]
+        })
+      }
+    })
+  },
+  onAuditsChange ({ state, actions }, response) {
+    //If a key was added or changed reload that document
+    console.log('onAuditsChange', response)
+    return Promise.map(_.get(response, 'change'), (change) => {
+      if (_.get(change, 'type') == 'merge') {
+        //Get all the keys that do not start with _
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        //Reload meta for all these pdfs
+        return Promise.map(keys, documentId => {
+          return actions.oada.loadDocument({docType: 'fsqa-audits', documentId})
+        })
+      } else if (_.get(change, 'type') == 'delete') {
+        //Remove documents with these keys
+        let keys = _.filter(
+          Object.keys(_.get(change, 'body')),
+          key => _.startsWith(key, '_') === false
+        )
+        _.forEach(keys, key => {
+          delete state.oada.data['fsqa-audits'][key]
+        })
+      }
+    })
   },
   loadMeta ({ state, actions }, {documentId, docType}) {
     let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
