@@ -29,7 +29,7 @@ export default {
     let token;
     try {
 			if (query.t) {
-        token = query.big_fluffy_dog;
+        token = query.t;
         console.log(
           'token found in query parameter:' + token
         )
