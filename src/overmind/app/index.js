@@ -20,7 +20,7 @@ export default function (namespace) {
 
 			if (query.d) {
         console.log('Have domain in query params, using it');
-        state.login.domain = query.d;
+        state.login.domain = 'https://' + query.d;
       // Populate domain from localStorage if there is a saved one:
 			} else if (window.localStorage['oada:domain']) {
         console.log('Have saved domain in localStorage, using it');
