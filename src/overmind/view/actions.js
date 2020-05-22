@@ -3,6 +3,9 @@ import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 import {json} from 'overmind';
+import fileDownload from 'js-file-download';
+import request from 'axios'
+
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 export default {
   TopBar: {
@@ -112,23 +115,29 @@ export default {
     },
     PDFViewerModal: {
       nextPage({state}) {
-        console.log('called nextpage');
-        console.log('called nextpage', state.view.Modals.PDFViewerModal.pageNumber);
         state.view.Modals.PDFViewerModal.pageNumber++;
       },
       previousPage({state}) {
         state.view.Modals.PDFViewerModal.pageNumber--;
       },
       onLoadSuccess({state, actions}, document) {
-        console.log('called onload');
         let { numPages } = document;
         let { pageNumber } = document;
         state.view.Modals.PDFViewerModal.pageNumber = pageNumber || 1;
         state.view.Modals.PDFViewerModal.numPages = numPages;
       },
       download({state, actions}) {
-        //Download the pdf
-
+        return request.request({
+          url: state.view.Modals.PDFViewerModal.url,
+          method: 'get',
+          responseType: 'blob',
+          headers: {
+            Authorization: 'Bearer ' + state.oada.token
+          }
+        }).then(response => {
+          //Download the pdf
+          fileDownload(new Blob([response.data]), 'file.pdf');
+        });
       },
       close({state, actions}) {
         //Close my window
@@ -240,8 +249,6 @@ export default {
           if (rowData.type == 'application/pdf') {
             state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
             state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}`
-        console.log('set');
-        console.log('now opening');
             state.view.Modals.PDFViewerModal.open = true;
           }
         }
