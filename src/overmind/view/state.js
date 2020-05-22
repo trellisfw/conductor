@@ -6,7 +6,7 @@ import moment from 'moment'
 
 export default {
   Pages: {
-    selectedPage: 'Data',
+    selectedPage: 'COIS',
     Documents: {
 
     },
@@ -24,15 +24,18 @@ export default {
               unloadedDocs.push({documentKey})
               return {documentKey};
             }
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
             return {
               documentKey: documentKey,
               docType: 'fsqa-audits',
               filename: _.get(document, 'organization.name') || '',
               type: 'FSQA Audit',
-              createdAt: moment
-                .utc(_.get(document, '_meta.stats.created'), 'X')
-                .local()
-                .format('M/DD/YYYY h:mm a'),
+              createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created')
             }
           }
@@ -45,12 +48,6 @@ export default {
           //Add back in unloaded docs at the end
           collection = _.concat(collection, unloadedDocs);
         }
-        _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
-          collection.unshift({
-            filename: file.filename,
-            status: 'uploading'
-          })
-        })
         return collection;
       }
     },
@@ -68,33 +65,34 @@ export default {
               unloadedDocs.push({documentKey})
               return {documentKey};
             }
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
             return {
               documentKey: documentKey,
               docType: 'cois',
-              filename: _.get(document, 'producer.name') || '',
+              holder: _.get(document, 'holder.name') || '',
+              producer: _.get(document, 'producer.name') || '',
+              insured: _.get(document, 'insured.name') || '',
+              signed: (_.get(document, 'signatures') || []).length > 0,
               type: 'COI',
-              createdAt: moment
-                .utc(_.get(document, '_meta.stats.created'), 'X')
-                .local()
-                .format('M/DD/YYYY h:mm a'),
-              createdAtUnix: _.get(document, '_meta.stats.created')
+              createdAt,
+              createdAtUnix: _.get(document, '_meta.stats.created'),
+              processingService: 'target'
             }
           }
         )
         //Filter collection by filename
-        const fuseOptions = {keys: [{name: 'filename', weight: 0.3}], shouldSort: false};
+        const fuseOptions = {keys: [{name: 'holder', weight: 0.3}], shouldSort: false};
         var fuse = new Fuse(collection, fuseOptions);
         if (search && search.length > 0) {
           collection = _.map(fuse.search(search.substr(0, 32)), 'item');
           //Add back in unloaded docs at the end
           collection = _.concat(collection, unloadedDocs);
         }
-        _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
-          collection.unshift({
-            filename: file.filename,
-            status: 'uploading'
-          })
-        })
         return collection;
       }
     },
@@ -120,36 +118,26 @@ export default {
             //Pull out status from target
             const tasks = _.get(document, '_meta.services.target.jobs') || {}
             const fileDetails = {
-              type: _.get(document, '_meta._type')
+              type: _.get(document, '_meta._type') || ''
             }
-            /*_.forEach(tasks, task => {
-              const statuses = _.get(task, 'status') || {}
-              const identify = _.find(statuses, { status: 'identified' })
-              if (identify != null) {
-                fileDetails.type = _.get(identify, 'type')
-                fileDetails.format = _.get(identify, 'format')
-                return false
-              } else {
-                const failed = _.find(statuses, { status: 'error' })
-                if (failed != null) {
-                  fileDetails.format = 'Unknown'
-                  return false
-                }
-              }
-            })*/
 
             // Check if Target service exists and is handling this document:
             const processingService = _.keys(tasks).length > 0 ? 'target' : false
+
+
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
 
             return {
               documentKey: documentKey,
               docType: 'documents',
               filename: _.get(document, '_meta.filename') || '',
               type: fileDetails.type,
-              createdAt: moment
-                .utc(_.get(document, '_meta.stats.created'), 'X')
-                .local()
-                .format('M/DD/YYYY h:mm a'),
+              createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created'),
               processingService
             }

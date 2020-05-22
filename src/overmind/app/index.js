@@ -2,6 +2,7 @@ import state from './state'
 import actions from './actions'
 import config from '../../config'
 import _ from 'lodash'
+import urlLib from 'url'
 import packagejson from '../../../package.json';
 
 export default function (namespace) {
@@ -15,8 +16,13 @@ export default function (namespace) {
         document.title = document.title + ' - v'+packagejson.version;
       }
 
+			let query = urlLib.parse(window.location.href, true).query;
+
+			if (query.d) {
+        console.log('Have domain in query params, using it');
+        state.login.domain = 'https://' + query.d;
       // Populate domain from localStorage if there is a saved one:
-      if (window.localStorage['oada:domain']) {
+			} else if (window.localStorage['oada:domain']) {
         console.log('Have saved domain in localStorage, using it');
         state.login.domain = window.localStorage['oada:domain'];
       }

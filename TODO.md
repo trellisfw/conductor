@@ -13,3 +13,17 @@
 
 
 https://dev.trellis.one
+
+
+COIS Page:
+  holder, producer, insurced
+    - maybe column for if there is an expired policy (maybe check / X)
+    - show processed by target icon for cois / audit
+    - Show icon for signatures for cois / audit
+
+Audits Page:
+  - score
+  - validity date
+  - meta, list of how many sharing jobs have run on it # of keys in that object. "Shares"
+  - Maybe change shares in modal to a searchable table.
+  

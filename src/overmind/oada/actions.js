@@ -1,3 +1,4 @@
+import urlLib from 'url'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import request from 'axios'
@@ -24,9 +25,15 @@ export default {
     /*
       Connect to my OADA instance
     */
+		let query = urlLib.parse(window.location.href, true).query;
     let token;
     try {
-      if (window.localStorage[lsKey(state.oada.url)]) {
+			if (query.t) {
+        token = query.t;
+        console.log(
+          'token found in query parameter:' + token
+        )
+			} else if (window.localStorage[lsKey(state.oada.url)]) {
         console.log(
           'Already have a token for URL ' + state.oada.url + ', logout to clear'
         )
@@ -59,7 +66,7 @@ export default {
 
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
-    actions.rules.initialize()
+    actions.rules.initialize();
   },
 
   async initializeLookups({state, actions}) {
