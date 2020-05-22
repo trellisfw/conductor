@@ -126,6 +126,10 @@ export default {
         state.view.Modals.PDFViewerModal.pageNumber = pageNumber || 1;
         state.view.Modals.PDFViewerModal.numPages = numPages;
       },
+      download({state, actions}) {
+        //Download the pdf
+
+      },
       close({state, actions}) {
         //Close my window
         state.view.Modals.PDFViewerModal.open = false;
@@ -135,16 +139,15 @@ export default {
   Pages: {
     Audits: {
       onSearch({ state }, value) {
-        state.view.Pages.Data.search = value;
+        state.view.Pages.Audits.search = value;
       },
       Table: {
-        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
-          //Load parsed COI data and it's meta
-          const table = _.get(state, `view.Pages.Audits.Table`);
-          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
-          keys = keys.sort();
+        loadDocumentKeys({state, actions}, documentKeys) {
+          console.log('Audits - loadDocumentKeys', documentKeys)
+          const docType = 'fsqa-audits';
+          let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            await actions.oada.loadDocument({docType, documentId: key})
+            return actions.oada.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -165,16 +168,15 @@ export default {
     },
     COIS: {
       onSearch({ state }, value) {
-        state.view.Pages.Data.search = value;
+        state.view.Pages.COIS.search = value;
       },
       Table: {
-        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
-          //Load parsed COI data and it's meta
-          const table = _.get(state, `view.Pages.COIS.Table`);
-          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
-          keys = keys.sort();
+        loadDocumentKeys({state, actions}, documentKeys) {
+          console.log('COIS - loadDocumentKeys', documentKeys)
+          const docType = 'cois';
+          let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            await actions.oada.loadDocument({docType, documentId: key})
+            return actions.oada.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -219,13 +221,12 @@ export default {
         }
       },
       Table: {
-        loadMoreRows({state, actions}, {startIndex, stopIndex, docType}) {
-          //Load meta of pdfs to get their filename
-          const table = _.get(state, `view.Pages.Data.Table`);
-          let keys = _.map(_.slice(table, startIndex, stopIndex+1), 'documentKey')
-          keys = keys.sort();
+        loadDocumentKeys({state, actions}, documentKeys) {
+          console.log('Unidentified Files - loadDocumentKeys', documentKeys)
+          const docType = 'documents';
+          let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            await actions.oada.loadMeta({docType, documentId: key})
+            return actions.oada.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {

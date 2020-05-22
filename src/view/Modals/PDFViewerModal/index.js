@@ -32,7 +32,10 @@ function PDFViewerModal(props) {
               justify-content: center;
             }
           `}>
-          <div css={{display: 'flex', justifyContent: 'flex-end'}}>
+          <div css={{display: 'flex', justifyContent: 'space-between'}}>
+            <Button
+              onClick={myActions.download}
+              icon="download" />
             <Button
               onClick={myActions.close}
               icon="close" />

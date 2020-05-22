@@ -59,7 +59,7 @@ export default {
 
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
-    actions.rules.initialize()
+    actions.rules.initialize();
   },
 
   async initializeLookups({state, actions}) {
