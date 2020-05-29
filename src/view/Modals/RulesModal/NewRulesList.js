@@ -6,7 +6,7 @@ import overmind from '../../../overmind'
 function NewRulesList(props) {
   const {state, actions} = overmind();
   let templates = state.rules.templates;
-  let myActions = actions.view.Modals.NewRuleModal;
+  let myActions = actions.view.Modals.RulesModal;
   let pattern = /(input[0-9]+)/g;
 
   return (

@@ -17,53 +17,84 @@ export default {
         state.view.Modals.EditRuleModal.open = false;
       }
     },
-    NewRuleModal: {
+    RulesModal: {
       backClicked({state, actions}) {
-        state.view.Modals.NewRuleModal.page = 'List';
+        state.view.Modals.RulesModal.page = 'List';
       },
       close({state, actions}) {
-        state.view.Modals.NewRuleModal.open = false;
+        state.view.Modals.RulesModal.open = false;
       },
       categorySelected({state, actions}, evt) {
-        state.view.Modals.NewRuleModal.category = evt.target;
+        state.view.Modals.RulesModal.category = evt.target;
       },
       newRuleSelected({state, actions}, rule) {
-        state.view.Modals.NewRuleModal.Edit = {
+        state.view.Modals.RulesModal.Edit = {
           template: json(rule),
           rule: json(rule)
         };
-        state.view.Modals.NewRuleModal.page = 'Edit';
+        state.view.Modals.RulesModal.page = 'Edit';
       },
+      async clickedMapping({state, actions}, {key}) {
+        let mapping = state.view.Modals.RulesModal.Mappings[key];
+        let newState = false;
+        if (!mapping.active) newState = true;
+        state.view.Modals.RulesModal.Mappings[key].active = newState;
+      },
+      async viewMappings({state, actions}) {
+        //Get and construct relevant mappings for this rule
+        let selectedRule = state.view.Modals.RulesModal.Edit.rule;
+        if (selectedRule.mappings && selectedRule.mappings === 'holders') {
+          let holders = await actions.oada.holders();
+          let tps = await actions.oada.tradingPartners();
+            console.log("TP", tps);
+          let obj = {};
+          Object.keys(holders).forEach((key) => {
+            obj[key] = {
+              name: holders[key].name,
+              partners: Object.keys(holders[key]['trading-partners'] || {}).map((tp) => {
+                let item = _.find(tps, {masterid: tp})
+                return item.name
+              }),
+              active: false
+            }
+          })
+          state.view.Modals.RulesModal.Mappings = obj;
+        } else if (selectedRule.mappings && selectedRule.mappings === 'facilities') {
+          state.view.Modals.RulesModal.Mappings = {apples: ['abc', 'def', 'ghi'], oranges: ['jkl', 'mno']};
+        }
+        state.view.Modals.RulesModal.page = 'Mappings';
+      },
+
       async doneClicked({state, actions}) {
-        state.view.Modals.NewRuleModal.open = false;
+        state.view.Modals.RulesModal.open = false;
         await actions.rules.createShare();
         await actions.rules.loadShares();
 
       },
       cancelClicked({state, actions}) {
-        state.view.Modals.NewRuleModal.open = false;
-        state.view.Modals.NewRuleModal.Edit = {rule: {}, template: {}};
+        state.view.Modals.RulesModal.open = false;
+        state.view.Modals.RulesModal.Edit = {rule: {}, template: {}};
       },
       deleteClicked({state, actions}, rule) {
         actions.rules.deleteShare(rule);
         actions.rules.loadShares();
-        actions.view.Modals.NewRuleModal.cancelClicked();
+        actions.view.Modals.RulesModal.cancelClicked();
       },
       searchChanged({state, actions}, result) {
         let newText = result.data.searchQuery;
-        state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery = {
+        state.view.Modals.RulesModal.Edit.rule[result.key].searchQuery = {
           key: md5(JSON.stringify({name: newText})),
           name: newText
         }
       },
       textChanged({state, actions}, result) {
-        let q = state.view.Modals.NewRuleModal.Edit.rule[result.key].searchQuery;
-        let type = state.view.Modals.NewRuleModal.Edit.template[result.key].type;
+        let q = state.view.Modals.RulesModal.Edit.rule[result.key].searchQuery;
+        let type = state.view.Modals.RulesModal.Edit.template[result.key].type;
         let list = state.rules[type];
         let values = result.values.map((key) =>
           q ? (key === q.key ? q : list[key]) : list[key]
         )
-        state.view.Modals.NewRuleModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
+        state.view.Modals.RulesModal.Edit.rule[result.key].values = _.keyBy(values, 'key');
       },
     },
     FileDetailsModal: {
@@ -252,19 +283,19 @@ export default {
         state.view.Pages.Rules.selectedRule = rule;
       },
       addRuleClicked({state, actions}, rule) {
-        state.view.Modals.NewRuleModal.open = true;
-        state.view.Modals.NewRuleModal.page = 'List';
+        state.view.Modals.RulesModal.open = true;
+        state.view.Modals.RulesModal.page = 'List';
         state.view.Pages.Rules.selectedRule = rule;
       },
       editRuleClicked({state, actions}, rule) {
-        state.view.Modals.NewRuleModal.Edit = {
+        state.view.Modals.RulesModal.Edit = {
           template: json(rule),
           rule: json(rule),
           edit: true,
           key: rule.key,
         };
-        state.view.Modals.NewRuleModal.page = 'Edit';
-        state.view.Modals.NewRuleModal.open = true;
+        state.view.Modals.RulesModal.page = 'Edit';
+        state.view.Modals.RulesModal.open = true;
       }
     }
   },

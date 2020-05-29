@@ -180,7 +180,7 @@ export default {
     EditRuleModal: {
       open: false,
     },
-    NewRuleModal: {
+    RulesModal: {
       open: false,
       page: 'List',
       List: {
