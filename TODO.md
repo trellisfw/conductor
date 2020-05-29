@@ -15,15 +15,22 @@
 https://dev.trellis.one
 
 
+- Aaron unable to logout after clicking link.
+
 COIS Page:
-  holder, producer, insurced
-    - maybe column for if there is an expired policy (maybe check / X)
-    - show processed by target icon for cois / audit
-    - Show icon for signatures for cois / audit
+  - How to tell if COI was processed by target?
+  - maybe column for if there is an expired policy (maybe check / X)
 
 Audits Page:
   - score
   - validity date
   - meta, list of how many sharing jobs have run on it # of keys in that object. "Shares"
   - Maybe change shares in modal to a searchable table.
-  
+
+Add page for `fsqa-certificates`
+
+Add page for `letters-of-guarantee`
+
+- Make share list a table if lots of them
+- Make lists disappear if no items in sidebar
+  - OR if link 404's, watch upper level.

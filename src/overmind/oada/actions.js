@@ -15,6 +15,15 @@ let TRADING_PARTNERS = {};
 let FACILITIES = {};
 
 export default {
+  async holders({state, effects}) {
+    return COI_HOLDERS
+  },
+  async tradingPartners({state, effects}) {
+    return TRADING_PARTNERS
+  },
+  async facilities({state, effects}) {
+    return FACILITIES;
+  },
   async logout ({ state, effects }) {
     await effects.oada.websocket.close()
     //Clear documents
@@ -57,7 +66,7 @@ export default {
     }
 
     // Have a token now, make sure it's saved to localStorage until we logout:
-    if (token) window.localStorage[lsKey(state.oada.url)] = token
+    if (token && !query.t) window.localStorage[lsKey(state.oada.url)] = token
     state.oada.token = token
     console.log(token);
     console.log('Have token, connecting to oada...')
@@ -74,11 +83,13 @@ export default {
     let response = await actions.oada
       .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
     TRADING_PARTNERS = response.data;
+    console.log('TRADING PARTNERS', TRADING_PARTNERS);
 
   // Get expanded list of coi-holders
     response = await actions.oada
-      .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+      .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
     COI_HOLDERS = response.data;
+    console.log("COI_HOLDERS", COI_HOLDERS);
 
     response = await actions.oada
       .get(`/bookmarks/trellisfw/facilities/expand-index`)
@@ -172,6 +183,7 @@ export default {
         tps = Object.keys(tps).map(masterid => {
           const partner = _.find(TRADING_PARTNERS, {masterid});
           if (partner) return {
+            masterid,
             with: partner.name,
             type: 'shareWf'
           }
@@ -188,6 +200,7 @@ export default {
           return tp.facilities[masterid] ? true: false
         }).map((tp) => {
           if (tp) return {
+            masterid: tp.id,
             with: tp.name,
             type: 'shareWf'
           }
@@ -199,8 +212,15 @@ export default {
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
+          if (tp.facilities == null) return false;
           return tp.facilities[masterid] ? true: false
-        }).map(tp => tp.name)
+        }).map((tp) => {
+          if (tp) return {
+            masterid: tp.id,
+            with: tp.name,
+            type: 'shareWf'
+          }
+        });
         return tps;
       case 'letters-of-guarantee':
         return []

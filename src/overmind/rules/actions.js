@@ -58,7 +58,7 @@ export default {
   },
 
   async deleteShare({state, actions}) {
-    let key = state.view.Modals.NewRuleModal.Edit.key;
+    let key = state.view.Modals.RulesModal.Edit.key;
     let path = `${SHARES_PATH}/${key}`;
     let response = await actions.oada.del({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
@@ -67,7 +67,7 @@ export default {
   },
 
   async createShare({state, actions}) {
-    let rule = json(state.view.Modals.NewRuleModal.Edit.rule);
+    let rule = json(state.view.Modals.RulesModal.Edit.rule);
     let share = rule.share;
     let newShare = _.cloneDeep(share);
     newShare = processShare(state, rule, newShare);
@@ -112,6 +112,7 @@ export default {
       rule[template.share[key]].values = share[key]
     })
     rule.key = share.key;
+    if (share.mappings) rule.mappings = share.mappings;
 
     // Set the state
     state.rules.rules[key] = rule;
