@@ -3,10 +3,56 @@ import React from 'react'
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 
-import { Button, Dropdown, Icon } from 'semantic-ui-react'
+import { Button, Dropdown, Icon, Table, Input } from 'semantic-ui-react'
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import ReactJson from 'react-json-view'
+
+function SharingTable({list}) {
+  //        <div css={{fontSize: 15, color: '#787878', marginTop: 5}}>{'Shared with: ' + approvedList.join(', ')}</div>
+  const { actions, state } = overmind();
+  const myActions = actions.view.Modals.FileDetailsModal;
+  const myState = state.view.Modals.FileDetailsModal;
+  list = list || [];
+  if (list.length == 0 && myState.sharedSearchValue.length == 0) return null;
+  return (
+    <Table celled>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>
+            {'Shared with'}
+            <Input
+              size='mini'
+              css={{marginLeft: 10}}
+              icon='search'
+              placeholder='Search...'
+              onChange={(evt) => myActions.onShareSearchChange(evt.target.value)}
+              value={myState.sharedSearchValue}
+            />
+          </Table.HeaderCell>
+          <Table.HeaderCell>Method</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {
+          _.map(list, (share, index) => {
+            var type = share.type;
+            if (type == 'fl') type = 'FoodLogiQ';
+            if (type == 'shareWf') type = 'Trellis';
+            if (type == 'ift') type = 'IBM Food Trust';
+            return (
+              <Table.Row key={'share'+index}>
+                <Table.Cell>{share.with}</Table.Cell>
+                <Table.Cell>{type}</Table.Cell>
+              </Table.Row>
+            )
+          })
+        }
+      </Table.Body>
+    </Table>
+  )
+}
+
 
 function Sharing(props) {
   const { actions, state } = overmind();
@@ -27,20 +73,12 @@ function Sharing(props) {
   const shareValue = _.chain(myState.share).map((share, key) => {
     if (share.status == 'pending') return key;
   }).compact().value();
-  const approvedList = _.chain(myState.sharedWith).map((share) => {
-    var type = share.type;
-    if (type == 'fl') type = 'FoodLogiQ';
-    if (type == 'shareWf') type = 'Trellis';
-    if (type == 'ift') type = 'IBM Food Trust';
-    //if (share.status == 'approved') return `${share['with']} - ${type}`;
-    return `${share['with']} - ${type}`;
-  }).compact().value();
   return (
-    <div css={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-      <div css={{fontSize: 27, marginBottom: 10, fontWeight: 'bold'}}>
+    <div css={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginTop: 7}}>
+      {/*<div css={{fontSize: 27, marginBottom: 10, fontWeight: 'bold'}}>
         {'Share with others:'}
-      </div>
-      <div css={{display: 'flex'}}>
+      </div>*/}
+      {/*<div css={{display: 'flex'}}>
         <Dropdown
           css={{marginRight: 5}}
           placeholder='Select trading partners...'
@@ -56,13 +94,8 @@ function Sharing(props) {
           <Icon name='send' />
           Share
         </Button>
-      </div>
-      {
-        (approvedList.length > 0) ?
-        <div css={{fontSize: 15, color: '#787878', marginTop: 5}}>{'Shared with: ' + approvedList.join(', ')}</div>
-        :
-        null
-      }
+      </div>*/}
+      <SharingTable list={myState.sharedWithFiltered}/>
     </div>
   );
 }

@@ -17,6 +17,7 @@ export default {
         let unloadedDocs = [];
         const documents = _.get(state, `oada.data.fsqa-audits`);
         const docKeys = _.keys(documents).sort().reverse();
+        const now = moment()
         let collection = _.map(docKeys,
           (documentKey) => {
             const document = documents[documentKey];
@@ -30,11 +31,15 @@ export default {
             } else {
               createdAt = '';
             }
+
             return {
               documentKey: documentKey,
               docType: 'fsqa-audits',
               filename: _.get(document, 'organization.name') || '',
               type: 'FSQA Audit',
+              shares:  _.chain(document).get('_meta.services.trellis-shares.jobs').keys().value().length,
+              score: _.get(document, 'score.final'),
+              validity: _.get(document, 'certificate_validity_period'),
               createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created')
             }
@@ -208,6 +213,21 @@ export default {
             .get(`_meta.services.approval.tasks`)
             .value() || {}
         )
+      },
+      sharedSearchValue: '',
+      sharedWith: [],
+      sharedWithFiltered: ({sharedWith: collection, sharedSearchValue: search}, state) => {
+        if (search.length == 0) return collection;
+        //Filter collection by sharedSearchValue
+        const fuseOptions = {keys: [{name: 'with', weight: 0.8}], shouldSort: true};
+        var fuse = new Fuse(collection, fuseOptions);
+        if (search && search.length > 0) {
+          collection = _.map(fuse.search(search.substr(0, 32)), 'item');
+        }
+        if (collection.length == 0) {
+          return [{type: '', with: 'No Results Found'}]
+        }
+        return collection;
       }
     },
     PDFViewerModal: {

@@ -72,6 +72,9 @@ export default {
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
       },
+      onShareSearchChange({state, actions}, value) {
+        state.view.Modals.FileDetailsModal.sharedSearchValue = value;
+      },
       showDocument({state}, {resourceId}) {
         //Find document key for resourceId
         DOC_TYPES.forEach((docType) => {
@@ -166,11 +169,11 @@ export default {
           console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          console.log('doc', doc)
           //Show file detial model
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
           state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
@@ -199,6 +202,7 @@ export default {
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
           state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
