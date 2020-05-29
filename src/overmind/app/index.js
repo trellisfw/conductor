@@ -7,7 +7,7 @@ import packagejson from '../../../package.json';
 
 export default function (namespace) {
   return {
-    onInitialize({ state, actions, effects }, instance) {
+    async onInitialize({ state, actions, effects }, instance) {
       console.log('Started app')
 
 
@@ -43,6 +43,10 @@ export default function (namespace) {
       state.app.skins = config.skins;
       // And select one
       state.app.skin = skin;
+
+      if (query.d || window.localStorage['oada:domain']) {
+       await actions.login.login()
+      }
 
       //Initialize modules
       actions.examples.initialize();
