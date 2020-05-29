@@ -167,6 +167,7 @@ function Table ({docType}) {
               return <div css={{color: validColor}}>{validLabel}</div>
             }}
           />
+          <Column width={100} label='Shares' dataKey='shares' />
           <Column width={200} label='Added' dataKey='createdAt' />
           <Column
             dataKey='name'

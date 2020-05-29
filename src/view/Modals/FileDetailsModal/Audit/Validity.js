@@ -35,7 +35,7 @@ function Validity (props) {
           <span style={{ color: 'red' }}>EXPIRED!</span>
         :
           <span style={{ color: 'green' }}>
-            {`VALID (from ${validity.start.format('MMM d, YYYY')} to ${validity.end.format('MMM d, YYYY')})`}
+            {`VALID (from ${validity.start.format('MMM D, YYYY')} to ${validity.end.format('MMM D, YYYY')})`}
           </span>
       }</Table.Cell>
     </Table.Row>
