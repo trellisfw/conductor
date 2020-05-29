@@ -9,8 +9,8 @@ import _ from 'lodash'
 
 function MyHeader (props) {
   const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal;
-  let myActions = actions.view.Modals.NewRuleModal;
+  let myState = state.view.Modals.RulesModal;
+  let myActions = actions.view.Modals.RulesModal;
   let isEditing = myState.Edit.edit;
   //TODO deleteClicked()
   return (

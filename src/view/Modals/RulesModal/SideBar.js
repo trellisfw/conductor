@@ -8,8 +8,8 @@ import _ from 'lodash'
 
 function SideBar (props) {
   const {state, actions} = overmind();
-  let myActions = actions.view.Modals.NewRuleModal;
-  let myState = state.view.Modals.NewRuleModal.List;
+  let myActions = actions.view.Modals.RulesModal;
+  let myState = state.view.Modals.RulesModal.List;
   let templates = state.rules.templates;
   let categories = _.clone(myState.categories);
   Object.values(templates).forEach(r => categories.push(...r.categories))

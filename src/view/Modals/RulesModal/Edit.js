@@ -9,8 +9,8 @@ import _ from 'lodash';
 
 function Blank (props) {
   const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal;
-  let myActions = actions.view.Modals.NewRuleModal;
+  let myState = state.view.Modals.RulesModal;
+  let myActions = actions.view.Modals.RulesModal;
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
   let type = template[props.item].type;
@@ -40,8 +40,8 @@ function Blank (props) {
 
 function BlankB (props) {
   const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal;
-  let myActions = actions.view.Modals.NewRuleModal;
+  let myState = state.view.Modals.RulesModal;
+  let myActions = actions.view.Modals.RulesModal;
   let isEditing = myState.Edit.edit;
   let rule = myState.Edit.rule;
   let template = myState.Edit.template;
@@ -93,8 +93,8 @@ function BlankB (props) {
 
 function Edit (props) {
   const {state, actions} = overmind();
-  let myState = state.view.Modals.NewRuleModal.Edit;
-  let myActions = actions.view.Modals.NewRuleModal;
+  let myState = state.view.Modals.RulesModal.Edit;
+  let myActions = actions.view.Modals.RulesModal;
   let isEditing = myState.edit;
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
@@ -132,6 +132,7 @@ function Edit (props) {
           }
         </div>
       </div>
+      <Button onClick={(evt) => {myActions.viewMappings()}}>View Mappings</Button>
       <div
         css={{
           display: 'flex',
