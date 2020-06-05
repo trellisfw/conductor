@@ -17,7 +17,7 @@ export default function (namespace) {
       }
 
       let urlObj = urlLib.parse(window.location.href, true);
-			let query = urlObj.query;
+			let query = _.cloneDeep(urlObj.query);
 
 			if (query.d) {
         console.log('Have domain in query params, using it');
