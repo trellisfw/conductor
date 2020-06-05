@@ -69,20 +69,39 @@ export default {
 
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
-    let response = await actions.oada
-      .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-    TRADING_PARTNERS = response.data;
-    console.log('TRADING PARTNERS', TRADING_PARTNERS);
+    try {
+      let response = await actions.oada
+        .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+      TRADING_PARTNERS = response.data;
+      console.log('TRADING PARTNERS', TRADING_PARTNERS);
+    } catch(err) {
+      if (err.response && err.response.status === 404) {
+        console.log('no trading partners present for current user');
+      }
+    }
 
   // Get expanded list of coi-holders
-    response = await actions.oada
-      .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
-    COI_HOLDERS = response.data;
-    console.log("COI_HOLDERS", COI_HOLDERS);
+    try {
+      let response = await actions.oada
+        .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
+      COI_HOLDERS = response.data;
+      console.log("COI_HOLDERS", COI_HOLDERS);
+    } catch(err) {
+      if (err.response && err.response.status === 404) {
+        console.log('no coi-holders present for current user');
+      }
+    }
 
-    response = await actions.oada
-      .get(`/bookmarks/trellisfw/facilities/expand-index`)
-    FACILITIES = response.data;
+    try {
+      let response = await actions.oada
+        .get(`/bookmarks/trellisfw/facilities/expand-index`)
+      FACILITIES = response.data;
+    } catch(err) {
+      if (err.response && err.response.status === 404) {
+        console.log('no coi-holders present for current user');
+      }
+    }
+
   },
 
   async initializeDocuments({state, actions}) {

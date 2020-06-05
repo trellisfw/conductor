@@ -16,7 +16,7 @@ export default function (namespace) {
       }
 
       let urlObj = urlLib.parse(window.location.href, true);
-			let query = urlObj.query;
+			let query = _.cloneDeep(urlObj.query);
 
       //Check if we have a domain in the query parameters.
       let domain = null;
