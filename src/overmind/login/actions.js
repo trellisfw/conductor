@@ -1,8 +1,10 @@
 export default {
   async login({ state, actions }) {
+    let domain = state.login.domain;
+    let token = state.login.token;
     state.login.loading = true;
-    state.oada.url = state.login.domain.match(/^http/) ? state.login.domain : 'https://'+state.login.domain;
-    await actions.oada.login();
+    domain = domain.match(/^http/) ? domain : 'https://'+domain;
+    await actions.oada.login({domain, token});
     state.login.loading = false;
     if (state.oada.token) {
       state.login.loggedIn = true;

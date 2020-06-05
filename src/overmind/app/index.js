@@ -10,7 +10,6 @@ export default function (namespace) {
     async onInitialize({ state, actions, effects }, instance) {
       console.log('Started app')
 
-
       // Add the package.json version to the title
       if (packagejson && packagejson.version) {
         document.title = document.title + ' - v'+packagejson.version;
@@ -19,17 +18,40 @@ export default function (namespace) {
       let urlObj = urlLib.parse(window.location.href, true);
 			let query = urlObj.query;
 
+      //Check if we have a domain in the query parameters.
+      let domain = null;
 			if (query.d) {
-        console.log('Have domain in query params, using it');
-        state.login.domain = 'https://' + query.d;
+        //Use query parameters domain instead of local storage
+        domain = 'https://' + query.d;
         delete urlObj.query.d;
         delete urlObj.search;
         window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
-      // Populate domain from localStorage if there is a saved one:
+        console.log('Have domain in query params, using it instead of local storage:', domain);
 			} else if (window.localStorage['oada:domain']) {
-        console.log('Have saved domain in localStorage, using it');
-        state.login.domain = window.localStorage['oada:domain'];
+        // Populate domain from localStorage if there is a saved one:
+        domain = window.localStorage['oada:domain'];
+        console.log('Have saved domain in localStorage, using it:', domain);
       }
+
+      //Check if we have a token in the query parameters
+      let token;
+			if (query.t) {
+        //Use token from url instead of local storage
+        token = query.t;
+        delete urlObj.query.t;
+        delete urlObj.search;
+        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
+        console.log('Token found in query parameter, using it instead of local storage:' + token)
+        state.login.dontSaveToken = true; //Don't save the login token after login
+			} else if (window.localStorage['oada:'+domain+':token']) {
+        //Check if we have a token in local storage
+        token = window.localStorage['oada:'+domain+':token']
+        console.log('Already have a token for URL ' + domain+ ', logout to clear:', token)
+      } else {
+        if (domain) console.log('No token found for domain', domain)
+      }
+
+      state.login.domain = domain;
 
       let skin = false;
       // Populate skin from localStorage if there is a saved one:
@@ -48,8 +70,11 @@ export default function (namespace) {
       // And select one
       state.app.skin = skin;
 
-      if (query.d || window.localStorage['oada:domain']) {
-       await actions.login.login()
+      //If have a domain and a token, auto-login
+      if (domain && token) {
+        state.login.domain = domain;
+        state.login.token = token;
+       await actions.login.login();
       }
 
       //Initialize modules
