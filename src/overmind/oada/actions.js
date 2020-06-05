@@ -34,11 +34,17 @@ export default {
     /*
       Connect to my OADA instance
     */
-		let query = urlLib.parse(window.location.href, true).query;
+		let urlObj = urlLib.parse(window.location.href, true);
+    let query = urlObj.query;
     let token;
     try {
 			if (query.t) {
         token = query.t;
+        delete urlObj.query.t;
+        delete urlObj.search;
+        console.log('URLOBJ', urlObj);
+        console.log('reconstructed url', urlLib.format(urlObj.format()));
+        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
         console.log(
           'token found in query parameter:' + token
         )

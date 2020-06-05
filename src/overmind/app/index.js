@@ -16,11 +16,15 @@ export default function (namespace) {
         document.title = document.title + ' - v'+packagejson.version;
       }
 
-			let query = urlLib.parse(window.location.href, true).query;
+      let urlObj = urlLib.parse(window.location.href, true);
+			let query = urlObj.query;
 
 			if (query.d) {
         console.log('Have domain in query params, using it');
         state.login.domain = 'https://' + query.d;
+        delete urlObj.query.d;
+        delete urlObj.search;
+        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
       // Populate domain from localStorage if there is a saved one:
 			} else if (window.localStorage['oada:domain']) {
         console.log('Have saved domain in localStorage, using it');
