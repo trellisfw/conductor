@@ -1,6 +1,6 @@
 {
   "name": "smithfield-ui",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": true,
   "homepage": "https://trellisfw.github.io/conductor/",
   "dependencies": {
