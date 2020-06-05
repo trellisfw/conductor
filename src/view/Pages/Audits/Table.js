@@ -125,7 +125,7 @@ function Table ({docType}) {
             }}
           />
           <Column
-            width={50}
+            width={80}
             label='Score'
             dataKey='score'
             cellRenderer={({ rowData }) => {

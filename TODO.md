@@ -21,16 +21,24 @@ COIS Page:
   - How to tell if COI was processed by target?
   - maybe column for if there is an expired policy (maybe check / X)
 
-Audits Page:
-  - score
-  - validity date
-  - meta, list of how many sharing jobs have run on it # of keys in that object. "Shares"
-  - Maybe change shares in modal to a searchable table.
+-----
 
-Add page for `fsqa-certificates`
+- Add processed by target everywhere
 
-Add page for `letters-of-guarantee`
+Add page for `fsqa-certificates` (test docs are in centricity's drive)
+Add page for `letters-of-guarantee` (test docs are in centricity's drive)
 
-- Make share list a table if lots of them
 - Make lists disappear if no items in sidebar
   - OR if link 404's, watch upper level.
+
+- Make PDF download more clear, multiple spots, allow JSON download
+
+Rules Page:
+  - Remove add button
+  - Change mapping to table
+  - Show loading for mapping table
+  - Add search for mapping
+  - Remove 'rules' from sidebar if no rules exist
+
+Auto Login:
+  - Why don't pdf's work (maybe fixed via aaron)
