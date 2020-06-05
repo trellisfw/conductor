@@ -18,7 +18,7 @@ function FileDetailsModal(props) {
     <Modal open={myState.open} onClose={myActions.close}>
       <Header />
       <Modal.Content >
-        <div css={{minHeight: 350, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+        <div css={{minHeight: 350, display: 'flex', flexDirection: 'column'}}>
           <Content />
           <Sharing />
         </div>

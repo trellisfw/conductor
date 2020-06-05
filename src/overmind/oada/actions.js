@@ -189,6 +189,7 @@ export default {
         tps = Object.keys(tps).map(masterid => {
           const partner = _.find(TRADING_PARTNERS, {masterid});
           if (partner) return {
+            masterid,
             with: partner.name,
             type: 'shareWf'
           }
@@ -205,6 +206,7 @@ export default {
           return tp.facilities[masterid] ? true: false
         }).map((tp) => {
           if (tp) return {
+            masterid: tp.id,
             with: tp.name,
             type: 'shareWf'
           }
@@ -216,8 +218,15 @@ export default {
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
+          if (tp.facilities == null) return false;
           return tp.facilities[masterid] ? true: false
-        }).map(tp => tp.name)
+        }).map((tp) => {
+          if (tp) return {
+            masterid: tp.id,
+            with: tp.name,
+            type: 'shareWf'
+          }
+        });
         return tps;
       case 'letters-of-guarantee':
         return []

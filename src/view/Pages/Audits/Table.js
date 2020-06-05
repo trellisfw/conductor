@@ -21,6 +21,7 @@ function Table ({docType}) {
   const myState = state.view.Pages.Audits
   const collection = myState.Table || [];
   const il = infiniteLoader('Audits', myActions.loadDocumentKeys);
+  const now = moment();
   return (
     <AutoSizer>
       {({ height, width }) => (
@@ -91,7 +92,7 @@ function Table ({docType}) {
               )
             }
           />
-          <Column label='Name' dataKey='filename' width={200} />
+          <Column label='Name' dataKey='filename' width={400} />
           <Column
             width={200}
             label='Type'
@@ -123,7 +124,51 @@ function Table ({docType}) {
               }
             }}
           />
-          <Column width={140} label='Added' dataKey='createdAt' />
+          <Column
+            width={50}
+            label='Score'
+            dataKey='score'
+            cellRenderer={({ rowData }) => {
+              return `${_.get(rowData, 'score.value')}${_.get(rowData, 'score.units')}`;
+            }}
+          />
+          <Column
+            width={200}
+            label='Valid'
+            dataKey='valid'
+            cellRenderer={({ rowData }) => {
+              let validity = null
+              if (rowData.validity) {
+                validity = {
+                  start: moment(rowData.validity.start, 'M/D/YYYY'),
+                  end: moment(rowData.validity.end, 'M/D/YYYY')
+                }
+                if (!validity.start || !validity.start.isValid()) validity = null
+                if (!validity.end || !validity.end.isValid()) validity = null
+                // If it starts after today, or ended before today, it's expired
+                validity.expired = validity.start.isAfter(now) || validity.end.isBefore(now)
+              }
+              let validLabel = 'Unknown';
+              let validColor = 'red';
+              if (!validity) {
+                //Do nothing
+              } else if (validity.expired) {
+                if (validity.start.isAfter(now)) {
+                  validLabel = `Begins ${validity.end.format('M/D/YYYY')}`
+                  validColor = 'yellow';
+                } else {
+                  validLabel = `Expired ${validity.end.format('M/D/YYYY')}`
+                  validColor = 'red'
+                }
+              } else {
+                validLabel = `Until ${validity.end.format('M/D/YYYY')}`
+                validColor = 'green'
+              }
+              return <div css={{color: validColor}}>{validLabel}</div>
+            }}
+          />
+          <Column width={100} label='Shares' dataKey='shares' />
+          <Column width={200} label='Added' dataKey='createdAt' />
           <Column
             dataKey='name'
             className='signature'

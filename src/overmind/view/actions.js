@@ -103,6 +103,9 @@ export default {
     FileDetailsModal: {
       onShareChange({state, actions}, data) {
       },
+      onShareSearchChange({state, actions}, value) {
+        state.view.Modals.FileDetailsModal.sharedSearchValue = value;
+      },
       showDocument({state}, {resourceId}) {
         //Find document key for resourceId
         DOC_TYPES.forEach((docType) => {
@@ -114,9 +117,10 @@ export default {
         })
       },
       viewPDF({ state, actions }, {documentKey, docType}) {
-        const pdfResource = _.get(state.oada.data, `${docType}.${documentKey}._meta.vdoc.pdf._id`)
+        //const pdfResource = _.get(state.oada.data, `${docType}.${documentKey}._meta.vdoc.pdf._id`)
+        const pdfPath = `/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/${pdfResource}`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}${pdfPath}`
         state.view.Modals.PDFViewerModal.open = true;
       },
       toggleShowData({ state }, documentKey) {
@@ -197,11 +201,11 @@ export default {
           console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          console.log('doc', doc)
           //Show file detial model
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
           state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }
@@ -230,6 +234,7 @@ export default {
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
           state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
         }
       }

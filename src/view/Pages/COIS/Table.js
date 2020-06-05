@@ -91,10 +91,10 @@ function Table ({docType}) {
               )
             }
           />
-          <Column label='Holder' dataKey='holder' width={200} />
-          <Column label='Producer' dataKey='producer' width={200} />
-          <Column label='Insured' dataKey='insured' width={200} />
-          <Column width={140} label='Added' dataKey='createdAt' />
+          <Column label='Holder' dataKey='holder' width={400} />
+          <Column label='Producer' dataKey='producer' width={300} />
+          <Column label='Insured' dataKey='insured' width={300} />
+          <Column width={200} label='Added' dataKey='createdAt' />
           <Column
             dataKey='name'
             className='signature'
