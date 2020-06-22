@@ -80,9 +80,14 @@ function UserAccessTable({docType}) {
         >
 
           <Column
-            label={<Checkbox
-            // checked={({index}) => {return myState[collection[index]].date}}
-            />}
+            headerRenderer={(data) => {
+              return (
+                <Checkbox
+                  checked={state.oada.data.Reports.allSelected}
+                  onClick={actions.view.Pages.Reports.selectAllReports}
+                />
+              );
+            }}
             dataKey='documentSelect'
             width={40}
             cellRenderer={({rowData}) => {

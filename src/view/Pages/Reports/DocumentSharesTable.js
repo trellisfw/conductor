@@ -80,9 +80,17 @@ function DocumentSharesTable({docType}) {
         >
 
           <Column
-            label={<Checkbox
-            // checked={({index}) => {return myState[collection[index]].date}}
-            />}
+            // label={<Checkbox
+            //   checked={state.oada.data.Reports.allReportsSelected}
+            // />}
+            headerRenderer={(data) => {
+              return (
+                <Checkbox
+                  checked={state.oada.data.Reports.allSelected}
+                  onClick={actions.view.Pages.Reports.selectAllReports}
+                />
+              );
+            }}
             dataKey='documentSelect'
             width={40}
             cellRenderer={({rowData}) => {
