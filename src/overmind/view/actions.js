@@ -5,6 +5,7 @@ import Promise from 'bluebird';
 import {json} from 'overmind';
 import fileDownload from 'js-file-download';
 import request from 'axios'
+import moment from 'moment';
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 export default {
@@ -179,6 +180,125 @@ export default {
     }
   },
   Pages: {
+    Reports: {
+      onStart({state}, value) {
+        // console.log('value: ', value);
+        const dt = moment(value, 'YYYY-MM-DD');
+        if (dt.isValid()) {
+          state.view.Pages.Reports.startDate = value;
+        } else {
+          state.view.Pages.Reports.startDate = '';
+        }
+      },
+      onEnd({state}, value) {
+        const dt = moment(value, 'YYYY-MM-DD');
+        if (dt.isValid()) {
+          state.view.Pages.Reports.endDate = value;
+        } else {
+          state.view.Pages.Reports.endDate = '';
+        }
+      },
+      reportSelect({state, actions}, name) {
+        actions.view.Pages.Reports.deselectAllReports();
+        state.view.Pages.Reports.allSelected = false;
+        state.view.Pages.Reports.selectedReport = name.toLowerCase();
+      },
+
+      // TODO save different report types differently
+      saveReports({state, actions}) {
+        const myState = state.oada.data.Reports;
+        Object.keys(myState)
+          .filter((date) => myState[date].checked)
+          .forEach((date) => {
+            const filename = state.view.Pages.Reports.selectedReport.split(" ").join("_");
+            fileDownload(
+              myState[date][state.view.Pages.Reports.selectedReport].raw,
+              `${date}_${filename}.xlsx`
+            );
+          });
+      },
+
+      deselectAllReports({state}) {
+        const dataState = state.oada.data.Reports;
+        Object.keys(dataState).filter((date) => {
+          return moment(date, 'YYYY-MM-DD').isValid();
+        }).forEach((documentKey) => {
+          state.oada.data.Reports[documentKey].checked = false;
+        });
+      },
+
+      selectAllReports({state, actions}) {
+        const tableState = state.view.Pages.Reports;
+        const dataState = state.oada.data.Reports;
+        const collection = tableState.eventLog.Table;
+        const documentKeys = collection.map((row) => {
+          return row.documentKey;
+        });
+        actions.view.Pages.Reports.deselectAllReports();
+        documentKeys.forEach((documentKey) => {
+          dataState[documentKey].checked = !dataState.allSelected;
+        });
+        dataState.allSelected = !dataState.allSelected;
+      },
+
+      eventLog: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('Event Log - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid()
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadEventLog(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+        }
+      },
+
+      userAccess: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('Reports - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid();
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadUserAccess(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+        }
+      },
+
+      documentShares: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('Reports - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid();
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadDocumentShares(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+        }
+      },
+    },
+
     Audits: {
       onSearch({ state }, value) {
         state.view.Pages.Audits.search = value;
