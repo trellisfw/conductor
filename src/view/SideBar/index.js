@@ -72,6 +72,7 @@ function SideBar() {
       <SideSection selected={(selectedPage == 'Data')} name={'Data'} icon={iconData}>{'Unidentified Files'}</SideSection>
       <SideSection selected={(selectedPage == 'COIS')} name={'COIS'} icon={iconData}>{'COIS'}</SideSection>
       <SideSection selected={(selectedPage == 'Audits')} name={'Audits'} icon={iconData}>{'Audits'}</SideSection>
+      <SideSection selected={(selectedPage == 'Reports')} name={'Reports'} icon={iconData}>{'Reports'}</SideSection>
       <SideSection selected={(selectedPage == 'Rules')} name={'Rules'} icon={iconConnections}>{'Rules'}</SideSection>
     </div>
   );
