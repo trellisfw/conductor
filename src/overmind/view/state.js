@@ -10,6 +10,154 @@ export default {
     Documents: {
 
     },
+
+    Reports: {
+      startDate: '',
+      endDate: '',
+      allSelected: false,
+      selectedReport: 'event log',
+      eventLog: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((reportDate) => {
+            return reportDate.format('YYYY-MM-DD');
+          });
+
+          return valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            if (!myState['event log']) {
+              return {documentKey};
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numDocuments: myState['event log'].numDocuments,
+                numEvents: myState['event log'].numEvents,
+                numEmails: myState['event log'].numEmails,
+                numShares: myState['event log'].numShares,
+              };
+            } catch (e) {
+              console.log(e);
+              console.log(myState);
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+        }
+      },
+
+      userAccess: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((date) => {
+            return date.format('YYYY-MM-DD');
+          });
+
+          return valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            if (!myState['user access']) {
+              // console.log(`${documentKey} user access empty`);
+              return {documentKey};
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numTradingPartners: myState['user access'].numTradingPartners,
+                numTPWODocs: myState['user access'].numTPWODocs,
+                totalShares: myState['user access'].totalShares,
+              };
+            } catch (e) {
+              console.log(e);
+              console.log(myState);
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+        }
+      },
+
+      documentShares: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((date) => {
+            return date.format('YYYY-MM-DD');
+          });
+
+          return valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            // const myState = state.oada.data.Reports[documentKey];
+            if (!myState['document shares']) {
+              return {documentKey};
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numDocsToShare: myState['document shares'].numDocsToShare,
+                numExpiredDocuments: myState['document shares'].numExpiredDocuments,
+                numDocsNotShared: myState['document shares'].numDocsNotShared,
+              };
+            } catch (e) {
+              console.log(e);
+              console.log(myState);
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+        }
+      }
+    },
+
     Audits: {
       search: '',
       openFileBrowser: false,
