@@ -15,7 +15,7 @@ export default {
       startDate: '',
       endDate: '',
       allSelected: false,
-      selectedReport: 'event log',
+      selectedReport: 'eventLog',
       eventLog: {
         Table: ({}, state) => {
           // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
@@ -39,17 +39,17 @@ export default {
 
           return valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
-            if (!myState['event log']) {
+            if (!myState['eventLog']) {
               return {documentKey};
             }
             try {
               return {
                 checked: myState.checked,
                 documentKey,
-                numDocuments: myState['event log'].numDocuments,
-                numEvents: myState['event log'].numEvents,
-                numEmails: myState['event log'].numEmails,
-                numShares: myState['event log'].numShares,
+                numDocuments: myState.eventLog.numDocuments,
+                numEvents: myState.eventLog.numEvents,
+                numEmails: myState.eventLog.numEmails,
+                numShares: myState.eventLog.numShares,
               };
             } catch (e) {
               console.log(e);
@@ -86,7 +86,7 @@ export default {
 
           return valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
-            if (!myState['user access']) {
+            if (!myState.userAccess) {
               // console.log(`${documentKey} user access empty`);
               return {documentKey};
             }
@@ -94,9 +94,9 @@ export default {
               return {
                 checked: myState.checked,
                 documentKey,
-                numTradingPartners: myState['user access'].numTradingPartners,
-                numTPWODocs: myState['user access'].numTPWODocs,
-                totalShares: myState['user access'].totalShares,
+                numTradingPartners: myState.userAccess.numTradingPartners,
+                numTPWODocs: myState.userAccess.numTPWODocs,
+                totalShares: myState.userAccess.totalShares,
               };
             } catch (e) {
               console.log(e);
@@ -134,16 +134,16 @@ export default {
           return valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
             // const myState = state.oada.data.Reports[documentKey];
-            if (!myState['document shares']) {
+            if (!myState['documentShares']) {
               return {documentKey};
             }
             try {
               return {
                 checked: myState.checked,
                 documentKey,
-                numDocsToShare: myState['document shares'].numDocsToShare,
-                numExpiredDocuments: myState['document shares'].numExpiredDocuments,
-                numDocsNotShared: myState['document shares'].numDocsNotShared,
+                numDocsToShare: myState.documentShares.numDocsToShare,
+                numExpiredDocuments: myState.documentShares.numExpiredDocuments,
+                numDocsNotShared: myState.documentShares.numDocsNotShared,
               };
             } catch (e) {
               console.log(e);

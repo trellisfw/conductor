@@ -32,15 +32,15 @@ function Data() {
         <ReportSelect />
         <div css={{flex: 1, display: 'flex'}}>
           <div css={{border: '1px solid #979797', flex: 1, display: 'flex'}}>
-            {state.view.Pages.Reports.selectedReport === 'event log' ?
+            {state.view.Pages.Reports.selectedReport === 'eventLog' ?
               <EventLogTable docType='Reports' />
               : null
             }
-            {state.view.Pages.Reports.selectedReport === 'user access' ?
+            {state.view.Pages.Reports.selectedReport === 'userAccess' ?
               <UserAccessTable docType='Reports' />
               : null
             }
-            {state.view.Pages.Reports.selectedReport === 'document shares' ?
+            {state.view.Pages.Reports.selectedReport === 'documentShares' ?
               <DocumentSharesTable docType='Reports' />
               : null
             }

@@ -6,6 +6,7 @@ import {json} from 'overmind';
 import fileDownload from 'js-file-download';
 import request from 'axios'
 import moment from 'moment';
+import XLSX from 'xlsx';
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 export default {
@@ -201,21 +202,12 @@ export default {
       reportSelect({state, actions}, name) {
         actions.view.Pages.Reports.deselectAllReports();
         state.view.Pages.Reports.allSelected = false;
-        state.view.Pages.Reports.selectedReport = name.toLowerCase();
+        state.view.Pages.Reports.selectedReport = name;
       },
 
       // TODO save different report types differently
       saveReports({state, actions}) {
-        const myState = state.oada.data.Reports;
-        Object.keys(myState)
-          .filter((date) => myState[date].checked)
-          .forEach((date) => {
-            const filename = state.view.Pages.Reports.selectedReport.split(" ").join("_");
-            fileDownload(
-              myState[date][state.view.Pages.Reports.selectedReport].raw,
-              `${date}_${filename}.xlsx`
-            );
-          });
+        actions.view.Pages.Reports[state.view.Pages.Reports.selectedReport].Table.saveReports();
       },
 
       deselectAllReports({state}) {
@@ -257,13 +249,51 @@ export default {
             state.oada.data.Reports[date].checked =
               !state.oada.data.Reports[date].checked;
           },
-        }
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            let rows = [];
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].eventLog !== null
+                && myState[date].eventLog !== undefined)
+              .forEach((date) => {
+                rows = rows.concat(myState[date]['eventLog'].rows);
+              });
+            const ws = XLSX.utils.json_to_sheet(rows, {
+              header: [
+                'share status',
+                'trading partner name',
+                'trading partner masterid',
+                'recipient email address',
+                'event time',
+                'event type',
+                'document type',
+                'document id',
+                'document name',
+                'upload date',
+                'coi holder',
+                'coi producer',
+                'coi insured',
+                'coi expiration date',
+                'audit organization name',
+                'audit expiration date',
+                'audit score',
+              ],
+            });
+            XLSX.utils.book_append_sheet(wb, ws, 'eventLog');
+            XLSX.writeFile(wb, 'eventLog.xlsx', {
+              bookType: 'xlsx',
+            });
+          },
+        },
       },
 
       userAccess: {
         Table: {
           loadDocumentKeys({_state, actions}, documentKeys) {
-            console.log('Reports - loadDocumentKeys', documentKeys);
+            console.log('User Access - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
@@ -276,13 +306,45 @@ export default {
             state.oada.data.Reports[date].checked =
               !state.oada.data.Reports[date].checked;
           },
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].userAccess !== null
+                && myState[date].userAccess !== undefined)
+              .forEach((date) => {
+                const ws = XLSX.utils.json_to_sheet(myState[date].userAccess.rows, {
+                  header: [
+                    'trading partner name',
+                    'trading partner masterid',
+                    'document type',
+                    'document id',
+                    'document name',
+                    'upload date',
+                    'coi holder',
+                    'coi producer',
+                    'coi insured',
+                    'coi expiration date',
+                    'audit organization name',
+                    'audit expiration date',
+                    'audit score',
+                  ],
+                });
+                XLSX.utils.book_append_sheet(wb, ws, date);
+              });
+            XLSX.writeFile(wb, 'tradingPartnerAccess.xlsx', {
+              bookType: 'xlsx',
+            });
+          },
         }
       },
 
       documentShares: {
         Table: {
           loadDocumentKeys({_state, actions}, documentKeys) {
-            console.log('Reports - loadDocumentKeys', documentKeys);
+            console.log('Document Shares - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
@@ -294,6 +356,38 @@ export default {
           toggleCheckbox({state, actions}, date) {
             state.oada.data.Reports[date].checked =
               !state.oada.data.Reports[date].checked;
+          },
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].documentShares !== null
+                && myState[date].documentShares !== undefined)
+              .forEach((date) => {
+                const ws = XLSX.utils.json_to_sheet(myState[date]['documentShares'].rows, {
+                  header: [
+                    'document name',
+                    'document id',
+                    'document type',
+                    'upload date',
+                    'trading partner name',
+                    'trading partner masterid',
+                    'coi holder',
+                    'coi producer',
+                    'coi insured',
+                    'coi expiration date',
+                    'audit organization name',
+                    'audit expiration date',
+                    'audit score',
+                  ],
+                });
+                XLSX.utils.book_append_sheet(wb, ws, date);
+              });
+            XLSX.writeFile(wb, 'documentRecipientList.xlsx', {
+              bookType: 'xlsx',
+            });
           },
         }
       },

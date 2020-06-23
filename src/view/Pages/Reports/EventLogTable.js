@@ -18,7 +18,7 @@ function EventLogTable({docType}) {
   const myState = state.view.Pages.Reports.eventLog;
   const collection = myState.Table || [];
 
-  const il = infiniteLoader('Reports', myActions.loadDocumentKeys);
+  const il = infiniteLoader('Event Log', myActions.loadDocumentKeys);
   const now = moment();
   return (
     <AutoSizer>

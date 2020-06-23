@@ -11,13 +11,13 @@ import 'semantic-ui-css/semantic.min.css'
 import actions from 'src/overmind/app/actions';
 
 const tabName = {
-  'event log': 'History',
-  'user access':
+  'eventLog': 'History',
+  'userAccess':
     <div>
       <div>{'Current State:'}</div>
       <div>{'Trading Partners Access'}</div>
     </div>,
-  'document shares':
+  'documentShares':
     <div>
       <div>{'Current State:'}</div>
       <div>{'Document Recipient List'}</div>
@@ -25,7 +25,7 @@ const tabName = {
 };
 
 const tooltip = {
-  'event log': (
+  'eventLog': (
     <div>
       <div
         css={css`
@@ -38,7 +38,7 @@ const tooltip = {
     </div>
   ),
 
-  'user access': (
+  'userAccess': (
     <div>
       <div
         css={css`
@@ -55,7 +55,7 @@ const tooltip = {
     </div>
   ),
 
-  'document shares': (
+  'documentShares': (
     <div>
       <div
         css={css`
@@ -98,9 +98,9 @@ function ReportSelect() {
             grid-template-columns: repeat(3, 1fr);
           `}
         >
-          <ReportTab name='Event Log' />
-          <ReportTab name='User Access' />
-          <ReportTab name='Document Shares' />
+          <ReportTab name='eventLog' />
+          <ReportTab name='userAccess' />
+          <ReportTab name='documentShares' />
         </div>
         <div
           css={css`
@@ -148,7 +148,7 @@ function ReportTab({onClick, name}) {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        ${name.toLowerCase() === state.view.Pages.Reports.selectedReport
+        ${name === state.view.Pages.Reports.selectedReport
           ? `background: linear-gradient(
               180deg,
               rgba(0, 106, 211, 1) 0%,
@@ -167,16 +167,16 @@ function ReportTab({onClick, name}) {
           place-self: center;
           font-size: 15;
         `}
-      >{tabName[name.toLowerCase()]}</div>
+      >{tabName[name]}</div>
       <div
         css={css`
           width: 20px;
         `}
       >
-        {name.toLowerCase() === state.view.Pages.Reports.selectedReport
+        {name === state.view.Pages.Reports.selectedReport
           ? <Popup
             trigger={<Icon name='question circle' />}
-            content={tooltip[name.toLowerCase()]}
+            content={tooltip[name]}
             position='right center'
           />
           : null

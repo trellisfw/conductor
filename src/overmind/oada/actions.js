@@ -206,9 +206,9 @@ export default {
       // state.oada.data['Reports'][day] = null;
       state.oada.data['Reports'][day] = {
         checked: false,
-        'event log': null,
-        'user access': null,
-        'document shares': null,
+        'eventLog': null,
+        'userAccess': null,
+        'documentShares': null,
       }
     });
   },
@@ -487,7 +487,7 @@ export default {
       numEmails: 0,
       numShares: 0,
     });
-    state.oada.data['Reports'][documentKey]['event log'] = {
+    state.oada.data.Reports[documentKey]['eventLog'] = {
       raw: eventLogData,
       rows: eventLogRows,
       numEvents: eventLogRows.length,
@@ -529,7 +529,7 @@ export default {
       totalShares: userAccessRows.length,
     });
 
-    state.oada.data['Reports'][documentKey]['user access'] = {
+    state.oada.data.Reports[documentKey]['userAccess'] = {
       raw: userAccessData,
       rows: userAccessRows,
       ...userAccessStatistics,
@@ -606,7 +606,7 @@ export default {
       numExpiredDocuments: 0,
       numDocsNotShared: 0,
     });
-    state.oada.data['Reports'][documentKey]['document shares'] = {
+    state.oada.data.Reports[documentKey]['documentShares'] = {
       raw: documentSharesData,
       rows: documentSharesRows,
       ...documentSharesStatistics,
