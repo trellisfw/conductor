@@ -5,7 +5,6 @@ import {jsx, css} from '@emotion/core'
 
 import {Input, Button, Icon, Popup} from 'semantic-ui-react'
 import overmind from '../../../overmind'
-import helpCircle from './icons/helpCircle';
 
 import 'semantic-ui-css/semantic.min.css'
 import actions from 'src/overmind/app/actions';
