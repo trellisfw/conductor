@@ -207,6 +207,11 @@ export default {
 
       // TODO save different report types differently
       saveReports({state, actions}) {
+        if (!Object.keys(state.oada.data.Reports).some((key) => {
+          return state.oada.data.Reports[key].checked;
+        })) {
+          return;
+        }
         actions.view.Pages.Reports[state.view.Pages.Reports.selectedReport].Table.saveReports();
       },
 
