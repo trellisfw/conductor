@@ -92,7 +92,7 @@ function DocumentSharesTable({docType}) {
               );
             }}
             dataKey='documentSelect'
-            width={40}
+            width={70}
             cellRenderer={({rowData}) => {
               return (
                 <Checkbox
