@@ -3,40 +3,8 @@ import {json} from 'overmind'
 import { jsx, css } from '@emotion/core'
 
 import overmind from '../../../overmind'
-import { Button } from 'semantic-ui-react'
-import { Dropdown } from 'semantic-ui-react'
+import { Button, Dropdown, Search, Table } from 'semantic-ui-react'
 import _ from 'lodash';
-
-function Blank (props) {
-  const {state, actions} = overmind();
-  let myState = state.view.Modals.RulesModal;
-  let myActions = actions.view.Modals.RulesModal;
-  let rule = myState.Edit.rule;
-  let template = myState.Edit.template;
-  let type = template[props.item].type;
-  let list = json(state.rules[type]);
-  let q = rule[props.item].searchQuery;
-  if (q && !list[q.key]) list[q.key] = q;
-
-  return (
-    <Dropdown
-      fluid
-      search
-      selection
-      multiple
-      style={{
-        fontFamily: 'bold',
-        width: 'fit-content',
-      }}
-      options={Object.values(list).map(i => ({key: i.key, text: i.name, value:i.key}))}
-      value={Object.values(rule[props.item].values).map(v => v.key)}
-      placeholder={`E.g., ${Object.values(list)[0].name}`}
-      onChange={(evt, data) => {
-        myActions.textChanged({values: data.value, key:props.item})
-      }}
-    />
-  )
-}
 
 function BlankB (props) {
   const {state, actions} = overmind();
@@ -98,6 +66,11 @@ function Edit (props) {
   let isEditing = myState.edit;
   let rule = myState.rule;
   let pattern = /(input[0-9]+)/g;
+  let mappings = state.view.Modals.RulesModal.Mappings || {};
+  let mappingType = state.view.Modals.RulesModal.Edit.rule.mappings;
+  mappingType = mappingType.charAt(0).toUpperCase() + mappingType.slice(1);
+  let results = state.view.Modals.RulesModal.Edit.mappingSearchResults || [];
+
   return (
     <div
       css= {{
@@ -132,7 +105,34 @@ function Edit (props) {
           }
         </div>
       </div>
-      <Button onClick={(evt) => {myActions.viewMappings()}}>View Mappings</Button>
+      <Search
+        onResultSelect={(evt, {result}) => myActions.handleResultSelect(result)}
+        onSearchChange={(evt, {value}) => myActions.searchMappings(value)}
+        open={false}
+        value={myState.mappingSearchValue}
+      />
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>{mappingType}</Table.HeaderCell>
+            <Table.HeaderCell>Trading Partners</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {results.length > 0 ? results.filter(val => mappings[val].name ? true : false).map(refIndex =>
+            <Table.Row key={mappings[refIndex].name+mappings[refIndex].partners.join(';')}>
+              <Table.Cell>{mappings[refIndex].name}</Table.Cell>
+              <Table.Cell>{mappings[refIndex].partners.join("\r\n")}</Table.Cell>
+            </Table.Row>
+          ) : 
+          mappings.filter((item, i) => results.indexOf(i) < 0).filter(item => item.name ? true : false).map(item =>
+            <Table.Row key={item.name+item.partners.join(';')}>
+              <Table.Cell>{item.name}</Table.Cell>
+              <Table.Cell>{item.partners.join("\r\n")}</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
       <div
         css={{
           display: 'flex',

@@ -13,6 +13,7 @@ let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarant
 let COI_HOLDERS = {};
 let TRADING_PARTNERS = {};
 let FACILITIES = {};
+let BUYERS = {};
 
 export default {
   async holders({state, effects}) {
@@ -23,6 +24,9 @@ export default {
   },
   async facilities({state, effects}) {
     return FACILITIES;
+  },
+  async buyers({state, effects}) {
+    return BUYERS;
   },
   async logout ({ state, effects }) {
     await effects.oada.websocket.close()
@@ -102,7 +106,6 @@ export default {
       let response = await actions.oada
         .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
       COI_HOLDERS = response.data;
-      console.log("COI_HOLDERS", COI_HOLDERS);
     } catch(err) {
       if (err.response && err.response.status === 404) {
         console.log('no coi-holders present for current user');
@@ -115,7 +118,17 @@ export default {
       FACILITIES = response.data;
     } catch(err) {
       if (err.response && err.response.status === 404) {
-        console.log('no coi-holders present for current user');
+        console.log('no facilities present for current user');
+      }
+    }
+
+    try {
+      let response = await actions.oada
+        .get(`/bookmarks/trellisfw/letter-of-guarantee-buyers/expand-index`)
+      BUYERS = response.data;
+    } catch(err) {
+      if (err.response && err.response.status === 404) {
+        console.log('no LoG Buyers present for current user');
       }
     }
 

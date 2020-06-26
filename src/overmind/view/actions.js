@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Fuse from 'fuse.js';
 import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
@@ -44,28 +45,79 @@ export default {
         state.view.Modals.RulesModal.Mappings[key].active = newState;
       },
       async viewMappings({state, actions}) {
+        let obj = {};
         //Get and construct relevant mappings for this rule
+        let tps = await actions.oada.tradingPartners();
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
         if (selectedRule.mappings && selectedRule.mappings === 'holders') {
           let holders = await actions.oada.holders();
-          let tps = await actions.oada.tradingPartners();
-            console.log("TP", tps);
-          let obj = {};
           Object.keys(holders).forEach((key) => {
             obj[key] = {
-              name: holders[key].name,
-              partners: Object.keys(holders[key]['trading-partners'] || {}).map((tp) => {
-                let item = _.find(tps, {masterid: tp})
-                return item.name
+              name: holders[key].name+ ' - '+holders[key].city+', '+holders[key].state,
+              partners: Object.keys(holders[key]['trading-partners'] || {}).map((masterid) => {
+                let item = _.find(tps, {masterid})
+                return item.name+' - '+item.city+', '+item.state
               }),
               active: false
             }
           })
+          obj = Object.values(obj);
+          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
           state.view.Modals.RulesModal.Mappings = obj;
         } else if (selectedRule.mappings && selectedRule.mappings === 'facilities') {
-          state.view.Modals.RulesModal.Mappings = {apples: ['abc', 'def', 'ghi'], oranges: ['jkl', 'mno']};
+          let facilities = await actions.oada.facilities();
+          // Loop over trading partners, and for each facility listed,
+          // add an item to obj
+          Object.values(tps).forEach((v) => {
+            Object.keys(v.facilities || {}).forEach((masterid) => {
+              let fac = _.find(facilities, {masterid});
+              obj[masterid] = {
+                name: fac.name,
+                active: false,
+              }
+              let entry = v.name+' - '+v.city+', '+v.state;
+              obj[masterid].partners = obj[masterid].partners ? obj[masterid].partners.push(entry) : [entry];
+            })
+          })
+          obj = Object.values(obj);
+          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
+          state.view.Modals.RulesModal.Mappings = obj;
+        } else if (selectedRule.mappings && selectedRule.mappings === 'buyers') {
+          let buyers = await actions.oada.buyers();
+          Object.keys(buyers).forEach((key) => {
+            obj[key] = {
+              name: buyers[key].name,
+              partners: Object.keys(buyers[key]['trading-partners'] || {}).map((masterid) => {
+                let item = _.find(tps, {masterid})
+                return item.name+' - '+item.city+', '+item.state
+              }),
+              active: false
+            }
+          })
+          obj = Object.values(obj);
+          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
+          state.view.Modals.RulesModal.Mappings = obj;
         }
-        state.view.Modals.RulesModal.page = 'Mappings';
+        console.log('RESULT', obj)
+      },
+
+      async handleResultSelect({state, actions}) {
+
+      },
+
+      async searchMappings({state, actions}, value) {
+        state.view.Modals.RulesModal.Edit.mappingSearchValue = value;
+        let mappings = state.view.Modals.RulesModal.Mappings;
+        let options = {
+          keys: [
+            "name",
+            "partners"
+          ]
+        };
+        const fuse = new Fuse(mappings, options);
+        let results = fuse.search(value);
+        console.log('SEARCH', results);
+        state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 
       async doneClicked({state, actions}) {
@@ -216,7 +268,6 @@ export default {
       },
       Table: {
         loadDocumentKeys({state, actions}, documentKeys) {
-          console.log('COIS - loadDocumentKeys', documentKeys)
           const docType = 'cois';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
@@ -300,13 +351,14 @@ export default {
         state.view.Modals.RulesModal.page = 'List';
         state.view.Pages.Rules.selectedRule = rule;
       },
-      editRuleClicked({state, actions}, rule) {
+      async editRuleClicked({state, actions}, rule) {
         state.view.Modals.RulesModal.Edit = {
           template: json(rule),
           rule: json(rule),
           edit: true,
           key: rule.key,
         };
+        await actions.view.Modals.RulesModal.viewMappings();
         state.view.Modals.RulesModal.page = 'Edit';
         state.view.Modals.RulesModal.open = true;
       }
