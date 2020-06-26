@@ -169,10 +169,8 @@ export default {
         })
       },
       viewPDF({ state, actions }, {documentKey, docType}) {
-        //const pdfResource = _.get(state.oada.data, `${docType}.${documentKey}._meta.vdoc.pdf._id`)
-        const pdfPath = `/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}${pdfPath}`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
       },
       toggleShowData({ state }, documentKey) {

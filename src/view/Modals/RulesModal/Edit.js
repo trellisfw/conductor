@@ -138,6 +138,7 @@ function Edit (props) {
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'flex-end',
+          marginTop: 10
         }}>
         {
           (isEditing) ?

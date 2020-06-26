@@ -2,11 +2,11 @@ import _ from 'lodash'
 import Fuse from 'fuse.js'
 import moment from 'moment'
 
-//let DOC_TYPES = ['cois', 'letters-of-guarantee', 'fsqa-audits', 'fsqa-certificates', 'documents'];
+//let DOC_TYPES = [ 'documents', 'cois', 'fsqa-audits', 'fsqa-certificates', 'letters-of-guarantee'];
 
 export default {
   Pages: {
-    selectedPage: 'COIS',
+    selectedPage: 'Data',
     Documents: {
 
     },
@@ -32,12 +32,15 @@ export default {
               createdAt = '';
             }
 
+            let shares = _.chain(document).get('_meta.services.trellis-shares.share-count').value();
+            if (shares == null) shares = _.chain(document).get('_meta.services.trellis-shares.jobs').keys().value().length;
+
             return {
               documentKey: documentKey,
               docType: 'fsqa-audits',
               filename: _.get(document, 'organization.name') || '',
               type: 'FSQA Audit',
-              shares:  _.chain(document).get('_meta.services.trellis-shares.jobs').keys().value().length,
+              shares,
               score: _.get(document, 'score.final'),
               validity: _.get(document, 'certificate_validity_period'),
               createdAt,

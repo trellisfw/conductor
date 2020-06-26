@@ -7,8 +7,6 @@ import { browser as oadaIdClient } from '@oada/oada-id-client/index.js'
 
 const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken)
 
-const lsKey = url => 'oada:' + url + ':token' // handy function to make a useful localStorage key
-
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 let COI_HOLDERS = {};
 let TRADING_PARTNERS = {};
@@ -32,32 +30,18 @@ export default {
     await effects.oada.websocket.close()
     //Clear documents
     state.oada.data = {}
-    delete window.localStorage[lsKey(state.oada.url)]
+    //Clear the token from state
+    state.oada.token = null;
+    //Clear the token from local storage
+    delete window.localStorage['oada:'+state.oada.url+':token']
   },
-  async login ({ state, actions }) {
+  async login ({ state, actions }, {domain, token}) {
     /*
       Connect to my OADA instance
     */
-		let urlObj = urlLib.parse(window.location.href, true);
-    let query = urlObj.query;
-    let token;
+    state.oada.url = domain;
     try {
-			if (query.t) {
-        token = query.t;
-        delete urlObj.query.t;
-        delete urlObj.search;
-        console.log('URLOBJ', urlObj);
-        console.log('reconstructed url', urlLib.format(urlObj.format()));
-        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
-        console.log(
-          'token found in query parameter:' + token
-        )
-			} else if (window.localStorage[lsKey(state.oada.url)]) {
-        console.log(
-          'Already have a token for URL ' + state.oada.url + ', logout to clear'
-        )
-        token = window.localStorage[lsKey(state.oada.url)]
-      } else {
+      if (!token) {
         // If we don't have a token stored from last time, we'll need to
         // redirect browser to ask for one
         console.log('Do not have an access token, redirecting...')
@@ -69,16 +53,15 @@ export default {
         token = res.access_token
       }
     } catch (err) {
-      state.login.error =
-        'Failed to redirect to ' + state.oada.url + ' for connection'
+      state.login.error = 'Failed to redirect to ' + state.oada.url + ' for connection'
       console.log('FAILED TO GET ACCESS TOKEN: err = ', err)
-      token = false;
+      token = null;
     }
+    // Save the token to localStorage
+    if (token && !state.login.dontSaveToken) window.localStorage['oada:'+state.oada.url+':token'] = token
 
-    // Have a token now, make sure it's saved to localStorage until we logout:
-    if (token && !query.t) window.localStorage[lsKey(state.oada.url)] = token
     state.oada.token = token
-    console.log(token);
+    console.log('Token: ' + token);
     console.log('Have token, connecting to oada...')
     let result = await actions.oada.connect()
     console.log('Websocket connected, checking resources...')

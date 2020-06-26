@@ -82,7 +82,7 @@ function Table ({docType}) {
           <Column
             label=''
             dataKey='processingService'
-            width={40}
+            width={50}
             cellRenderer={({ rowData }) =>
               !rowData || rowData.processingService !== 'target' ? (
                 ''

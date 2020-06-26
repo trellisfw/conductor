@@ -32,12 +32,16 @@ function TopBar() {
       }
     `}>
       <div css={{display: 'flex', alignItems: 'center'}}>
-        <div css={{fontSize: 27, marginRight: 15}}>{'Current Rules'}</div>
+        <div css={{fontSize: 27, marginRight: 15, marginTop: 10, marginBottom: 9}}>{'Current Rules'}</div>
       </div>
-      <Button onClick={evt=>{myActions.addRuleClicked()}}icon>
-        <Icon  name='plus' />
-        <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Add</span>
-      </Button>
+      {
+        /*
+        <Button onClick={evt=>{myActions.addRuleClicked()}}icon>
+          <Icon  name='plus' />
+          <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Add</span>
+        </Button>
+        */
+      }
     </div>
   );
 }
