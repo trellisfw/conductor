@@ -13,12 +13,10 @@ const tabName = {
   'eventLog': 'History',
   'userAccess':
     <div>
-      <div>{'Current State:'}</div>
       <div>{'Trading Partners Access'}</div>
     </div>,
   'documentShares':
     <div>
-      <div>{'Current State:'}</div>
       <div>{'Document Recipient List'}</div>
     </div>,
 };
