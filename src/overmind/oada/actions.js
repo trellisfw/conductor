@@ -177,7 +177,7 @@ export default {
 
   },
 
-  async initializeReports({state, actions}) {
+  async initializeReports({ state, actions }) {
     const hasReports = await actions.oada
       .doesResourceExist('/bookmarks/services/trellis-reports');
 
@@ -453,7 +453,7 @@ export default {
       });
   },
 
-  async loadEventLog({state, actions}, documentKey) {
+  async loadEventLog({ state, actions }, documentKey) {
     const eventLogData = await request.request({
       method: 'GET',
       responseType: 'blob',
@@ -488,14 +488,13 @@ export default {
       numShares: 0,
     });
     state.oada.data.Reports[documentKey]['eventLog'] = {
-      raw: eventLogData,
       rows: eventLogRows,
       numEvents: eventLogRows.length,
       ...eventLogStatistics,
     };
   },
 
-  async loadUserAccess({state, actions}, documentKey) {
+  async loadUserAccess({ state, actions }, documentKey) {
     const userAccessData = await request.request({
       method: 'GET',
       responseType: 'blob',
@@ -530,13 +529,12 @@ export default {
     });
 
     state.oada.data.Reports[documentKey]['userAccess'] = {
-      raw: userAccessData,
       rows: userAccessRows,
       ...userAccessStatistics,
     };
   },
 
-  async loadDocumentShares({state, actions}, documentKey) {
+  async loadDocumentShares({ state, actions }, documentKey) {
     const documentSharesData = await request.request({
       method: 'GET',
       responseType: 'blob',
@@ -607,7 +605,6 @@ export default {
       numDocsNotShared: 0,
     });
     state.oada.data.Reports[documentKey]['documentShares'] = {
-      raw: documentSharesData,
       rows: documentSharesRows,
       ...documentSharesStatistics,
     };
