@@ -37,10 +37,10 @@ export default {
             return reportDate.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
+          const documents = valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
             if (!myState['eventLog']) {
-              return {documentKey};
+              return { documentKey };
             }
             try {
               return {
@@ -59,6 +59,9 @@ export default {
                 documentKey,
               };
             }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numDocuments} ${doc.numEvents} ${doc.numEmails} ${doc.numShares}`;
           });
         }
       },
@@ -84,11 +87,11 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
+          const documents = valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
             if (!myState.userAccess) {
               // console.log(`${documentKey} user access empty`);
-              return {documentKey};
+              return { documentKey };
             }
             try {
               return {
@@ -106,6 +109,9 @@ export default {
                 documentKey,
               };
             }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numTradingPartners} ${doc.numTPWODocs} ${doc.totalShares}`;
           });
         }
       },
@@ -131,11 +137,11 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
+          const documents = valid.map((documentKey) => {
             const myState = _.get(state, `oada.data.Reports.${documentKey}`);
             // const myState = state.oada.data.Reports[documentKey];
             if (!myState['documentShares']) {
-              return {documentKey};
+              return { documentKey };
             }
             try {
               return {
@@ -153,6 +159,9 @@ export default {
                 documentKey,
               };
             }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numDocsToShare} ${doc.numExpiredDocuments} ${doc.numDocsNotShared}`;
           });
         }
       }
