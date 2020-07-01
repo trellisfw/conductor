@@ -122,12 +122,12 @@ function Edit (props) {
           {results.length > 0 ? results.filter(val => mappings[val].name ? true : false).map(refIndex =>
             <Table.Row key={mappings[refIndex].name+mappings[refIndex].partners.join(';')}>
               <Table.Cell>
-                <Popup content={"here is soem test content"}
+                <Popup content={mappings[refIndex].name}
                   trigger={<p>{mappings[refIndex].name}</p>}
                 />
               </Table.Cell>
                <Table.Cell>
-                <Popup content={"here is some other test content"}
+                <Popup content={mappings[refIndex].partners.join("\r\n")}
                   trigger={<p>{mappings[refIndex].partners.join("\r\n")}</p>}
                 />
               </Table.Cell>
@@ -136,12 +136,12 @@ function Edit (props) {
           mappings.filter((item, i) => results.indexOf(i) < 0).filter(item => item.name ? true : false).map(item =>
             <Table.Row key={item.name+item.partners.join(';')}>
               <Table.Cell>
-                <Popup content={"here is some test content"}
+                <Popup content={item.name}
                   trigger={<p>{item.name}</p>}
                 />
               </Table.Cell>
               <Table.Cell>
-                <Popup content={"here is some other test content"}
+                <Popup content={item.partners.join("\r\n")}
                   trigger={<p>{item.partners.join("\r\n")}</p>}
                 />
               </Table.Cell>
