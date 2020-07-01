@@ -182,8 +182,14 @@ export default {
       .doesResourceExist('/bookmarks/services/trellis-reports');
 
     if (!hasReports) {
-      console.log('No reports found');
-      return;
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports`,
+        data: {},
+      });
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports/reports`,
+        data: { 'day-index': {} },
+      });
     }
 
     state.oada.data['Reports'] = {};
