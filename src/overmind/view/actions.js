@@ -52,8 +52,9 @@ export default {
         if (selectedRule.mappings && selectedRule.mappings === 'holders') {
           let holders = await actions.oada.holders();
           Object.keys(holders).forEach((key) => {
+            let cityAndState = holders[key].city && holders[key].state ? true : false;
             obj[key] = {
-              name: holders[key].name+ ' - '+holders[key].city+', '+holders[key].state,
+              name: holders[key].name+ (cityAndState ? ' - '+(holders[key].city +', '+holders[key].state) : ''),
               partners: Object.keys(holders[key]['trading-partners'] || {}).map((masterid) => {
                 let item = _.find(tps, {masterid})
                 return item.name+' - '+item.city+', '+item.state
@@ -75,7 +76,8 @@ export default {
                 name: fac.name,
                 active: false,
               }
-              let entry = v.name+' - '+v.city+', '+v.state;
+              let cityAndState = v.city && v.state ? true : false;
+              let entry = v.name+(cityAndState ? ' - '+v.city+', '+v.state : '');
               obj[masterid].partners = obj[masterid].partners ? obj[masterid].partners.push(entry) : [entry];
             })
           })
