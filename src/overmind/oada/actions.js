@@ -31,9 +31,9 @@ export default {
     //Clear the token from local storage
     delete window.localStorage['oada:'+state.oada.url+':token']
   },
-  async login ({ state, actions }, {domain, token}) {
+  async connect({ state, actions, effects }, {domain, token}) {
     /*
-      Connect to my OADA instance
+      Connect to my OADA instance, getting token if we don't have one
     */
     state.oada.url = domain;
     try {
@@ -55,18 +55,17 @@ export default {
     }
     // Save the token to localStorage
     if (token && !state.login.dontSaveToken) window.localStorage['oada:'+state.oada.url+':token'] = token
-
     state.oada.token = token
     console.log('Token: ' + token);
-    console.log('Have token, connecting to oada...')
-    let result = await actions.oada.connect()
-    console.log('Websocket connected, checking resources...')
-
+    console.log('Have token, connecting to oada with WebSocket...')
+    await effects.oada.websocket.connect(state.oada.url)
+    console.log('Websocket connected')
+  },
+  async initialize({actions}) {
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
     actions.rules.initialize();
   },
-
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
     try {
@@ -150,7 +149,7 @@ export default {
             url: `/bookmarks/trellisfw/${docType}`,
             actionName: 'oada.onCOISChange'
           })
-      } else if (docType == 'audits') {
+      } else if (docType == 'fsqa-audits') {
         await actions.oada
           .watch({
             url: `/bookmarks/trellisfw/${docType}`,
@@ -158,7 +157,7 @@ export default {
           })
       }
 
-      //Get all the documents ids in /trellisfw/documents
+      //Get all the documents ids in /trellisfw/${docType}
       let response = await actions.oada
         .get(`/bookmarks/trellisfw/${docType}`)
       let docKeys = _.filter(
@@ -216,7 +215,8 @@ export default {
         tps = _.compact(tps);
         return tps;
       case 'fsqa-certificates':
-        ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
+        if (_.get(doc, '_meta.lookups.fsqa-certificate.organization') == null) return [];
+        ref = doc._meta.lookups['fsqa-certificate']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
@@ -463,6 +463,7 @@ export default {
   },
   createAndPutResource ({ actions }, { url, data, contentType }) {
     return actions.oada.createResource({ data, contentType }).then(response => {
+      console.log('response', response)
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
@@ -500,9 +501,6 @@ export default {
         throw error
       })
   },
-  connect ({ state, effects }) {
-    return effects.oada.websocket.connect(state.oada.url)
-  },
   get ({ effects, state }, url) {
     return effects.oada.websocket.http({
       method: 'GET',
@@ -510,7 +508,9 @@ export default {
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   head ({ effects, state }, url) {
     return effects.oada.websocket.http({
@@ -519,7 +519,9 @@ export default {
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   post ({ effects, state }, { url, headers, data }) {
     return effects.oada.websocket.http({
@@ -532,7 +534,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   postHTTP ({ effects, state }, { url, headers, data }) {
     return request.request({
@@ -546,7 +550,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   del ({ effects, state }, {url, headers, data }) {
     return effects.oada.websocket.http({
@@ -559,8 +565,9 @@ export default {
         headers
       ),
       data: data
-    })
-
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   put ({ effects, state }, { url, headers, data }) {
     return effects.oada.websocket.http({
@@ -573,7 +580,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   watch ({ effects, actions, state }, { url, actionName }) {
     var cb = function callback (data) {
@@ -586,6 +595,8 @@ export default {
         headers: { Authorization: 'Bearer ' + state.oada.token }
       },
       cb
-    )
+    ).catch((err) => {
+      return {error: err}
+    });
   }
 }

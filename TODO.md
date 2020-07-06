@@ -25,16 +25,21 @@ COIS Page:
 
 - Add processed by target everywhere
 
-Add page for `fsqa-certificates` (test docs are in centricity's drive)
 Add page for `letters-of-guarantee` (test docs are in centricity's drive)
-
-- Make lists disappear if no items in sidebar
-  - OR if link 404's, watch upper level.
 
 - Make PDF download more clear, multiple spots, allow JSON download
 
+- COIS -> COIs
+- Go to first page with information, if no info then go to unidentified.
+- Don't show shares / unidentified for wakefern
+  - Config added to /bookmarks/apps/conductor to see if need to show share count.
+
+
+- trellis-testing@centricity.com (Gmail) for links.
+  - Once login via link, can't logout
+
+
 Rules Page:
-  - Remove add button
   - Change mapping to table
   - Show loading for mapping table
   - Add search for mapping
@@ -42,3 +47,6 @@ Rules Page:
 
 Auto Login:
   - Why don't pdf's work (maybe fixed via aaron)
+  - When logout go to oada logout url to logout all the wya
+    - try with ajax, if not popup new window.
+  - When logged in via query parameter, wehn you do logout, you can login again and see nothing.

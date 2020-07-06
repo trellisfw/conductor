@@ -2,6 +2,8 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
+import _ from 'lodash';
+
 import iconData from './data.svg';
 import iconBuisness from './buisness.svg';
 import iconConnections from './connections.svg';
@@ -69,9 +71,26 @@ function SideBar() {
       flexDirection: 'column',
       borderRight: '1px solid #979797'
     }}>
-      <SideSection selected={(selectedPage == 'Data')} name={'Data'} icon={iconData}>{'Unidentified Files'}</SideSection>
-      <SideSection selected={(selectedPage == 'COIS')} name={'COIS'} icon={iconData}>{'COIS'}</SideSection>
-      <SideSection selected={(selectedPage == 'Audits')} name={'Audits'} icon={iconData}>{'Audits'}</SideSection>
+      {
+        state.oada.data.documents == null ? null :
+        <SideSection selected={(selectedPage == 'Data')} name={'Data'} icon={iconData}>{'Unidentified Files'}</SideSection>
+      }
+      {
+        state.oada.data.cois == null || _.isEmpty(state.oada.data.cois) ? null :
+        <SideSection selected={(selectedPage == 'COIS')} name={'COIS'} icon={iconData}>{'COIS'}</SideSection>
+      }
+      {
+        state.oada.data['fsqa-audits'] == null || _.isEmpty(state.oada.data['fsqa-audits']) ? null :
+        <SideSection selected={(selectedPage == 'Audits')} name={'Audits'} icon={iconData}>{'Audits'}</SideSection>
+      }
+      {
+        state.oada.data['fsqa-certificates'] == null || _.isEmpty(state.oada.data['fsqa-certificates']) ? null :
+        <SideSection selected={(selectedPage == 'Certificates')} name={'Certificates'} icon={iconData}>{'Certificates'}</SideSection>
+      }
+      {
+        state.oada.data['letters-of-guarantee'] == null || _.isEmpty(state.oada.data['letters-of-guarantee']) ? null :
+        <SideSection selected={(selectedPage == 'LettersOfGuarantee')} name={'Letters of Guarantee'} icon={iconData}>{'Letters of Guarantee'}</SideSection>
+      }
       <SideSection selected={(selectedPage == 'Rules')} name={'Rules'} icon={iconConnections}>{'Rules'}</SideSection>
     </div>
   );

@@ -1,0 +1,56 @@
+{
+  "_type": "application/vnd.trellisfw.certificate.sqfi.1+json",
+  "certificationid": {
+    "id_source": "certifying_body",
+    "id": "101417"
+  },
+  "scheme": {
+    "name": "SQFI",
+    "version": "SQF Code for Manufacturing Editi"
+  },
+  "organization": {
+    "name": "Smithfield Packaged Meats Corp. - Cudahy",
+    "location": {
+      "street_address": "One Sweet Apple Wood Lane",
+      "postal_code": "53110",
+      "city": "Cudahy",
+      "state": "Wisconsin",
+      "country": "United States"
+    }
+  },
+  "scope": {
+    "description": "",
+    "products_observed": [
+      {
+        "name": "bacon"
+      },
+      {
+        "name": "cooked sausage"
+      },
+      {
+        "name": "dry sausage"
+      },
+      {
+        "name": "luncheon meats"
+      },
+      {
+        "name": "precooked bacon"
+      },
+      {
+        "name": "sausage links"
+      },
+      {
+        "name": "semi-dry sausage"
+      }
+    ],
+    "similar_products_not_observed": [
+    ],
+    "products_applied_for_but_not_observed": [
+    ]
+  },
+  "audit_date": "8/8/2019",
+  "certificate_validity_period": {
+    "start": "2019-10-21",
+    "end": "2020-10-09"
+  }
+}
