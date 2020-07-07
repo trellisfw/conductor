@@ -520,28 +520,19 @@ export default {
   },
 
   async loadEventLog({ state, actions }, documentKey) {
-    let eventLogData;
-    try {
-      eventLogData = await request.request({
-        method: 'GET',
-        responseType: 'blob',
-        url: `/bookmarks/services/trellis-reports/event-log/day-index/${documentKey}`,
-        baseURL: state.oada.url,
-        headers: {
-          Authorization: `Bearer ${state.oada.token}`,
-        },
-      }).then((res) => {
-        return res.data;
-      });
-    } catch (e) {
-      console.error(e);
+    const statistics = await actions.oada.getReportStatistics({
+      path: 'event-log',
+      date: documentKey,
+    });
+    if (statistics) {
+      state.oada.data.Reports.eventLog[documentKey].data = statistics;
       return;
     }
 
-    const eventLogWB = XLSX.read(await eventLogData.arrayBuffer(), {
-      type: 'array',
+    const eventLogRows = actions.oada.getReportRows({
+      path: 'event-log',
+      date: documentKey
     });
-    const eventLogRows = XLSX.utils.sheet_to_json(eventLogWB.Sheets[eventLogWB.SheetNames[0]]);
     let eventLogDocuments = {};
     const eventLogStatistics = eventLogRows.reduce((acc, row) => {
       if (eventLogDocuments[row['document id']] === undefined) {
@@ -555,34 +546,31 @@ export default {
       }
       return acc;
     }, {
+      numEvents: eventLogRows.length,
       numDocuments: 0,
       numEmails: 0,
       numShares: 0,
     });
     state.oada.data.Reports.eventLog[documentKey].data = {
       rows: eventLogRows,
-      numEvents: eventLogRows.length,
       ...eventLogStatistics,
     };
   },
 
   async loadUserAccess({ state, actions }, documentKey) {
-    const userAccessData = await request.request({
-      method: 'GET',
-      responseType: 'blob',
-      url: `/bookmarks/services/trellis-reports/current-tradingpartnershares/day-index/${documentKey}`,
-      baseURL: state.oada.url,
-      headers: {
-        Authorization: `Bearer ${state.oada.token}`,
-      },
-    }).then((res) => {
-      return res.data;
+    const statistics = await actions.oada.getReportStatistics({
+      path: 'current-tradingpartnershares',
+      date: documentKey,
     });
+    if (statistics) {
+      state.oada.data.Reports.userAccess[documentKey].data = statistics;
+      return;
+    }
 
-    const userAccessWB = XLSX.read(await userAccessData.arrayBuffer(), {
-      type: 'array',
+    const userAccessRows = await actions.oada.getReportRows({
+      path: 'current-tradingpartnershares',
+      date: documentKey,
     });
-    const userAccessRows = XLSX.utils.sheet_to_json(userAccessWB.Sheets[userAccessWB.SheetNames[0]]);
     const tradingPartners = {};
     const userAccessStatistics = userAccessRows.reduce((acc, row) => {
       if (tradingPartners[row['trading partner masterid']] === undefined) {
@@ -607,24 +595,19 @@ export default {
   },
 
   async loadDocumentShares({ state, actions }, documentKey) {
-    const documentSharesData = await request.request({
-      method: 'GET',
-      responseType: 'blob',
-      url: `/bookmarks/services/trellis-reports/current-shareabledocs/day-index/${documentKey}`,
-      baseURL: state.oada.url,
-      headers: {
-        Authorization: `Bearer ${state.oada.token}`,
-      },
-    }).then((res) => {
-      return res.data;
+    const statistics = await actions.oada.getReportStatistics({
+      path: 'current-shareabledocs',
+      date: documentKey,
     });
+    if (statistics) {
+      state.oada.data.Reports.documentShares[documentKey].data = statistics;
+      return;
+    }
 
-    const documentSharesWB = XLSX.read(await documentSharesData.arrayBuffer(), {
-      type: 'array',
+    const documentSharesRows = await actions.oada.getReportRows({
+      path: 'current-shareabledocs',
+      date: documentKey,
     });
-    const documentSharesRows = XLSX.utils.sheet_to_json(
-      documentSharesWB.Sheets[documentSharesWB.SheetNames[0]]
-    );
     let documents = {};
     const today = moment();
     const documentSharesStatistics = await Promise.reduce(documentSharesRows, async (acc, row) => {
@@ -678,12 +661,43 @@ export default {
     });
     state.oada.data.Reports.documentShares[documentKey].data = {
       rows: documentSharesRows,
-      ...documentSharesStatistics,
+      ...documentSharesStatistics
     };
   },
 
-  createAndPostResource({actions}, {url, data, contentType}) {
-    return actions.oada.createResource({data, contentType}).then(response => {
+  async getReportRows({ actions, state }, { path, date }) {
+    const reportRaw = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/${path}/day-index/${date}`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const wb = XLSX.read(await reportRaw.arrayBuffer(), {
+      type: 'array',
+    });
+    return XLSX.utils.sheet_to_json(
+      wb.Sheets[wb.SheetNames[0]]
+    );
+  },
+
+  async getReportStatistics({ actions }, { path, date }) {
+    try {
+      return actions.oada.get(
+        `/bookmarks/services/trellis-reports/${path}/day-index/${date}/_meta`
+      ).then((res) => _.get(res, 'data.statistics'));
+    } catch (e) {
+      console.error('failed to fetch statistics, building from from report');
+    }
+  },
+
+  createAndPostResource({ actions }, { url, data, contentType }) {
+    return actions.oada.createResource({ data, contentType }).then(response => {
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]

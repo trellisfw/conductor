@@ -207,14 +207,14 @@ export default {
       },
 
       // TODO save different report types differently
-      saveReports({ state, actions }) {
+      async saveReports({ state, actions }) {
         const selectedReport = state.view.Pages.Reports.selectedReport;
         if (!Object.keys(state.oada.data.Reports[selectedReport]).some((key) => {
           return state.oada.data.Reports[selectedReport][key].checked;
         })) {
           return;
         }
-        actions.view.Pages.Reports[selectedReport].Table.saveReports();
+        await actions.view.Pages.Reports[selectedReport].Table.saveReports();
       },
 
       deselectAllReports({ state }) {
@@ -231,7 +231,7 @@ export default {
         const selectedReport = state.view.Pages.Reports.selectedReport;
         const tableState = state.view.Pages.Reports;
         const dataState = state.oada.data.Reports[selectedReport];
-        const collection = tableState.eventLog.Table;
+        const collection = tableState[selectedReport].Table;
         const documentKeys = collection.map((row) => {
           return row.documentKey;
         });
@@ -259,16 +259,25 @@ export default {
               !state.oada.data.Reports.eventLog[date].checked;
           },
 
-          saveReports({ state, actions }) {
+          async saveReports({ state, actions }) {
             const myState = state.oada.data.Reports.eventLog;
             let wb = XLSX.utils.book_new();
             let rows = [];
-            Object.keys(myState)
-              .filter((date) => myState[date] !== null
-                && myState[date] !== undefined)
-              .filter((date) => myState[date].checked)
-              .forEach((date) => {
-                rows = rows.concat(myState[date].data.rows);
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === null || myRows === undefined) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'event-log',
+                    date
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                rows = rows.concat(myRows);
               });
             const ws = XLSX.utils.json_to_sheet(rows, {
               header: [
@@ -316,15 +325,24 @@ export default {
               !state.oada.data.Reports.userAccess[date].checked;
           },
 
-          saveReports({ state, actions }) {
+          async saveReports({ state, actions }) {
             const myState = state.oada.data.Reports.userAccess;
             let wb = XLSX.utils.book_new();
-            Object.keys(myState)
-              .filter((date) => myState[date] !== null
-                && myState[date] !== undefined)
-              .filter((date) => myState[date].checked)
-              .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date].data.rows, {
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === undefined || myState == null) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'current-tradingpartnershares',
+                    date,
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                const ws = XLSX.utils.json_to_sheet(myRows, {
                   header: [
                     'trading partner name',
                     'trading partner masterid',
@@ -367,15 +385,24 @@ export default {
               !state.oada.data.Reports.documentShares[date].checked;
           },
 
-          saveReports({ state, actions }) {
+          async saveReports({ state, actions }) {
             const myState = state.oada.data.Reports.documentShares;
             let wb = XLSX.utils.book_new();
-            Object.keys(myState)
-              .filter((date) => myState[date] !== null
-                && myState[date] !== undefined)
-              .filter((date) => myState[date].checked)
-              .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date].data.rows, {
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === undefined || myState == null) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'current-shareabledocs',
+                    date
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                const ws = XLSX.utils.json_to_sheet(myRows, {
                   header: [
                     'document name',
                     'document id',

@@ -38,7 +38,7 @@ export default {
 
           return valid.map((documentKey) => {
             if (!myState[documentKey].data) {
-              return {documentKey};
+              return { documentKey };
             }
             try {
               return {
@@ -64,7 +64,6 @@ export default {
         Table: ({}, state) => {
           // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
           const myState = _.get(state, `oada.data.Reports.userAccess`);
-          console.log(myState);
           const keys = _.keys(myState).sort().reverse();
           const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
           const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
@@ -109,7 +108,6 @@ export default {
         Table: ({}, state) => {
           // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
           const myState = _.get(state, `oada.data.Reports.documentShares`);
-          console.log(myState);
           const keys = _.keys(myState).sort().reverse();
           const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
           const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
