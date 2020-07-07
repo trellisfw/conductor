@@ -1,19 +1,19 @@
 import React from 'react'
 
 /** @jsx jsx */
-import {jsx, css} from '@emotion/core'
+import { jsx, css } from '@emotion/core'
 
 import 'react-virtualized/styles.css'
-import {Checkbox} from 'semantic-ui-react';
-import {Column, Table as RTable, AutoSizer, InfiniteLoader} from 'react-virtualized'
+import { Checkbox } from 'semantic-ui-react';
+import { Column, Table as RTable, AutoSizer, InfiniteLoader } from 'react-virtualized'
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import moment from 'moment'
 import classnames from 'classnames'
 import infiniteLoader from '../infiniteLoader'
 
-function UserAccessTable({docType}) {
-  const {actions, state} = overmind();
+function UserAccessTable({ docType }) {
+  const { actions, state } = overmind();
   const myActions = actions.view.Pages.Reports.userAccess.Table;
   const myState = state.view.Pages.Reports.userAccess;
   const collection = myState.Table || [];
@@ -22,7 +22,7 @@ function UserAccessTable({docType}) {
   const now = moment();
   return (
     <AutoSizer>
-      {({height, width}) => (
+      {({ height, width }) => (
         <RTable
           css={css`
             & .ReactVirtualized__Table__headerRow.odd {
@@ -59,11 +59,11 @@ function UserAccessTable({docType}) {
           headerHeight={40}
           height={height}
           rowCount={collection.length}
-          rowGetter={({index}) => {
+          rowGetter={({ index }) => {
             il.getRow(collection[index])
             return collection[index]
           }}
-          rowClassName={({index}) => {
+          rowClassName={({ index }) => {
             var className = null
             if (index % 2 === 0) {
               className = 'row even'
@@ -76,7 +76,7 @@ function UserAccessTable({docType}) {
           }}
           rowHeight={30}
           width={width}
-          onRowClick={({rowData}) => myActions.toggleCheckbox(rowData.documentKey)}
+          onRowClick={({ rowData }) => myActions.toggleCheckbox(rowData.documentKey)}
         >
 
           <Column
@@ -90,11 +90,10 @@ function UserAccessTable({docType}) {
             }}
             dataKey='documentSelect'
             width={70}
-            cellRenderer={({rowData}) => {
+            cellRenderer={({ rowData }) => {
               return (
                 <Checkbox
-                  // checked={false}
-                  checked={state.oada.data.Reports[rowData.documentKey].checked}
+                  checked={state.oada.data.Reports.userAccess[rowData.documentKey].checked}
                 />
               );
             }}

@@ -18,9 +18,8 @@ export default {
       selectedReport: 'eventLog',
       eventLog: {
         Table: ({}, state) => {
-          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
-          const docs = _.get(state, `oada.data.Reports`);
-          const keys = _.keys(docs).sort().reverse();
+          const myState = _.get(state, `oada.data.Reports.eventLog`);
+          const keys = _.keys(myState).sort().reverse();
           const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
           const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
           const valid = keys.map((key) => {
@@ -37,31 +36,26 @@ export default {
             return reportDate.format('YYYY-MM-DD');
           });
 
-          const documents = valid.map((documentKey) => {
-            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
-            if (!myState['eventLog']) {
-              return { documentKey };
+          return valid.map((documentKey) => {
+            if (!myState[documentKey].data) {
+              return {documentKey};
             }
             try {
               return {
-                checked: myState.checked,
+                checked: myState[documentKey].checked,
                 documentKey,
-                numDocuments: myState.eventLog.numDocuments,
-                numEvents: myState.eventLog.numEvents,
-                numEmails: myState.eventLog.numEmails,
-                numShares: myState.eventLog.numShares,
+                numDocuments: myState[documentKey].data.numDocuments,
+                numEvents: myState[documentKey].data.numEvents,
+                numEmails: myState[documentKey].data.numEmails,
+                numShares: myState[documentKey].data.numShares,
               };
             } catch (e) {
               console.log(e);
               console.log(myState);
               return {
-                checked: myState.checked,
                 documentKey,
               };
             }
-          });
-          return _.uniqBy(documents, (doc) => {
-            return `${doc.numDocuments} ${doc.numEvents} ${doc.numEmails} ${doc.numShares}`;
           });
         }
       },
@@ -69,8 +63,9 @@ export default {
       userAccess: {
         Table: ({}, state) => {
           // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
-          const docs = _.get(state, `oada.data.Reports`);
-          const keys = _.keys(docs).sort().reverse();
+          const myState = _.get(state, `oada.data.Reports.userAccess`);
+          console.log(myState);
+          const keys = _.keys(myState).sort().reverse();
           const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
           const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
           const valid = keys.map((key) => {
@@ -87,31 +82,25 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          const documents = valid.map((documentKey) => {
-            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
-            if (!myState.userAccess) {
-              // console.log(`${documentKey} user access empty`);
+          return valid.map((documentKey) => {
+            if (!myState[documentKey].data) {
               return { documentKey };
             }
             try {
               return {
-                checked: myState.checked,
+                checked: myState[documentKey].checked,
                 documentKey,
-                numTradingPartners: myState.userAccess.numTradingPartners,
-                numTPWODocs: myState.userAccess.numTPWODocs,
-                totalShares: myState.userAccess.totalShares,
+                numTradingPartners: myState[documentKey].data.numTradingPartners,
+                numTPWODocs: myState[documentKey].data.numTPWODocs,
+                totalShares: myState[documentKey].data.totalShares,
               };
             } catch (e) {
               console.log(e);
               console.log(myState);
               return {
-                checked: myState.checked,
                 documentKey,
               };
             }
-          });
-          return _.uniqBy(documents, (doc) => {
-            return `${doc.numTradingPartners} ${doc.numTPWODocs} ${doc.totalShares}`;
           });
         }
       },
@@ -119,8 +108,9 @@ export default {
       documentShares: {
         Table: ({}, state) => {
           // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
-          const docs = _.get(state, `oada.data.Reports`);
-          const keys = _.keys(docs).sort().reverse();
+          const myState = _.get(state, `oada.data.Reports.documentShares`);
+          console.log(myState);
+          const keys = _.keys(myState).sort().reverse();
           const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
           const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
           const valid = keys.map((key) => {
@@ -137,31 +127,25 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          const documents = valid.map((documentKey) => {
-            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
-            // const myState = state.oada.data.Reports[documentKey];
-            if (!myState['documentShares']) {
+          return valid.map((documentKey) => {
+            if (!myState[documentKey].data) {
               return { documentKey };
             }
             try {
               return {
-                checked: myState.checked,
+                checked: myState[documentKey].checked,
                 documentKey,
-                numDocsToShare: myState.documentShares.numDocsToShare,
-                numExpiredDocuments: myState.documentShares.numExpiredDocuments,
-                numDocsNotShared: myState.documentShares.numDocsNotShared,
+                numDocsToShare: myState[documentKey].data.numDocsToShare,
+                numExpiredDocuments: myState[documentKey].data.numExpiredDocuments,
+                numDocsNotShared: myState[documentKey].data.numDocsNotShared,
               };
             } catch (e) {
               console.log(e);
               console.log(myState);
               return {
-                checked: myState.checked,
                 documentKey,
               };
             }
-          });
-          return _.uniqBy(documents, (doc) => {
-            return `${doc.numDocsToShare} ${doc.numExpiredDocuments} ${doc.numDocsNotShared}`;
           });
         }
       }

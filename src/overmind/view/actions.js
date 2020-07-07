@@ -182,7 +182,7 @@ export default {
   },
   Pages: {
     Reports: {
-      onStart({state}, value) {
+      onStart({ state }, value) {
         // console.log('value: ', value);
         const dt = moment(value, 'YYYY-MM-DD');
         if (dt.isValid()) {
@@ -191,7 +191,7 @@ export default {
           state.view.Pages.Reports.startDate = '';
         }
       },
-      onEnd({state}, value) {
+      onEnd({ state }, value) {
         const dt = moment(value, 'YYYY-MM-DD');
         if (dt.isValid()) {
           state.view.Pages.Reports.endDate = value;
@@ -199,34 +199,38 @@ export default {
           state.view.Pages.Reports.endDate = '';
         }
       },
-      reportSelect({state, actions}, name) {
+
+      reportSelect({ state, actions }, name) {
         actions.view.Pages.Reports.deselectAllReports();
         state.view.Pages.Reports.allSelected = false;
         state.view.Pages.Reports.selectedReport = name;
       },
 
       // TODO save different report types differently
-      saveReports({state, actions}) {
-        if (!Object.keys(state.oada.data.Reports).some((key) => {
-          return state.oada.data.Reports[key].checked;
+      saveReports({ state, actions }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
+        if (!Object.keys(state.oada.data.Reports[selectedReport]).some((key) => {
+          return state.oada.data.Reports[selectedReport][key].checked;
         })) {
           return;
         }
-        actions.view.Pages.Reports[state.view.Pages.Reports.selectedReport].Table.saveReports();
+        actions.view.Pages.Reports[selectedReport].Table.saveReports();
       },
 
-      deselectAllReports({state}) {
-        const dataState = state.oada.data.Reports;
+      deselectAllReports({ state }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
+        const dataState = state.oada.data.Reports[selectedReport];
         Object.keys(dataState).filter((date) => {
           return moment(date, 'YYYY-MM-DD').isValid();
         }).forEach((documentKey) => {
-          state.oada.data.Reports[documentKey].checked = false;
+          state.oada.data.Reports[selectedReport][documentKey].checked = false;
         });
       },
 
-      selectAllReports({state, actions}) {
+      selectAllReports({ state, actions }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
         const tableState = state.view.Pages.Reports;
-        const dataState = state.oada.data.Reports;
+        const dataState = state.oada.data.Reports[selectedReport];
         const collection = tableState.eventLog.Table;
         const documentKeys = collection.map((row) => {
           return row.documentKey;
@@ -240,31 +244,31 @@ export default {
 
       eventLog: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('Event Log - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid()
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadEventLog(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.eventLog[date].checked =
+              !state.oada.data.Reports.eventLog[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.eventLog;
             let wb = XLSX.utils.book_new();
             let rows = [];
             Object.keys(myState)
+              .filter((date) => myState[date] !== null
+                && myState[date] !== undefined)
               .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].eventLog !== null
-                && myState[date].eventLog !== undefined)
               .forEach((date) => {
-                rows = rows.concat(myState[date]['eventLog'].rows);
+                rows = rows.concat(myState[date].data.rows);
               });
             const ws = XLSX.utils.json_to_sheet(rows, {
               header: [
@@ -297,30 +301,30 @@ export default {
 
       userAccess: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('User Access - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadUserAccess(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.userAccess[date].checked =
+              !state.oada.data.Reports.userAccess[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.userAccess;
             let wb = XLSX.utils.book_new();
             Object.keys(myState)
+              .filter((date) => myState[date] !== null
+                && myState[date] !== undefined)
               .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].userAccess !== null
-                && myState[date].userAccess !== undefined)
               .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date].userAccess.rows, {
+                const ws = XLSX.utils.json_to_sheet(myState[date].data.rows, {
                   header: [
                     'trading partner name',
                     'trading partner masterid',
@@ -348,30 +352,30 @@ export default {
 
       documentShares: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('Document Shares - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadDocumentShares(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.documentShares[date].checked =
+              !state.oada.data.Reports.documentShares[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.documentShares;
             let wb = XLSX.utils.book_new();
             Object.keys(myState)
+              .filter((date) => myState[date] !== null
+                && myState[date] !== undefined)
               .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].documentShares !== null
-                && myState[date].documentShares !== undefined)
               .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date]['documentShares'].rows, {
+                const ws = XLSX.utils.json_to_sheet(myState[date].data.rows, {
                   header: [
                     'document name',
                     'document id',

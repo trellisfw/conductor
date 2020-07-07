@@ -187,19 +187,37 @@ export default {
         data: {},
       });
       await actions.oada.createAndPutResource({
-        url: `/bookmarks/services/trellis-reports/reports`,
+        url: `/bookmarks/services/trellis-reports/event-log`,
+        data: { 'day-index': {} },
+      });
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports/current-tradingpartnershares`,
+        data: { 'day-index': {} },
+      });
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports/current-shareabledocs`,
         data: { 'day-index': {} },
       });
     }
 
-    state.oada.data['Reports'] = {};
+    state.oada.data['Reports'] = {
+      eventLog: {},
+      userAccess: {},
+      documentShares: {},
+    };
 
+    actions.oada.initializeEventLog();
+    actions.oada.initializeUserAccess();
+    actions.oada.initializeDocumentShares();
+  },
+
+  async initializeEventLog({ actions, state }) {
     let days;
     try {
-      console.log('Getting Reports');
+      console.log('Getting Event Log');
       days = await actions
         .oada
-        .get('/bookmarks/services/trellis-reports/reports/day-index')
+        .get('/bookmarks/services/trellis-reports/event-log/day-index')
         .then((res) => {
           return Object.keys(res.data);
         });
@@ -208,18 +226,60 @@ export default {
       console.error('failed to get report day index list');
     }
 
-    days.map((day) => {
-      // state.oada.data['Reports'][day] = null;
-      state.oada.data['Reports'][day] = {
+    days.forEach((day) => {
+      state.oada.data.Reports.eventLog[day] = {
         checked: false,
-        'eventLog': null,
-        'userAccess': null,
-        'documentShares': null,
+        data: undefined,
+      };
+    });
+  },
+
+  async initializeUserAccess({ actions, state }) {
+    let days;
+    try {
+      console.log('Getting User Access');
+      days = await actions
+        .oada
+        .get('/bookmarks/services/trellis-reports/current-tradingpartnershares/day-index')
+        .then((res) => {
+          return Object.keys(res.data);
+        });
+      // console.log(days);
+    } catch (e) {
+      console.error('failed to get report day index list');
+    }
+
+    days.forEach((day) => {
+      state.oada.data.Reports.userAccess[day] = {
+        checked: false,
+        data: undefined,
       }
     });
   },
 
-  async getTradingPartners({state, actions}, {docType, documentKey}) {
+  async initializeDocumentShares({ actions, state }) {
+    let days;
+    try {
+      console.log('Getting Event Log');
+      days = await actions
+        .oada
+        .get('/bookmarks/services/trellis-reports/current-shareabledocs/day-index')
+        .then((res) => {
+          return Object.keys(res.data);
+        });
+    } catch (e) {
+      console.error('failed to get report day index list');
+    }
+
+    days.forEach((day) => {
+      state.oada.data.Reports.documentShares[day] = {
+        checked: false,
+        data: undefined,
+      }
+    });
+  },
+
+  async getTradingPartners({ state, actions }, { docType, documentKey }) {
     let doc = state.oada.data[docType][documentKey];
     let ref = null;
     let organization = null;
@@ -460,17 +520,23 @@ export default {
   },
 
   async loadEventLog({ state, actions }, documentKey) {
-    const eventLogData = await request.request({
-      method: 'GET',
-      responseType: 'blob',
-      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/event-log`,
-      baseURL: state.oada.url,
-      headers: {
-        Authorization: `Bearer ${state.oada.token}`,
-      },
-    }).then((res) => {
-      return res.data;
-    });
+    let eventLogData;
+    try {
+      eventLogData = await request.request({
+        method: 'GET',
+        responseType: 'blob',
+        url: `/bookmarks/services/trellis-reports/event-log/day-index/${documentKey}`,
+        baseURL: state.oada.url,
+        headers: {
+          Authorization: `Bearer ${state.oada.token}`,
+        },
+      }).then((res) => {
+        return res.data;
+      });
+    } catch (e) {
+      console.error(e);
+      return;
+    }
 
     const eventLogWB = XLSX.read(await eventLogData.arrayBuffer(), {
       type: 'array',
@@ -493,7 +559,7 @@ export default {
       numEmails: 0,
       numShares: 0,
     });
-    state.oada.data.Reports[documentKey]['eventLog'] = {
+    state.oada.data.Reports.eventLog[documentKey].data = {
       rows: eventLogRows,
       numEvents: eventLogRows.length,
       ...eventLogStatistics,
@@ -504,7 +570,7 @@ export default {
     const userAccessData = await request.request({
       method: 'GET',
       responseType: 'blob',
-      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-tradingpartnershares`,
+      url: `/bookmarks/services/trellis-reports/current-tradingpartnershares/day-index/${documentKey}`,
       baseURL: state.oada.url,
       headers: {
         Authorization: `Bearer ${state.oada.token}`,
@@ -534,7 +600,7 @@ export default {
       totalShares: userAccessRows.length,
     });
 
-    state.oada.data.Reports[documentKey]['userAccess'] = {
+    state.oada.data.Reports.userAccess[documentKey].data = {
       rows: userAccessRows,
       ...userAccessStatistics,
     };
@@ -544,7 +610,7 @@ export default {
     const documentSharesData = await request.request({
       method: 'GET',
       responseType: 'blob',
-      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-shareabledocs`,
+      url: `/bookmarks/services/trellis-reports/current-shareabledocs/day-index/${documentKey}`,
       baseURL: state.oada.url,
       headers: {
         Authorization: `Bearer ${state.oada.token}`,
@@ -610,7 +676,7 @@ export default {
       numExpiredDocuments: 0,
       numDocsNotShared: 0,
     });
-    state.oada.data.Reports[documentKey]['documentShares'] = {
+    state.oada.data.Reports.documentShares[documentKey].data = {
       rows: documentSharesRows,
       ...documentSharesStatistics,
     };
