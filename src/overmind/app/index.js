@@ -69,14 +69,12 @@ export default function (namespace) {
       state.app.skins = config.skins;
       // And select one
       state.app.skin = skin;
-
       //If have a domain and a token, auto-login
       if (domain && token) {
         state.login.domain = domain;
         state.login.token = token;
-       await actions.login.login();
+        await actions.login.login();
       }
-
       //Initialize modules
       actions.examples.initialize();
       actions.partners.initialize();

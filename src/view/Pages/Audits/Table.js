@@ -35,6 +35,9 @@ function Table ({docType}) {
                 rgba(0, 84, 166, 1) 100%
               );
             }
+            & .ReactVirtualized__Table__Grid {
+              padding-right: 2px;
+            }
             & .header > span {
               color: #fff;
               text-transform: none;

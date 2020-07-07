@@ -8,6 +8,7 @@ export default {
       //Connect to OADA with this url
       return websocket(url).then((ws) => {
         myWebsocket = ws;
+        return myWebsocket;
       })
     },
     watch(request, callback) {
@@ -17,19 +18,24 @@ export default {
       return myWebsocket.http(request).catch((err) => {
         if (err.response && err.response.status) {
           if (err.response.status == 404) {
-            console.log("HTTP 404", _.get(err, 'response.headers.content-location'));
+            console.log("HTTP 404:", _.get(err, 'response.headers.content-location'));
           } else if (err.response.status == 403) {
-            console.log("HTTP 403", _.get(err, 'response.headers.content-location'));
+            console.log("HTTP 403:", _.get(err, 'response.headers.content-location'));
+          } else if (err.response.status == 401) {
+            console.warn("HTTP 401:", _.get(err, 'request.url'));
           } else {
-            console.log('HTTP Error: ', err);
+            console.warn('HTTP Error:');
+            console.warn(JSON.stringify(err, null, 2))
           }
         } else {
-          console.log('HTTP Error', err)
+          console.warn('HTTP Error no response obj:', err)
+          console.warn(JSON.stringify(err, null, 2))
         }
+        throw err;
       });
     },
     close() {
-      if (myWebsocket) { 
+      if (myWebsocket) {
         console.log('Closing web socket...');
         return myWebsocket.close();
       }

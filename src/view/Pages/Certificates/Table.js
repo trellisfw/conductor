@@ -1,4 +1,4 @@
-import React, { useEffect, useRef }  from 'react'
+import React from 'react'
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
@@ -17,11 +17,10 @@ import infiniteLoader from '../infiniteLoader'
 
 function Table ({docType}) {
   const { actions, state } = overmind()
-  const myActions = actions.view.Pages.Data.Table
-  const myState = state.view.Pages.Data
+  const myActions = actions.view.Pages.Certificates.Table
+  const myState = state.view.Pages.Certificates
   const collection = myState.Table || [];
-  const il = infiniteLoader('Documents', myActions.loadDocumentKeys);
-
+  const il = infiniteLoader('Certificates', myActions.loadDocumentKeys);
   return (
     <AutoSizer>
       {({ height, width }) => (
@@ -86,7 +85,7 @@ function Table ({docType}) {
           <Column
             label=''
             dataKey='processingService'
-            width={40}
+            width={70}
             cellRenderer={({ rowData }) =>
               !rowData || rowData.processingService !== 'target' ? (
                 ''
@@ -95,39 +94,9 @@ function Table ({docType}) {
               )
             }
           />
-          <Column label='Name' dataKey='filename' width={200} />
-          <Column
-            width={200}
-            label='Type'
-            dataKey='type'
-            cellRenderer={({ rowData }) => {
-              if (rowData.type) {
-                if (rowData.masked) {
-                  return <div>{`${rowData.type} - Masked`}</div>
-                }
-                return <div>{rowData.type}</div>
-              } else if (rowData.status == 'processing') {
-                return (
-                  <div css={{ display: 'flex', alignItems: 'center' }}>
-                    <ProcessingIcon />
-                    <div css={{ marginLeft: 3 }}>{'Processing...'}</div>
-                  </div>
-                )
-              } else if (rowData.status == 'uploading') {
-                return (
-                  <div css={{ display: 'flex', alignItems: 'center' }}>
-                    <UploadingIcon />
-                    <div css={{ marginLeft: 3 }}>{'Uploading...'}</div>
-                  </div>
-                )
-              } else if (_.isEmpty(_.omit(rowData, 'documentKey'))) {
-                return <div></div>
-              } else {
-                return <div></div>
-              }
-            }}
-          />
-          <Column width={140} label='Added' dataKey='createdAt' />
+          <Column label='Organization' dataKey='organization' width={400} />
+          <Column label='Location' dataKey='org_location' width={300} />
+          <Column width={200} label='Added' dataKey='createdAt' />
           <Column
             dataKey='name'
             className='signature'
