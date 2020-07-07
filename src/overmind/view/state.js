@@ -282,7 +282,7 @@ export default {
               organization: _.get(document, 'organization.name') || '',
               org_location: org_location || '',
               signed: (_.get(document, 'signatures') || []).length > 0,
-              type: 'COI',
+              type: 'certificate',
               createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created'),
               processingService: 'target'
@@ -291,6 +291,50 @@ export default {
         )
         //Filter collection by filename
         const fuseOptions = {keys: [{name: 'organization', weight: 0.3}], shouldSort: false};
+        var fuse = new Fuse(collection, fuseOptions);
+        if (search && search.length > 0) {
+          collection = _.map(fuse.search(search.substr(0, 32)), 'item');
+          //Add back in unloaded docs at the end
+          collection = _.concat(collection, unloadedDocs);
+        }
+        return collection;
+      }
+    },
+    LettersOfGuarantee: {
+      search: '',
+      openFileBrowser: false,
+      Table: ({search}, state) => {
+        let unloadedDocs = [];
+        const documents = _.get(state, `oada.data.letters-of-guarantee`);
+        const docKeys = _.keys(documents).sort().reverse();
+        let collection = _.map(docKeys,
+          (documentKey) => {
+            const document = documents[documentKey];
+            if (!document) {
+              unloadedDocs.push({documentKey})
+              return {documentKey};
+            }
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
+            return {
+              documentKey: documentKey,
+              docType: 'letters-of-guarantee',
+              buyers: _.chain(document).get('buyers').map('name').join(', ').value() || '',
+              sellers: _.chain(document).get('sellers').map('name').join(', ').value() || '',
+              signed: (_.get(document, 'signatures') || []).length > 0,
+              type: 'letter-of-guarantee',
+              createdAt,
+              createdAtUnix: _.get(document, '_meta.stats.created'),
+              processingService: 'target'
+            }
+          }
+        )
+        //Filter collection by filename
+        const fuseOptions = {keys: [{name: 'buyers', weight: 0.3}], shouldSort: false};
         var fuse = new Fuse(collection, fuseOptions);
         if (search && search.length > 0) {
           collection = _.map(fuse.search(search.substr(0, 32)), 'item');
@@ -404,6 +448,8 @@ export default {
           return 'audit'
         } else if (document._type == 'application/vnd.trellisfw.certificate.sqfi.1+json' || document._type == 'application/vnd.trellisfw.fsqa-certificate.sqfi.1+json') {
           return 'certificate'
+        } else if (document._type == 'application/vnd.trellisfw.letterofguarantee.1+json') {
+          return 'letterOfGuarantee'
         } else {
           return null;
         }
