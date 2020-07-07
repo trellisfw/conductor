@@ -398,11 +398,11 @@ export default {
         )
       },
       type: ({ document }, state) => {
-        if (document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
+        if (document._type == 'application/vnd.trellisfw.coi.accord.1+json' || document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
           return 'coi'
-        } else if (document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-audit.sqfi.1+json' || document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
           return 'audit'
-        } else if (document._type == 'application/vnd.trellisfw.certificate.sqfi.1+json' || document._type == 'application/vnd.trellisfw.fsqa-certificate.sqfi.1+json') {
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-certificate.sqfi.1+json' || document._type == 'application/vnd.trellisfw.certificate.sqfi.1+json') {
           return 'certificate'
         } else {
           return null;
