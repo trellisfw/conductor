@@ -2,6 +2,8 @@ import urlLib from 'url'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import request from 'axios'
+import moment from 'moment';
+import XLSX from 'xlsx';
 import config from '../../config'
 import { browser as oadaIdClient } from '@oada/oada-id-client/index.js'
 
@@ -64,6 +66,7 @@ export default {
   async initialize({actions}) {
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
+    actions.oada.initializeReports();
     actions.rules.initialize();
   },
   async initializeLookups({state, actions}) {
@@ -171,6 +174,48 @@ export default {
       })
     })
 
+  },
+
+  async initializeReports({ state, actions }) {
+    const hasReports = await actions.oada
+      .doesResourceExist('/bookmarks/services/trellis-reports');
+
+    if (!hasReports) {
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports`,
+        data: {},
+      });
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports/reports`,
+        data: { 'day-index': {} },
+      });
+    }
+
+    state.oada.data['Reports'] = {};
+
+    let days;
+    try {
+      console.log('Getting Reports');
+      days = await actions
+        .oada
+        .get('/bookmarks/services/trellis-reports/reports/day-index')
+        .then((res) => {
+          return Object.keys(res.data);
+        });
+      // console.log(days);
+    } catch (e) {
+      console.error('failed to get report day index list');
+    }
+
+    days.map((day) => {
+      // state.oada.data['Reports'][day] = null;
+      state.oada.data['Reports'][day] = {
+        checked: false,
+        'eventLog': null,
+        'userAccess': null,
+        'documentShares': null,
+      }
+    });
   },
 
   async getTradingPartners({state, actions}, {docType, documentKey}) {
@@ -413,8 +458,166 @@ export default {
         console.log('Error. Failed to load document _meta', documentId)
       });
   },
-  createAndPostResource ({ actions }, { url, data, contentType }) {
-    return actions.oada.createResource({ data, contentType }).then(response => {
+
+  async loadEventLog({ state, actions }, documentKey) {
+    const eventLogData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/event-log`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const eventLogWB = XLSX.read(await eventLogData.arrayBuffer(), {
+      type: 'array',
+    });
+    const eventLogRows = XLSX.utils.sheet_to_json(eventLogWB.Sheets[eventLogWB.SheetNames[0]]);
+    let eventLogDocuments = {};
+    const eventLogStatistics = eventLogRows.reduce((acc, row) => {
+      if (eventLogDocuments[row['document id']] === undefined) {
+        eventLogDocuments[row['document id']] = {};
+        acc.numDocuments++;
+      }
+      if (row['event type'] === 'share') {
+        acc.numShares++;
+      } else if (row['event type'] === 'email') {
+        acc.numEmails++;
+      }
+      return acc;
+    }, {
+      numDocuments: 0,
+      numEmails: 0,
+      numShares: 0,
+    });
+    state.oada.data.Reports[documentKey]['eventLog'] = {
+      rows: eventLogRows,
+      numEvents: eventLogRows.length,
+      ...eventLogStatistics,
+    };
+  },
+
+  async loadUserAccess({ state, actions }, documentKey) {
+    const userAccessData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-tradingpartnershares`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const userAccessWB = XLSX.read(await userAccessData.arrayBuffer(), {
+      type: 'array',
+    });
+    const userAccessRows = XLSX.utils.sheet_to_json(userAccessWB.Sheets[userAccessWB.SheetNames[0]]);
+    const tradingPartners = {};
+    const userAccessStatistics = userAccessRows.reduce((acc, row) => {
+      if (tradingPartners[row['trading partner masterid']] === undefined) {
+        acc.numTradingPartners++;
+        tradingPartners[row['trading partner masterid']] = {};
+        if (row['document type'] === undefined) {
+          acc.numTPWODocs++;
+          acc.totalShares--;
+        }
+      }
+      return acc;
+    }, {
+      numTradingPartners: 0,
+      numTPWODocs: 0,
+      totalShares: userAccessRows.length,
+    });
+
+    state.oada.data.Reports[documentKey]['userAccess'] = {
+      rows: userAccessRows,
+      ...userAccessStatistics,
+    };
+  },
+
+  async loadDocumentShares({ state, actions }, documentKey) {
+    const documentSharesData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-shareabledocs`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const documentSharesWB = XLSX.read(await documentSharesData.arrayBuffer(), {
+      type: 'array',
+    });
+    const documentSharesRows = XLSX.utils.sheet_to_json(
+      documentSharesWB.Sheets[documentSharesWB.SheetNames[0]]
+    );
+    let documents = {};
+    const today = moment();
+    const documentSharesStatistics = await Promise.reduce(documentSharesRows, async (acc, row) => {
+      if (documents[row['document id']] === undefined) {
+        acc.numDocsToShare++;
+        documents[row['document id']] = {};
+        // TODO lookup document expiration date
+        if (row['trading partner masterid'] === '') {
+          acc.numDocsNotShared++;
+        }
+        const docKey = row['document id'].split("/")[1];
+        let vdoc;
+        if (state.oada.data['fsqa-audits'][docKey] !== undefined) {
+          vdoc = state.oada.data['fsqa-audits'][docKey];
+        } else if (state.oada.data['cois'][docKey] !== undefined) {
+          vdoc = state.oada.data['cois'][docKey];
+        } else {
+          vdoc = await actions.oada.get(row['document id']).then((res) => {
+            return res.data;
+          });
+        }
+        if (vdoc === null || vdoc === undefined) {
+          return acc;
+        }
+        let exprDate;
+        switch (row['document type']) {
+          case 'coi':
+            exprDate = moment
+              .min(
+                Object.values(vdoc.policies).map((policy) => {
+                  return moment(policy.expire_date);
+                }),
+              )
+            break;
+          case 'audit':
+            exprDate = moment(
+              vdoc.certificate_validity_period.end,
+              'MM/DD/YYYY'
+            );
+            break;
+        }
+        if (exprDate.isAfter(today)) {
+          acc.numExpiredDocuments++;
+        }
+      }
+      return acc;
+    }, {
+      numDocsToShare: 0,
+      numExpiredDocuments: 0,
+      numDocsNotShared: 0,
+    });
+    state.oada.data.Reports[documentKey]['documentShares'] = {
+      rows: documentSharesRows,
+      ...documentSharesStatistics,
+    };
+  },
+
+  createAndPostResource({actions}, {url, data, contentType}) {
+    return actions.oada.createResource({data, contentType}).then(response => {
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]

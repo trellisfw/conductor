@@ -7,6 +7,7 @@ import COIS from './COIS';
 import Audits from './Audits';
 import Certificates from './Certificates';
 import Rules from './Rules';
+import Reports from './Reports';
 import overmind from '../../overmind'
 
 function Pages() {
@@ -22,6 +23,7 @@ function Pages() {
       {selectedPage === 'COIS' ? <COIS /> : null}
       {selectedPage === 'Audits' ? <Audits /> : null}
       {selectedPage === 'Certificates' ? <Certificates /> : null}
+      {selectedPage === 'Reports' ? <Reports /> : null}
       {selectedPage === 'Rules' ? <Rules /> : null}
     </div>
   );

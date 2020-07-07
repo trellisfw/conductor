@@ -91,6 +91,7 @@ function SideBar() {
         state.oada.data['letters-of-guarantee'] == null || _.isEmpty(state.oada.data['letters-of-guarantee']) ? null :
         <SideSection selected={(selectedPage == 'LettersOfGuarantee')} name={'Letters of Guarantee'} icon={iconData}>{'Letters of Guarantee'}</SideSection>
       }
+      <SideSection selected={(selectedPage == 'Reports')} name={'Reports'} icon={iconData}>{'Reports'}</SideSection>
       <SideSection selected={(selectedPage == 'Rules')} name={'Rules'} icon={iconConnections}>{'Rules'}</SideSection>
     </div>
   );
