@@ -9,6 +9,7 @@ import moment from 'moment'
 import ReactJson from 'react-json-view'
 import Audit from './Audit'
 import CoI from './CoI'
+import Certificate from './Certificate'
 
 function Content (props) {
   const { actions, state } = overmind()
@@ -23,14 +24,17 @@ function Content (props) {
     if (jsonData._type) delete jsonData._type
     if (jsonData._meta) delete jsonData._meta
   }
-
   return (
     <div>
-      {myState.type === 'audit' ? (
-        <Audit audit={myState.document} />
-      ) : myState.type === 'coi' ? (
-        <CoI coi={myState.document} />
-      ) : null}
+      {
+        myState.type === 'audit' ? <Audit audit={myState.document} /> : null
+      }
+      {
+        myState.type === 'coi' ? <CoI coi={myState.document} /> : null
+      }
+      {
+        myState.type === 'certificate' ? <Certificate certificate={myState.document} /> : null
+      }
 
       {!myState.showData ? (
         ''

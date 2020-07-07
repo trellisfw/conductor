@@ -50,8 +50,6 @@ export default {
                 numShares: myState[documentKey].data.numShares,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 documentKey,
               };
@@ -94,8 +92,6 @@ export default {
                 totalShares: myState[documentKey].data.totalShares,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 documentKey,
               };
@@ -138,8 +134,6 @@ export default {
                 numDocsNotShared: myState[documentKey].data.numDocsNotShared,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 documentKey,
               };
@@ -234,6 +228,51 @@ export default {
         )
         //Filter collection by filename
         const fuseOptions = {keys: [{name: 'holder', weight: 0.3}], shouldSort: false};
+        var fuse = new Fuse(collection, fuseOptions);
+        if (search && search.length > 0) {
+          collection = _.map(fuse.search(search.substr(0, 32)), 'item');
+          //Add back in unloaded docs at the end
+          collection = _.concat(collection, unloadedDocs);
+        }
+        return collection;
+      }
+    },
+    Certificates: {
+      search: '',
+      openFileBrowser: false,
+      Table: ({search}, state) => {
+        let unloadedDocs = [];
+        const documents = _.get(state, `oada.data.fsqa-certificates`);
+        const docKeys = _.keys(documents).sort().reverse();
+        let collection = _.map(docKeys,
+          (documentKey) => {
+            const document = documents[documentKey];
+            if (!document) {
+              unloadedDocs.push({documentKey})
+              return {documentKey};
+            }
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
+            let org_location = `${_.get(document, 'organization.location.street_address')} - ${_.get(document, 'organization.location.city')}, ${_.get(document, 'organization.location.state')}`
+            return {
+              documentKey: documentKey,
+              docType: 'fsqa-certificates',
+              organization: _.get(document, 'organization.name') || '',
+              org_location: org_location || '',
+              signed: (_.get(document, 'signatures') || []).length > 0,
+              type: 'COI',
+              createdAt,
+              createdAtUnix: _.get(document, '_meta.stats.created'),
+              processingService: 'target'
+            }
+          }
+        )
+        //Filter collection by filename
+        const fuseOptions = {keys: [{name: 'organization', weight: 0.3}], shouldSort: false};
         var fuse = new Fuse(collection, fuseOptions);
         if (search && search.length > 0) {
           collection = _.map(fuse.search(search.substr(0, 32)), 'item');
@@ -341,10 +380,12 @@ export default {
         )
       },
       type: ({ document }, state) => {
-        if (document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
+        if (document._type == 'application/vnd.trellisfw.coi.accord.1+json' || document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
           return 'coi'
-        } else if (document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-audit.sqfi.1+json' || document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
           return 'audit'
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-certificate.sqfi.1+json' || document._type == 'application/vnd.trellisfw.certificate.sqfi.1+json') {
+          return 'certificate'
         } else {
           return null;
         }

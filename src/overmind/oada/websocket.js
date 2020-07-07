@@ -126,7 +126,6 @@ export default function websocket(url) {
 		}
 
     function _watch(request, callback) {
-      console.log(request)
 			//Watch for changes on requested resource and trigger provided signal
 			let urlObj = urlLib.parse(request.url);
 			return new Promise((resolve, reject) => {

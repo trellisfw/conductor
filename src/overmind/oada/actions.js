@@ -5,7 +5,7 @@ import request from 'axios'
 import moment from 'moment';
 import XLSX from 'xlsx';
 import config from '../../config'
-import { browser as oadaIdClient } from '@oada/oada-id-client/index.js'
+import {browser as oadaIdClient} from '@oada/oada-id-client/index.js'
 
 const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken)
 
@@ -24,18 +24,18 @@ export default {
   async facilities({state, effects}) {
     return FACILITIES;
   },
-  async logout ({ state, effects }) {
+  async logout({state, effects}) {
     await effects.oada.websocket.close()
     //Clear documents
     state.oada.data = {}
     //Clear the token from state
     state.oada.token = null;
     //Clear the token from local storage
-    delete window.localStorage['oada:'+state.oada.url+':token']
+    delete window.localStorage['oada:' + state.oada.url + ':token']
   },
-  async login ({ state, actions }, {domain, token}) {
+  async connect({state, actions, effects}, {domain, token}) {
     /*
-      Connect to my OADA instance
+      Connect to my OADA instance, getting token if we don't have one
     */
     state.oada.url = domain;
     try {
@@ -56,59 +56,68 @@ export default {
       token = null;
     }
     // Save the token to localStorage
-    if (token && !state.login.dontSaveToken) window.localStorage['oada:'+state.oada.url+':token'] = token
-
+    if (token && !state.login.dontSaveToken) window.localStorage['oada:' + state.oada.url + ':token'] = token
     state.oada.token = token
     console.log('Token: ' + token);
-    console.log('Have token, connecting to oada...')
-    let result = await actions.oada.connect()
-    console.log('Websocket connected, checking resources...')
-
+    console.log('Have token, connecting to oada with WebSocket...')
+    await effects.oada.websocket.connect(state.oada.url)
+    console.log('Websocket connected')
+  },
+  async initialize({actions}) {
+    actions.oada.initializeConfig();
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
     actions.oada.initializeReports();
     actions.rules.initialize();
   },
-
+  async initializeConfig({state, actions}) {
+    //Load config
+    let response = await actions.oada.get(`/bookmarks/conductor`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('No config exists for this user. Using defaults.');
+      }
+    } else {
+      state.app.config = response.data;
+    }
+  },
   async initializeLookups({state, actions}) {
-  // Get expanded list of trading partners
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-      TRADING_PARTNERS = response.data;
-      console.log('TRADING PARTNERS', TRADING_PARTNERS);
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
+    // Get expanded list of trading partners
+    let response = await actions.oada.get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
         console.log('no trading partners present for current user');
       }
+    } else {
+      console.log('TRADING PARTNERS', TRADING_PARTNERS);
+      TRADING_PARTNERS = response.data;
     }
 
-  // Get expanded list of coi-holders
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
-      COI_HOLDERS = response.data;
+    // Get expanded list of coi-holders
+    response = await actions.oada.get(`/bookmarks/trellisfw/coi-holders/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('no coi-holders present for current user');
+      }
+    } else {
       console.log("COI_HOLDERS", COI_HOLDERS);
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
-        console.log('no coi-holders present for current user');
-      }
+      COI_HOLDERS = response.data;
     }
 
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/facilities/expand-index`)
+
+    response = await actions.oada.get(`/bookmarks/trellisfw/facilities/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('no facilities present for current user');
+      }
+    } else {
+      console.log("FACILITIES", FACILITIES);
       FACILITIES = response.data;
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
-        console.log('no coi-holders present for current user');
-      }
     }
-
   },
 
   async initializeDocuments({state, actions}) {
-   //Create /trellisfw if it does not exist
+    //Create /trellisfw if it does not exist
     let exists = await actions.oada
       .doesResourceExist('/bookmarks/trellisfw')
     if (!exists) {
@@ -153,7 +162,7 @@ export default {
             url: `/bookmarks/trellisfw/${docType}`,
             actionName: 'oada.onCOISChange'
           })
-      } else if (docType == 'audits') {
+      } else if (docType == 'fsqa-audits') {
         await actions.oada
           .watch({
             url: `/bookmarks/trellisfw/${docType}`,
@@ -161,7 +170,7 @@ export default {
           })
       }
 
-      //Get all the documents ids in /trellisfw/documents
+      //Get all the documents ids in /trellisfw/${docType}
       let response = await actions.oada
         .get(`/bookmarks/trellisfw/${docType}`)
       let docKeys = _.filter(
@@ -177,7 +186,7 @@ export default {
 
   },
 
-  async initializeReports({ state, actions }) {
+  async initializeReports({state, actions}) {
     const hasReports = await actions.oada
       .doesResourceExist('/bookmarks/services/trellis-reports');
 
@@ -188,15 +197,15 @@ export default {
       });
       await actions.oada.createAndPutResource({
         url: `/bookmarks/services/trellis-reports/event-log`,
-        data: { 'day-index': {} },
+        data: {'day-index': {}},
       });
       await actions.oada.createAndPutResource({
         url: `/bookmarks/services/trellis-reports/current-tradingpartnershares`,
-        data: { 'day-index': {} },
+        data: {'day-index': {}},
       });
       await actions.oada.createAndPutResource({
         url: `/bookmarks/services/trellis-reports/current-shareabledocs`,
-        data: { 'day-index': {} },
+        data: {'day-index': {}},
       });
     }
 
@@ -211,7 +220,7 @@ export default {
     actions.oada.initializeDocumentShares();
   },
 
-  async initializeEventLog({ actions, state }) {
+  async initializeEventLog({actions, state}) {
     let days;
     try {
       console.log('Getting Event Log');
@@ -234,7 +243,7 @@ export default {
     });
   },
 
-  async initializeUserAccess({ actions, state }) {
+  async initializeUserAccess({actions, state}) {
     let days;
     try {
       console.log('Getting User Access');
@@ -248,7 +257,6 @@ export default {
     } catch (e) {
       console.error('failed to get report day index list');
     }
-
     days.forEach((day) => {
       state.oada.data.Reports.userAccess[day] = {
         checked: false,
@@ -257,7 +265,7 @@ export default {
     });
   },
 
-  async initializeDocumentShares({ actions, state }) {
+  async initializeDocumentShares({actions, state}) {
     let days;
     try {
       console.log('Getting Event Log');
@@ -279,14 +287,14 @@ export default {
     });
   },
 
-  async getTradingPartners({ state, actions }, { docType, documentKey }) {
+  async getTradingPartners({state, actions}, {docType, documentKey}) {
     let doc = state.oada.data[docType][documentKey];
     let ref = null;
     let organization = null;
     let masterid = null;
     let holder = null;
     let tps = null;
-    switch(docType) {
+    switch (docType) {
       case 'cois':
         if (_.get(doc, '_meta.lookups.coi') == null) return [];
         //One CoI holder to many TPs
@@ -310,7 +318,7 @@ export default {
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
           if (tp.facilities == null) return false;
-          return tp.facilities[masterid] ? true: false
+          return tp.facilities[masterid] ? true : false
         }).map((tp) => {
           if (tp) return {
             masterid: tp.id,
@@ -321,12 +329,13 @@ export default {
         tps = _.compact(tps);
         return tps;
       case 'fsqa-certificates':
-        ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
+        if (_.get(doc, '_meta.lookups.fsqa-certificate.organization') == null) return [];
+        ref = doc._meta.lookups['fsqa-certificate']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
           if (tp.facilities == null) return false;
-          return tp.facilities[masterid] ? true: false
+          return tp.facilities[masterid] ? true : false
         }).map((tp) => {
           if (tp) return {
             masterid: tp.id,
@@ -341,7 +350,7 @@ export default {
         return []
     }
   },
-  uploadFile ({ state, actions }, file) {
+  uploadFile({state, actions}, file) {
     //Add file to the file list, flag it as `uploading`
     //Create the pdf
     return request
@@ -388,7 +397,7 @@ export default {
           });
       })
   },
-  onDocumentsChange ({ state, actions }, response) {
+  onDocumentsChange({state, actions}, response) {
     //If a key was added or changed reload that document
     console.log('onDocumentsChange', response)
     return Promise.map(_.get(response, 'change'), (change) => {
@@ -414,7 +423,7 @@ export default {
       }
     })
   },
-  onCOISChange ({ state, actions }, response) {
+  onCOISChange({state, actions}, response) {
     //If a key was added or changed reload that document
     console.log('onCOISChange', response)
     return Promise.map(_.get(response, 'change'), (change) => {
@@ -440,7 +449,7 @@ export default {
       }
     })
   },
-  onAuditsChange ({ state, actions }, response) {
+  onAuditsChange({state, actions}, response) {
     //If a key was added or changed reload that document
     console.log('onAuditsChange', response)
     return Promise.map(_.get(response, 'change'), (change) => {
@@ -466,10 +475,10 @@ export default {
       }
     })
   },
-  loadMeta ({ state, actions }, {documentId, docType}) {
+  loadMeta({state, actions}, {documentId, docType}) {
     let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
     return actions.oada
-      .get(path+`/_meta`)
+      .get(path + `/_meta`)
       .then(response => {
         if (response == null) throw Error('No meta data for ' + documentId)
         const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
@@ -484,7 +493,7 @@ export default {
         console.log('Error. Failed to load document _meta', documentId)
       });
   },
-  loadDocument ({ state, actions }, {documentId, docType}) {
+  loadDocument({state, actions}, {documentId, docType}) {
     let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
     return actions.oada
       .get(path)
@@ -502,7 +511,7 @@ export default {
       }).then(() => {
         //Load the _meta for this document
         return actions.oada
-          .get(path+`/_meta`)
+          .get(path + `/_meta`)
           .then(response => {
             if (response == null) throw Error('No meta data for ' + documentId)
             const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
@@ -519,7 +528,7 @@ export default {
       });
   },
 
-  async loadEventLog({ state, actions }, documentKey) {
+  async loadEventLog({state, actions}, documentKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'event-log',
       date: documentKey,
@@ -557,7 +566,7 @@ export default {
     };
   },
 
-  async loadUserAccess({ state, actions }, documentKey) {
+  async loadUserAccess({state, actions}, documentKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'current-tradingpartnershares',
       date: documentKey,
@@ -594,7 +603,7 @@ export default {
     };
   },
 
-  async loadDocumentShares({ state, actions }, documentKey) {
+  async loadDocumentShares({state, actions}, documentKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'current-shareabledocs',
       date: documentKey,
@@ -665,7 +674,7 @@ export default {
     };
   },
 
-  async getReportRows({ actions, state }, { path, date }) {
+  async getReportRows({actions, state}, {path, date}) {
     const reportRaw = await request.request({
       method: 'GET',
       responseType: 'blob',
@@ -686,7 +695,7 @@ export default {
     );
   },
 
-  async getReportStatistics({ actions }, { path, date }) {
+  async getReportStatistics({actions}, {path, date}) {
     try {
       return actions.oada.get(
         `/bookmarks/services/trellis-reports/${path}/day-index/${date}/_meta`
@@ -696,8 +705,8 @@ export default {
     }
   },
 
-  createAndPostResource({ actions }, { url, data, contentType }) {
-    return actions.oada.createResource({ data, contentType }).then(response => {
+  createAndPostResource({actions}, {url, data, contentType}) {
+    return actions.oada.createResource({data, contentType}).then(response => {
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
@@ -719,9 +728,9 @@ export default {
         })
     })
   },
-  createAndPostResourceHTTP ({ actions }, { url, data, contentType }) {
+  createAndPostResourceHTTP({actions}, {url, data, contentType}) {
     return actions.oada
-      .createResourceHTTP({ data, contentType })
+      .createResourceHTTP({data, contentType})
       .then(response => {
         //Link this new resource at the url provided
         var id = response.headers['content-location'].split('/')
@@ -744,8 +753,9 @@ export default {
           })
       })
   },
-  createAndPutResource ({ actions }, { url, data, contentType }) {
-    return actions.oada.createResource({ data, contentType }).then(response => {
+  createAndPutResource({actions}, {url, data, contentType}) {
+    return actions.oada.createResource({data, contentType}).then(response => {
+      console.log('response', response)
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
@@ -761,50 +771,50 @@ export default {
       })
     })
   },
-  createResource ({ actions }, { data, contentType }) {
+  createResource({actions}, {data, contentType}) {
     var headers = {}
     headers['content-type'] = contentType || 'application/json'
-    return actions.oada.post({ url: '/resources', data, headers })
+    return actions.oada.post({url: '/resources', data, headers})
   },
-  createResourceHTTP ({ actions }, { data, contentType }) {
+  createResourceHTTP({actions}, {data, contentType}) {
     var headers = {}
     headers['content-type'] = contentType || 'application/json'
-    return actions.oada.postHTTP({ url: '/resources', data, headers })
+    return actions.oada.postHTTP({url: '/resources', data, headers})
   },
-  doesResourceExist ({ actions }, url) {
+  doesResourceExist({actions}, url) {
     return actions.oada
       .head(url)
       .then(response => {
+        if (response.error) {
+          if (response.error.response && response.error.response.status === 404) return false
+        }
         if (response != null) return true
         return false
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 404) return false
-        throw error
-      })
+      });
   },
-  connect ({ state, effects }) {
-    return effects.oada.websocket.connect(state.oada.url)
-  },
-  get ({ effects, state }, url) {
+  get({effects, state}, url) {
     return effects.oada.websocket.http({
       method: 'GET',
       url: url,
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  head ({ effects, state }, url) {
+  head({effects, state}, url) {
     return effects.oada.websocket.http({
       method: 'HEAD',
       url: url,
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  post ({ effects, state }, { url, headers, data }) {
+  post({effects, state}, {url, headers, data}) {
     return effects.oada.websocket.http({
       method: 'POST',
       url: url,
@@ -815,9 +825,11 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  postHTTP ({ effects, state }, { url, headers, data }) {
+  postHTTP({effects, state}, {url, headers, data}) {
     return request.request({
       url: url,
       method: 'post',
@@ -829,9 +841,11 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  del ({ effects, state }, {url, headers, data }) {
+  del({effects, state}, {url, headers, data}) {
     return effects.oada.websocket.http({
       method: 'DELETE',
       url: url,
@@ -842,10 +856,11 @@ export default {
         headers
       ),
       data: data
-    })
-
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  put ({ effects, state }, { url, headers, data }) {
+  put({effects, state}, {url, headers, data}) {
     return effects.oada.websocket.http({
       method: 'PUT',
       url: url,
@@ -856,19 +871,23 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
-  watch ({ effects, actions, state }, { url, actionName }) {
-    var cb = function callback (data) {
+  watch({effects, actions, state}, {url, actionName}) {
+    var cb = function callback(data) {
       var action = _.get(actions, actionName)
       action(data)
     }
     return effects.oada.websocket.watch(
       {
         url,
-        headers: { Authorization: 'Bearer ' + state.oada.token }
+        headers: {Authorization: 'Bearer ' + state.oada.token}
       },
       cb
-    )
+    ).catch((err) => {
+      return {error: err}
+    });
   }
 }

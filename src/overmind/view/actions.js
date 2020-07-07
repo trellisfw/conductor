@@ -487,6 +487,35 @@ export default {
         }
       }
     },
+    Certificates: {
+      onSearch({ state }, value) {
+        state.view.Pages.Certificates.search = value;
+      },
+      Table: {
+        loadDocumentKeys({state, actions}, documentKeys) {
+          console.log('Certificates - loadDocumentKeys', documentKeys)
+          const docType = 'fsqa-certificates';
+          let keys = documentKeys.sort();
+          return Promise.map(keys, async (key) => {
+            return actions.oada.loadDocument({docType, documentId: key});
+          }, {concurrency: 5})
+        },
+        async onRowClick({ state, actions }, {rowData}) {
+          const documentKey = rowData.documentKey
+          const docType = rowData.docType;
+          console.log('Selected Document:')
+          console.log('key', documentKey, 'data', rowData)
+          if (documentKey == null) return; //Uploading doc
+          const doc = state.oada.data[docType][documentKey];
+          //Show file detial model
+          state.view.Modals.FileDetailsModal.docType = docType;
+          state.view.Modals.FileDetailsModal.documentKey = documentKey;
+          state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+        }
+      }
+    },
     Data: {
       onSearch({ state }, value) {
         state.view.Pages.Data.search = value;
