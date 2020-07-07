@@ -52,8 +52,6 @@ export default {
                 numShares: myState.eventLog.numShares,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 checked: myState.checked,
                 documentKey,
@@ -102,8 +100,6 @@ export default {
                 totalShares: myState.userAccess.totalShares,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 checked: myState.checked,
                 documentKey,
@@ -152,8 +148,6 @@ export default {
                 numDocsNotShared: myState.documentShares.numDocsNotShared,
               };
             } catch (e) {
-              console.log(e);
-              console.log(myState);
               return {
                 checked: myState.checked,
                 documentKey,

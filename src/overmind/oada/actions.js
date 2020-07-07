@@ -64,46 +64,56 @@ export default {
     console.log('Websocket connected')
   },
   async initialize({actions}) {
+    actions.oada.initializeConfig();
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
     actions.oada.initializeReports();
     actions.rules.initialize();
   },
+  async initializeConfig({state, actions}) {
+    //Load config
+    let response = await actions.oada.get(`/bookmarks/conductor`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('No config exists for this user. Using defaults.');
+      }
+    } else {
+      state.app.config = response.data;
+    }
+  },
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-      TRADING_PARTNERS = response.data;
-      console.log('TRADING PARTNERS', TRADING_PARTNERS);
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
+    let response = await actions.oada.get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
         console.log('no trading partners present for current user');
       }
+    } else {
+      console.log('TRADING PARTNERS', TRADING_PARTNERS);
+      TRADING_PARTNERS = response.data;
     }
 
-  // Get expanded list of coi-holders
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
-      COI_HOLDERS = response.data;
+    // Get expanded list of coi-holders
+    response = await actions.oada.get(`/bookmarks/trellisfw/coi-holders/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('no coi-holders present for current user');
+      }
+    } else {
       console.log("COI_HOLDERS", COI_HOLDERS);
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
-        console.log('no coi-holders present for current user');
-      }
+      COI_HOLDERS = response.data;
     }
 
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/facilities/expand-index`)
+
+    response = await actions.oada.get(`/bookmarks/trellisfw/facilities/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('no facilities present for current user');
+      }
+    } else {
+      console.log("FACILITIES", FACILITIES);
       FACILITIES = response.data;
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
-        console.log('no coi-holders present for current user');
-      }
     }
-
   },
 
   async initializeDocuments({state, actions}) {
@@ -193,22 +203,15 @@ export default {
 
     state.oada.data['Reports'] = {};
 
-    let days;
-    try {
-      console.log('Getting Reports');
-      days = await actions
-        .oada
-        .get('/bookmarks/services/trellis-reports/reports/day-index')
-        .then((res) => {
-          return Object.keys(res.data);
-        });
-      // console.log(days);
-    } catch (e) {
+    console.log('Getting Reports');
+    let days = await actions.oada.get('/bookmarks/services/trellis-reports/reports/day-index')
+    if (days.error) {
       console.error('failed to get report day index list');
+    } else {
+      days = Object.keys(days.data)
     }
 
     days.map((day) => {
-      // state.oada.data['Reports'][day] = null;
       state.oada.data['Reports'][day] = {
         checked: false,
         'eventLog': null,
@@ -696,13 +699,12 @@ export default {
     return actions.oada
       .head(url)
       .then(response => {
+        if (response.error) {
+          if (response.error.response && response.error.response.status === 404) return false
+        }
         if (response != null) return true
         return false
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 404) return false
-        throw error
-      })
+      });
   },
   get ({ effects, state }, url) {
     return effects.oada.websocket.http({
