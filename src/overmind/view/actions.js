@@ -289,6 +289,7 @@ export default {
                 'event type',
                 'document type',
                 'document id',
+                'source id',
                 'document name',
                 'upload date',
                 'coi holder',
@@ -348,6 +349,7 @@ export default {
                     'trading partner masterid',
                     'document type',
                     'document id',
+                    'source id',
                     'document name',
                     'upload date',
                     'coi holder',
@@ -406,6 +408,7 @@ export default {
                   header: [
                     'document name',
                     'document id',
+                    'source id',
                     'document type',
                     'upload date',
                     'trading partner name',
