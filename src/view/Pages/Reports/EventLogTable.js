@@ -1,29 +1,28 @@
 import React from 'react'
 
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core'
+import {jsx, css} from '@emotion/core'
 
 import 'react-virtualized/styles.css'
-import { Column, Table as RTable, AutoSizer, InfiniteLoader } from 'react-virtualized'
+import {Checkbox} from 'semantic-ui-react';
+import {Column, Table as RTable, AutoSizer, InfiniteLoader} from 'react-virtualized'
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import moment from 'moment'
-import UploadingIcon from './icons/UploadIcon'
-import ProcessingIcon from './icons/ProcessingIcon'
-import SignedIcon from './icons/SignedIcon'
-import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
 import infiniteLoader from '../infiniteLoader'
 
-function Table ({docType}) {
-  const { actions, state } = overmind()
-  const myActions = actions.view.Pages.COIS.Table
-  const myState = state.view.Pages.COIS
+function EventLogTable({docType}) {
+  const {actions, state} = overmind();
+  const myActions = actions.view.Pages.Reports.eventLog.Table;
+  const myState = state.view.Pages.Reports.eventLog;
   const collection = myState.Table || [];
-  const il = infiniteLoader('COIS', myActions.loadDocumentKeys);
+
+  const il = infiniteLoader('Event Log', myActions.loadDocumentKeys);
+  const now = moment();
   return (
     <AutoSizer>
-      {({ height, width }) => (
+      {({height, width}) => (
         <RTable
           css={css`
             & .ReactVirtualized__Table__headerRow.odd {
@@ -33,9 +32,6 @@ function Table ({docType}) {
                 rgba(0, 106, 211, 1) 0%,
                 rgba(0, 84, 166, 1) 100%
               );
-            }
-            & .ReactVirtualized__Table__Grid {
-              padding-right: 2px;
             }
             & .header > span {
               color: #fff;
@@ -63,11 +59,11 @@ function Table ({docType}) {
           headerHeight={40}
           height={height}
           rowCount={collection.length}
-          rowGetter={({ index }) => {
+          rowGetter={({index}) => {
             il.getRow(collection[index])
             return collection[index]
           }}
-          rowClassName={({ index }) => {
+          rowClassName={({index}) => {
             var className = null
             if (index % 2 === 0) {
               className = 'row even'
@@ -80,44 +76,54 @@ function Table ({docType}) {
           }}
           rowHeight={30}
           width={width}
-          onRowClick={myActions.onRowClick}
+          onRowClick={({rowData}) => myActions.toggleCheckbox(rowData.documentKey)}
         >
+
           <Column
-            label=''
-            dataKey='processingService'
-            width={50}
-            cellRenderer={({ rowData }) =>
-              !rowData || rowData.processingService !== 'target' ? (
-                ''
-              ) : (
-                <TargetIcon />
-              )
-            }
-          />
-          <Column label='Holder' dataKey='holder' width={400} />
-          <Column label='Producer' dataKey='producer' width={300} />
-          <Column label='Insured' dataKey='insured' width={300} />
-          <Column width={200} label='Added' dataKey='createdAt' />
-          <Column
-            dataKey='name'
-            className='signature'
-            width={width - 600}
-            cellRenderer={({ rowData }) => {
-              if (!rowData.signed) return null
+            headerRenderer={(data) => {
               return (
-                <div css={{ display: 'flex', alignItems: 'center' }}>
-                  <SignedIcon />
-                  <div css={{ marginLeft: 3, color: '#02A12B', marginRight: 7 }}>
-                    {'Signed'}
-                  </div>
-                </div>
-              )
+                <Checkbox
+                  checked={state.oada.data.Reports.allSelected}
+                  onClick={actions.view.Pages.Reports.selectAllReports}
+                />
+              );
+            }}
+            dataKey='documentSelect'
+            width={70}
+            cellRenderer={({rowData}) => {
+              return (
+                <Checkbox
+                  // checked={false}
+                  checked={state.oada.data.Reports[rowData.documentKey].checked}
+                />
+              );
             }}
           />
+
+          <Column label='Date' dataKey='documentKey' width={300} />
+
+          <Column
+            width={300}
+            label='Number of Documents'
+            dataKey='numDocuments'
+          />
+
+          <Column
+            width={300}
+            label='Number of Events'
+            dataKey='numEvents'
+          />
+
+          <Column
+            width={300}
+            label='Number of Emails'
+            dataKey='numEmails'
+          />
+          <Column width={300} label='Number of Shares' dataKey='numShares' />
         </RTable>
       )}
     </AutoSizer>
   )
 }
 
-export default Table
+export default EventLogTable

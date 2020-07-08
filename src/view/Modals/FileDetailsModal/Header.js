@@ -15,6 +15,8 @@ function MyHeader (props) {
     title = `FSQA Audit`;
   } else if (myState.docType == 'cois') {
     title = `Certificate of Insurance`;
+  } else if (myState.docType == 'fsqa-certificates') {
+    title = `FSQA Certificate`;
   }
   return (
     <Header>

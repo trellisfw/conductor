@@ -2,6 +2,8 @@ import urlLib from 'url'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import request from 'axios'
+import moment from 'moment';
+import XLSX from 'xlsx';
 import config from '../../config'
 import { browser as oadaIdClient } from '@oada/oada-id-client/index.js'
 
@@ -35,9 +37,9 @@ export default {
     //Clear the token from local storage
     delete window.localStorage['oada:'+state.oada.url+':token']
   },
-  async login ({ state, actions }, {domain, token}) {
+  async connect({ state, actions, effects }, {domain, token}) {
     /*
-      Connect to my OADA instance
+      Connect to my OADA instance, getting token if we don't have one
     */
     state.oada.url = domain;
     try {
@@ -59,62 +61,62 @@ export default {
     }
     // Save the token to localStorage
     if (token && !state.login.dontSaveToken) window.localStorage['oada:'+state.oada.url+':token'] = token
-
     state.oada.token = token
     console.log('Token: ' + token);
-    console.log('Have token, connecting to oada...')
-    let result = await actions.oada.connect()
-    console.log('Websocket connected, checking resources...')
-
+    console.log('Have token, connecting to oada with WebSocket...')
+    await effects.oada.websocket.connect(state.oada.url)
+    console.log('Websocket connected')
+  },
+  async initialize({actions}) {
+    actions.oada.initializeConfig();
     actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
+    actions.oada.initializeReports();
     actions.rules.initialize();
   },
-
+  async initializeConfig({state, actions}) {
+    //Load config
+    let response = await actions.oada.get(`/bookmarks/conductor`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
+        console.log('No config exists for this user. Using defaults.');
+      }
+    } else {
+      state.app.config = response.data;
+    }
+  },
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-      TRADING_PARTNERS = response.data;
-      console.log('TRADING PARTNERS', TRADING_PARTNERS);
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
+    let response = await actions.oada.get(`/bookmarks/trellisfw/trading-partners/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
         console.log('no trading partners present for current user');
       }
+    } else {
+      console.log('TRADING PARTNERS', TRADING_PARTNERS);
+      TRADING_PARTNERS = response.data;
     }
 
-  // Get expanded list of coi-holders
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/coi-holders/expand-index`)
-      COI_HOLDERS = response.data;
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
+    // Get expanded list of coi-holders
+    response = await actions.oada.get(`/bookmarks/trellisfw/coi-holders/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
         console.log('no coi-holders present for current user');
       }
+    } else {
+      console.log("COI_HOLDERS", COI_HOLDERS);
+      COI_HOLDERS = response.data;
     }
 
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/facilities/expand-index`)
-      FACILITIES = response.data;
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
+    response = await actions.oada.get(`/bookmarks/trellisfw/facilities/expand-index`)
+    if (response.error) {
+      if (response.error.response && response.error.response.status === 404) {
         console.log('no facilities present for current user');
       }
+    } else {
+      console.log("FACILITIES", FACILITIES);
+      FACILITIES = response.data;
     }
-
-    try {
-      let response = await actions.oada
-        .get(`/bookmarks/trellisfw/letter-of-guarantee-buyers/expand-index`)
-      BUYERS = response.data;
-    } catch(err) {
-      if (err.response && err.response.status === 404) {
-        console.log('no LoG Buyers present for current user');
-      }
-    }
-
   },
 
   async initializeDocuments({state, actions}) {
@@ -163,7 +165,7 @@ export default {
             url: `/bookmarks/trellisfw/${docType}`,
             actionName: 'oada.onCOISChange'
           })
-      } else if (docType == 'audits') {
+      } else if (docType == 'fsqa-audits') {
         await actions.oada
           .watch({
             url: `/bookmarks/trellisfw/${docType}`,
@@ -171,7 +173,7 @@ export default {
           })
       }
 
-      //Get all the documents ids in /trellisfw/documents
+      //Get all the documents ids in /trellisfw/${docType}
       let response = await actions.oada
         .get(`/bookmarks/trellisfw/${docType}`)
       let docKeys = _.filter(
@@ -185,6 +187,41 @@ export default {
       })
     })
 
+  },
+
+  async initializeReports({ state, actions }) {
+    const hasReports = await actions.oada
+      .doesResourceExist('/bookmarks/services/trellis-reports');
+
+    if (!hasReports) {
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports`,
+        data: {},
+      });
+      await actions.oada.createAndPutResource({
+        url: `/bookmarks/services/trellis-reports/reports`,
+        data: { 'day-index': {} },
+      });
+    }
+
+    state.oada.data['Reports'] = {};
+
+    console.log('Getting Reports');
+    let days = await actions.oada.get('/bookmarks/services/trellis-reports/reports/day-index')
+    if (days.error) {
+      console.error('failed to get report day index list');
+    } else {
+      days = Object.keys(days.data)
+    }
+
+    days.map((day) => {
+      state.oada.data['Reports'][day] = {
+        checked: false,
+        'eventLog': null,
+        'userAccess': null,
+        'documentShares': null,
+      }
+    });
   },
 
   async getTradingPartners({state, actions}, {docType, documentKey}) {
@@ -229,7 +266,8 @@ export default {
         tps = _.compact(tps);
         return tps;
       case 'fsqa-certificates':
-        ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
+        if (_.get(doc, '_meta.lookups.fsqa-certificate.organization') == null) return [];
+        ref = doc._meta.lookups['fsqa-certificate']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
         tps = _.filter(TRADING_PARTNERS, (tp) => {
@@ -426,8 +464,166 @@ export default {
         console.log('Error. Failed to load document _meta', documentId)
       });
   },
-  createAndPostResource ({ actions }, { url, data, contentType }) {
-    return actions.oada.createResource({ data, contentType }).then(response => {
+
+  async loadEventLog({ state, actions }, documentKey) {
+    const eventLogData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/event-log`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const eventLogWB = XLSX.read(await eventLogData.arrayBuffer(), {
+      type: 'array',
+    });
+    const eventLogRows = XLSX.utils.sheet_to_json(eventLogWB.Sheets[eventLogWB.SheetNames[0]]);
+    let eventLogDocuments = {};
+    const eventLogStatistics = eventLogRows.reduce((acc, row) => {
+      if (eventLogDocuments[row['document id']] === undefined) {
+        eventLogDocuments[row['document id']] = {};
+        acc.numDocuments++;
+      }
+      if (row['event type'] === 'share') {
+        acc.numShares++;
+      } else if (row['event type'] === 'email') {
+        acc.numEmails++;
+      }
+      return acc;
+    }, {
+      numDocuments: 0,
+      numEmails: 0,
+      numShares: 0,
+    });
+    state.oada.data.Reports[documentKey]['eventLog'] = {
+      rows: eventLogRows,
+      numEvents: eventLogRows.length,
+      ...eventLogStatistics,
+    };
+  },
+
+  async loadUserAccess({ state, actions }, documentKey) {
+    const userAccessData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-tradingpartnershares`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const userAccessWB = XLSX.read(await userAccessData.arrayBuffer(), {
+      type: 'array',
+    });
+    const userAccessRows = XLSX.utils.sheet_to_json(userAccessWB.Sheets[userAccessWB.SheetNames[0]]);
+    const tradingPartners = {};
+    const userAccessStatistics = userAccessRows.reduce((acc, row) => {
+      if (tradingPartners[row['trading partner masterid']] === undefined) {
+        acc.numTradingPartners++;
+        tradingPartners[row['trading partner masterid']] = {};
+        if (row['document type'] === undefined) {
+          acc.numTPWODocs++;
+          acc.totalShares--;
+        }
+      }
+      return acc;
+    }, {
+      numTradingPartners: 0,
+      numTPWODocs: 0,
+      totalShares: userAccessRows.length,
+    });
+
+    state.oada.data.Reports[documentKey]['userAccess'] = {
+      rows: userAccessRows,
+      ...userAccessStatistics,
+    };
+  },
+
+  async loadDocumentShares({ state, actions }, documentKey) {
+    const documentSharesData = await request.request({
+      method: 'GET',
+      responseType: 'blob',
+      url: `/bookmarks/services/trellis-reports/reports/day-index/${documentKey}/current-shareabledocs`,
+      baseURL: state.oada.url,
+      headers: {
+        Authorization: `Bearer ${state.oada.token}`,
+      },
+    }).then((res) => {
+      return res.data;
+    });
+
+    const documentSharesWB = XLSX.read(await documentSharesData.arrayBuffer(), {
+      type: 'array',
+    });
+    const documentSharesRows = XLSX.utils.sheet_to_json(
+      documentSharesWB.Sheets[documentSharesWB.SheetNames[0]]
+    );
+    let documents = {};
+    const today = moment();
+    const documentSharesStatistics = await Promise.reduce(documentSharesRows, async (acc, row) => {
+      if (documents[row['document id']] === undefined) {
+        acc.numDocsToShare++;
+        documents[row['document id']] = {};
+        // TODO lookup document expiration date
+        if (row['trading partner masterid'] === '') {
+          acc.numDocsNotShared++;
+        }
+        const docKey = row['document id'].split("/")[1];
+        let vdoc;
+        if (state.oada.data['fsqa-audits'][docKey] !== undefined) {
+          vdoc = state.oada.data['fsqa-audits'][docKey];
+        } else if (state.oada.data['cois'][docKey] !== undefined) {
+          vdoc = state.oada.data['cois'][docKey];
+        } else {
+          vdoc = await actions.oada.get(row['document id']).then((res) => {
+            return res.data;
+          });
+        }
+        if (vdoc === null || vdoc === undefined) {
+          return acc;
+        }
+        let exprDate;
+        switch (row['document type']) {
+          case 'coi':
+            exprDate = moment
+              .min(
+                Object.values(vdoc.policies).map((policy) => {
+                  return moment(policy.expire_date);
+                }),
+              )
+            break;
+          case 'audit':
+            exprDate = moment(
+              vdoc.certificate_validity_period.end,
+              'MM/DD/YYYY'
+            );
+            break;
+        }
+        if (exprDate.isAfter(today)) {
+          acc.numExpiredDocuments++;
+        }
+      }
+      return acc;
+    }, {
+      numDocsToShare: 0,
+      numExpiredDocuments: 0,
+      numDocsNotShared: 0,
+    });
+    state.oada.data.Reports[documentKey]['documentShares'] = {
+      rows: documentSharesRows,
+      ...documentSharesStatistics,
+    };
+  },
+
+  createAndPostResource({actions}, {url, data, contentType}) {
+    return actions.oada.createResource({data, contentType}).then(response => {
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
@@ -476,6 +672,7 @@ export default {
   },
   createAndPutResource ({ actions }, { url, data, contentType }) {
     return actions.oada.createResource({ data, contentType }).then(response => {
+      console.log('response', response)
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
@@ -505,16 +702,12 @@ export default {
     return actions.oada
       .head(url)
       .then(response => {
+        if (response.error) {
+          if (response.error.response && response.error.response.status === 404) return false
+        }
         if (response != null) return true
         return false
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 404) return false
-        throw error
-      })
-  },
-  connect ({ state, effects }) {
-    return effects.oada.websocket.connect(state.oada.url)
+      });
   },
   get ({ effects, state }, url) {
     return effects.oada.websocket.http({
@@ -523,7 +716,9 @@ export default {
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   head ({ effects, state }, url) {
     return effects.oada.websocket.http({
@@ -532,7 +727,9 @@ export default {
       headers: {
         Authorization: 'Bearer ' + state.oada.token
       }
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   post ({ effects, state }, { url, headers, data }) {
     return effects.oada.websocket.http({
@@ -545,7 +742,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   postHTTP ({ effects, state }, { url, headers, data }) {
     return request.request({
@@ -559,7 +758,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   del ({ effects, state }, {url, headers, data }) {
     return effects.oada.websocket.http({
@@ -572,8 +773,9 @@ export default {
         headers
       ),
       data: data
-    })
-
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   put ({ effects, state }, { url, headers, data }) {
     return effects.oada.websocket.http({
@@ -586,7 +788,9 @@ export default {
         headers
       ),
       data: data
-    })
+    }).catch((err) => {
+      return {error: err}
+    });
   },
   watch ({ effects, actions, state }, { url, actionName }) {
     var cb = function callback (data) {
@@ -599,6 +803,8 @@ export default {
         headers: { Authorization: 'Bearer ' + state.oada.token }
       },
       cb
-    )
+    ).catch((err) => {
+      return {error: err}
+    });
   }
 }

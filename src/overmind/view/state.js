@@ -10,6 +10,157 @@ export default {
     Documents: {
 
     },
+
+    Reports: {
+      startDate: '',
+      endDate: '',
+      allSelected: false,
+      selectedReport: 'eventLog',
+      eventLog: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((reportDate) => {
+            return reportDate.format('YYYY-MM-DD');
+          });
+
+          const documents = valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            if (!myState['eventLog']) {
+              return { documentKey };
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numDocuments: myState.eventLog.numDocuments,
+                numEvents: myState.eventLog.numEvents,
+                numEmails: myState.eventLog.numEmails,
+                numShares: myState.eventLog.numShares,
+              };
+            } catch (e) {
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numDocuments} ${doc.numEvents} ${doc.numEmails} ${doc.numShares}`;
+          });
+        }
+      },
+
+      userAccess: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((date) => {
+            return date.format('YYYY-MM-DD');
+          });
+
+          const documents = valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            if (!myState.userAccess) {
+              // console.log(`${documentKey} user access empty`);
+              return { documentKey };
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numTradingPartners: myState.userAccess.numTradingPartners,
+                numTPWODocs: myState.userAccess.numTPWODocs,
+                totalShares: myState.userAccess.totalShares,
+              };
+            } catch (e) {
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numTradingPartners} ${doc.numTPWODocs} ${doc.totalShares}`;
+          });
+        }
+      },
+
+      documentShares: {
+        Table: ({}, state) => {
+          // Why is `state.oada.data.Reports` undefinded if I don't use lodash?
+          const docs = _.get(state, `oada.data.Reports`);
+          const keys = _.keys(docs).sort().reverse();
+          const startDate = moment(state.view.Pages.Reports.startDate, 'YYYY-MM-DD');
+          const endDate = moment(state.view.Pages.Reports.endDate, 'YYYY-MM-DD');
+          const valid = keys.map((key) => {
+            return moment(key, 'YYYY-MM-DD');
+          }).filter((date) => date.isValid()).filter((reportDate) => {
+            const isAfter = !startDate.isValid()
+              ? true
+              : reportDate.isSameOrAfter(startDate)
+            const isBefore = !endDate.isValid()
+              ? true
+              : reportDate.isSameOrBefore(endDate)
+            return isBefore && isAfter;
+          }).map((date) => {
+            return date.format('YYYY-MM-DD');
+          });
+
+          const documents = valid.map((documentKey) => {
+            const myState = _.get(state, `oada.data.Reports.${documentKey}`);
+            // const myState = state.oada.data.Reports[documentKey];
+            if (!myState['documentShares']) {
+              return { documentKey };
+            }
+            try {
+              return {
+                checked: myState.checked,
+                documentKey,
+                numDocsToShare: myState.documentShares.numDocsToShare,
+                numExpiredDocuments: myState.documentShares.numExpiredDocuments,
+                numDocsNotShared: myState.documentShares.numDocsNotShared,
+              };
+            } catch (e) {
+              return {
+                checked: myState.checked,
+                documentKey,
+              };
+            }
+          });
+          return _.uniqBy(documents, (doc) => {
+            return `${doc.numDocsToShare} ${doc.numExpiredDocuments} ${doc.numDocsNotShared}`;
+          });
+        }
+      }
+    },
+
     Audits: {
       search: '',
       openFileBrowser: false,
@@ -95,6 +246,51 @@ export default {
         )
         //Filter collection by filename
         const fuseOptions = {keys: [{name: 'holder', weight: 0.3}], shouldSort: false};
+        var fuse = new Fuse(collection, fuseOptions);
+        if (search && search.length > 0) {
+          collection = _.map(fuse.search(search.substr(0, 32)), 'item');
+          //Add back in unloaded docs at the end
+          collection = _.concat(collection, unloadedDocs);
+        }
+        return collection;
+      }
+    },
+    Certificates: {
+      search: '',
+      openFileBrowser: false,
+      Table: ({search}, state) => {
+        let unloadedDocs = [];
+        const documents = _.get(state, `oada.data.fsqa-certificates`);
+        const docKeys = _.keys(documents).sort().reverse();
+        let collection = _.map(docKeys,
+          (documentKey) => {
+            const document = documents[documentKey];
+            if (!document) {
+              unloadedDocs.push({documentKey})
+              return {documentKey};
+            }
+            let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
+            if (createdAt.isValid()) {
+              createdAt = createdAt.local().format('M/DD/YYYY h:mm a');
+            } else {
+              createdAt = '';
+            }
+            let org_location = `${_.get(document, 'organization.location.street_address')} - ${_.get(document, 'organization.location.city')}, ${_.get(document, 'organization.location.state')}`
+            return {
+              documentKey: documentKey,
+              docType: 'fsqa-certificates',
+              organization: _.get(document, 'organization.name') || '',
+              org_location: org_location || '',
+              signed: (_.get(document, 'signatures') || []).length > 0,
+              type: 'COI',
+              createdAt,
+              createdAtUnix: _.get(document, '_meta.stats.created'),
+              processingService: 'target'
+            }
+          }
+        )
+        //Filter collection by filename
+        const fuseOptions = {keys: [{name: 'organization', weight: 0.3}], shouldSort: false};
         var fuse = new Fuse(collection, fuseOptions);
         if (search && search.length > 0) {
           collection = _.map(fuse.search(search.substr(0, 32)), 'item');
@@ -202,10 +398,12 @@ export default {
         )
       },
       type: ({ document }, state) => {
-        if (document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
+        if (document._type == 'application/vnd.trellisfw.coi.accord.1+json' || document._type == 'application/vnd.trellisfw.coi.accord+json') { //application/vnd.trellisfw.coi.1+json
           return 'coi'
-        } else if (document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-audit.sqfi.1+json' || document._type == 'application/vnd.trellisfw.audit.sqfi.1+json') {
           return 'audit'
+        } else if (document._type == 'application/vnd.trellisfw.fsqa-certificate.sqfi.1+json' || document._type == 'application/vnd.trellisfw.certificate.sqfi.1+json') {
+          return 'certificate'
         } else {
           return null;
         }

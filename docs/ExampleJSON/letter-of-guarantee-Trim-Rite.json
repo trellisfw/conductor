@@ -1,0 +1,17 @@
+{
+  "_type": "application/vnd.trellisfw.letterofguarantee.1+json",
+  "sellers": {
+    "SMITHFIELD PACKAGED MEAT CORP.": {
+      "name": " SMITHFIELD PACKAGED MEAT CORP."
+    },
+    "SMITHFIELD FRESH MEATS CORP.": {
+      "name": " SMITHFIELD FRESH MEATS CORP."
+    }
+  },
+  "buyers": {
+    "Trim-Rite, Inc.": {
+      "name": " Trim-Rite, Inc."
+    }
+  },
+  "date": "2019-11-07T00:00:00"
+}

@@ -6,6 +6,8 @@ import Promise from 'bluebird';
 import {json} from 'overmind';
 import fileDownload from 'js-file-download';
 import request from 'axios'
+import moment from 'moment';
+import XLSX from 'xlsx';
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 export default {
@@ -233,6 +235,223 @@ export default {
     }
   },
   Pages: {
+    Reports: {
+      onStart({state}, value) {
+        // console.log('value: ', value);
+        const dt = moment(value, 'YYYY-MM-DD');
+        if (dt.isValid()) {
+          state.view.Pages.Reports.startDate = value;
+        } else {
+          state.view.Pages.Reports.startDate = '';
+        }
+      },
+      onEnd({state}, value) {
+        const dt = moment(value, 'YYYY-MM-DD');
+        if (dt.isValid()) {
+          state.view.Pages.Reports.endDate = value;
+        } else {
+          state.view.Pages.Reports.endDate = '';
+        }
+      },
+      reportSelect({state, actions}, name) {
+        actions.view.Pages.Reports.deselectAllReports();
+        state.view.Pages.Reports.allSelected = false;
+        state.view.Pages.Reports.selectedReport = name;
+      },
+
+      // TODO save different report types differently
+      saveReports({state, actions}) {
+        if (!Object.keys(state.oada.data.Reports).some((key) => {
+          return state.oada.data.Reports[key].checked;
+        })) {
+          return;
+        }
+        actions.view.Pages.Reports[state.view.Pages.Reports.selectedReport].Table.saveReports();
+      },
+
+      deselectAllReports({state}) {
+        const dataState = state.oada.data.Reports;
+        Object.keys(dataState).filter((date) => {
+          return moment(date, 'YYYY-MM-DD').isValid();
+        }).forEach((documentKey) => {
+          state.oada.data.Reports[documentKey].checked = false;
+        });
+      },
+
+      selectAllReports({state, actions}) {
+        const tableState = state.view.Pages.Reports;
+        const dataState = state.oada.data.Reports;
+        const collection = tableState.eventLog.Table;
+        const documentKeys = collection.map((row) => {
+          return row.documentKey;
+        });
+        actions.view.Pages.Reports.deselectAllReports();
+        documentKeys.forEach((documentKey) => {
+          dataState[documentKey].checked = !dataState.allSelected;
+        });
+        dataState.allSelected = !dataState.allSelected;
+      },
+
+      eventLog: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('Event Log - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid()
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadEventLog(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            let rows = [];
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].eventLog !== null
+                && myState[date].eventLog !== undefined)
+              .forEach((date) => {
+                rows = rows.concat(myState[date]['eventLog'].rows);
+              });
+            const ws = XLSX.utils.json_to_sheet(rows, {
+              header: [
+                'share status',
+                'trading partner name',
+                'trading partner masterid',
+                'recipient email address',
+                'event time',
+                'event type',
+                'document type',
+                'document id',
+                'document name',
+                'upload date',
+                'coi holder',
+                'coi producer',
+                'coi insured',
+                'coi expiration date',
+                'audit organization name',
+                'audit expiration date',
+                'audit score',
+              ],
+            });
+            XLSX.utils.book_append_sheet(wb, ws, 'eventLog');
+            XLSX.writeFile(wb, 'eventLog.xlsx', {
+              bookType: 'xlsx',
+            });
+          },
+        },
+      },
+
+      userAccess: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('User Access - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid();
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadUserAccess(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].userAccess !== null
+                && myState[date].userAccess !== undefined)
+              .forEach((date) => {
+                const ws = XLSX.utils.json_to_sheet(myState[date].userAccess.rows, {
+                  header: [
+                    'trading partner name',
+                    'trading partner masterid',
+                    'document type',
+                    'document id',
+                    'document name',
+                    'upload date',
+                    'coi holder',
+                    'coi producer',
+                    'coi insured',
+                    'coi expiration date',
+                    'audit organization name',
+                    'audit expiration date',
+                    'audit score',
+                  ],
+                });
+                XLSX.utils.book_append_sheet(wb, ws, date);
+              });
+            XLSX.writeFile(wb, 'tradingPartnerAccess.xlsx', {
+              bookType: 'xlsx',
+            });
+          },
+        }
+      },
+
+      documentShares: {
+        Table: {
+          loadDocumentKeys({_state, actions}, documentKeys) {
+            console.log('Document Shares - loadDocumentKeys', documentKeys);
+            const validDates = documentKeys.filter((key) => {
+              return moment(key, 'YYYY-MM-DD').isValid();
+            });
+            return Promise.map(validDates, async (key) => {
+              return actions.oada.loadDocumentShares(key);
+            }, {concurrency: 5});
+          },
+
+          toggleCheckbox({state, actions}, date) {
+            state.oada.data.Reports[date].checked =
+              !state.oada.data.Reports[date].checked;
+          },
+
+          saveReports({state, actions}) {
+            const myState = state.oada.data.Reports;
+            let wb = XLSX.utils.book_new();
+            Object.keys(myState)
+              .filter((date) => myState[date].checked)
+              .filter((date) => myState[date].documentShares !== null
+                && myState[date].documentShares !== undefined)
+              .forEach((date) => {
+                const ws = XLSX.utils.json_to_sheet(myState[date]['documentShares'].rows, {
+                  header: [
+                    'document name',
+                    'document id',
+                    'document type',
+                    'upload date',
+                    'trading partner name',
+                    'trading partner masterid',
+                    'coi holder',
+                    'coi producer',
+                    'coi insured',
+                    'coi expiration date',
+                    'audit organization name',
+                    'audit expiration date',
+                    'audit score',
+                  ],
+                });
+                XLSX.utils.book_append_sheet(wb, ws, date);
+              });
+            XLSX.writeFile(wb, 'documentRecipientList.xlsx', {
+              bookType: 'xlsx',
+            });
+          },
+        }
+      },
+    },
+
     Audits: {
       onSearch({ state }, value) {
         state.view.Pages.Audits.search = value;
@@ -269,6 +488,35 @@ export default {
       Table: {
         loadDocumentKeys({state, actions}, documentKeys) {
           const docType = 'cois';
+          let keys = documentKeys.sort();
+          return Promise.map(keys, async (key) => {
+            return actions.oada.loadDocument({docType, documentId: key});
+          }, {concurrency: 5})
+        },
+        async onRowClick({ state, actions }, {rowData}) {
+          const documentKey = rowData.documentKey
+          const docType = rowData.docType;
+          console.log('Selected Document:')
+          console.log('key', documentKey, 'data', rowData)
+          if (documentKey == null) return; //Uploading doc
+          const doc = state.oada.data[docType][documentKey];
+          //Show file detial model
+          state.view.Modals.FileDetailsModal.docType = docType;
+          state.view.Modals.FileDetailsModal.documentKey = documentKey;
+          state.view.Modals.FileDetailsModal.open = true;
+          state.view.Modals.FileDetailsModal.sharedWith = [];
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+        }
+      }
+    },
+    Certificates: {
+      onSearch({ state }, value) {
+        state.view.Pages.Certificates.search = value;
+      },
+      Table: {
+        loadDocumentKeys({state, actions}, documentKeys) {
+          console.log('Certificates - loadDocumentKeys', documentKeys)
+          const docType = 'fsqa-certificates';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
             return actions.oada.loadDocument({docType, documentId: key});
