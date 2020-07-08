@@ -9,7 +9,6 @@ import overmind from '../../../overmind'
 import Header from './Header';
 import List from './List';
 import Edit from './Edit';
-import Mappings from './Mappings';
 
 function RulesModal(props) {
   const { actions, state } = overmind();
@@ -20,7 +19,7 @@ function RulesModal(props) {
       <Header />
       <Modal.Content >
         <div css={{minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-        {myState.page === 'List' ? <List /> : myState.page === 'Mappings' ? <Mappings/> : <Edit />}
+        {myState.page === 'List' ? <List /> : <Edit />}
         </div>
       </Modal.Content>
     </Modal>

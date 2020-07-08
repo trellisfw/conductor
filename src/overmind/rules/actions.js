@@ -77,13 +77,17 @@ export default {
   async loadShares({state, actions}) {
     try {
       let response = await actions.oada.get(SHARES_PATH);
-      Object.keys(response.data)
+      let results = Object.keys(response.data)
         .filter(key => key.charAt(0) !== '_')
-        .forEach(async (key) => {
+      if (results.length > 0) {
+        state.app.config.tabs.rules = true;
+        results.forEach(async (key) => {
           let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
           //TODO: this 404s immediately after deleting
           if (shareResponse && shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
-      })
+        })
+      }
+
     } catch(err) {
       if (err.response && err.response.status === 404) {
         console.log('no shares present for current user');

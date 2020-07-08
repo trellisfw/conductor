@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Fuse from 'fuse.js';
 import md5 from 'md5';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
@@ -46,28 +47,75 @@ export default {
         state.view.Modals.RulesModal.Mappings[key].active = newState;
       },
       async viewMappings({state, actions}) {
+        let obj = {};
         //Get and construct relevant mappings for this rule
+        let tps = await actions.oada.getList('trading-partners');
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
-        if (selectedRule.mappings && selectedRule.mappings === 'holders') {
-          let holders = await actions.oada.holders();
-          let tps = await actions.oada.tradingPartners();
-            console.log("TP", tps);
-          let obj = {};
-          Object.keys(holders).forEach((key) => {
+        let inverse = false;
+        let listType = selectedRule.mappings;
+        if (!listType) return;
+        if (listType === 'facilities') {
+          inverse = true;
+        }
+        let list = await actions.oada.getList(listType);
+
+
+        if (inverse) {
+          // Loop over trading partners, and for each entry listed,
+          // add an item to obj
+          Object.values(tps).forEach((tp) => {
+            Object.keys(tp[listType] || {}).forEach((masterid) => {
+              let item = _.find(list, {masterid});
+              let cityAndState = item.city && item.state ? true : false;
+              obj[masterid] = {
+                name: item.name + (cityAndState ? ' - '+(item.city +', '+item.state) : ''),
+                active: false,
+              }
+              let tpCityAndState = tp.city && tp.state ? true : false;
+              let entry = tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
+              obj[masterid].partners = obj[masterid].partners ? obj[masterid].partners.push(entry) : [entry];
+            })
+          })
+
+        } else {
+          Object.keys(list).filter(key => key.charAt(0) !== '_').forEach((key) => {
+            let cityAndState = list[key].city && list[key].state ? true : false;
             obj[key] = {
-              name: holders[key].name,
-              partners: Object.keys(holders[key]['trading-partners'] || {}).map((tp) => {
-                let item = _.find(tps, {masterid: tp})
-                return item.name
+              name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
+              partners: Object.keys(list[key]['trading-partners'] || {}).map((masterid) => {
+                let tp = _.find(tps, {masterid})
+                if (!tp) return;
+                let tpCityAndState = tp.city && tp.state ? true : false;
+                return tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
               }),
               active: false
             }
           })
-          state.view.Modals.RulesModal.Mappings = obj;
-        } else if (selectedRule.mappings && selectedRule.mappings === 'facilities') {
-          state.view.Modals.RulesModal.Mappings = {apples: ['abc', 'def', 'ghi'], oranges: ['jkl', 'mno']};
         }
-        state.view.Modals.RulesModal.page = 'Mappings';
+        obj = Object.values(obj);
+        obj = _.compact(obj);
+        //TODO: Remove this when the popup properly lists all of the entry's info
+        obj = _.uniqBy(obj, x => x.name);
+        obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
+        state.view.Modals.RulesModal.Mappings = obj;
+      },
+
+      async handleResultSelect({state, actions}) {
+
+      },
+
+      async searchMappings({state, actions}, value) {
+        state.view.Modals.RulesModal.Edit.mappingSearchValue = value;
+        let mappings = state.view.Modals.RulesModal.Mappings;
+        let options = {
+          keys: [
+            "name",
+            "partners"
+          ]
+        };
+        const fuse = new Fuse(mappings, options);
+        let results = fuse.search(value);
+        state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 
       async doneClicked({state, actions}) {
@@ -182,7 +230,7 @@ export default {
   },
   Pages: {
     Reports: {
-      onStart({state}, value) {
+      onStart({ state }, value) {
         // console.log('value: ', value);
         const dt = moment(value, 'YYYY-MM-DD');
         if (dt.isValid()) {
@@ -191,7 +239,7 @@ export default {
           state.view.Pages.Reports.startDate = '';
         }
       },
-      onEnd({state}, value) {
+      onEnd({ state }, value) {
         const dt = moment(value, 'YYYY-MM-DD');
         if (dt.isValid()) {
           state.view.Pages.Reports.endDate = value;
@@ -199,35 +247,39 @@ export default {
           state.view.Pages.Reports.endDate = '';
         }
       },
-      reportSelect({state, actions}, name) {
+
+      reportSelect({ state, actions }, name) {
         actions.view.Pages.Reports.deselectAllReports();
         state.view.Pages.Reports.allSelected = false;
         state.view.Pages.Reports.selectedReport = name;
       },
 
       // TODO save different report types differently
-      saveReports({state, actions}) {
-        if (!Object.keys(state.oada.data.Reports).some((key) => {
-          return state.oada.data.Reports[key].checked;
+      async saveReports({ state, actions }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
+        if (!Object.keys(state.oada.data.Reports[selectedReport]).some((key) => {
+          return state.oada.data.Reports[selectedReport][key].checked;
         })) {
           return;
         }
-        actions.view.Pages.Reports[state.view.Pages.Reports.selectedReport].Table.saveReports();
+        await actions.view.Pages.Reports[selectedReport].Table.saveReports();
       },
 
-      deselectAllReports({state}) {
-        const dataState = state.oada.data.Reports;
+      deselectAllReports({ state }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
+        const dataState = state.oada.data.Reports[selectedReport];
         Object.keys(dataState).filter((date) => {
           return moment(date, 'YYYY-MM-DD').isValid();
         }).forEach((documentKey) => {
-          state.oada.data.Reports[documentKey].checked = false;
+          state.oada.data.Reports[selectedReport][documentKey].checked = false;
         });
       },
 
-      selectAllReports({state, actions}) {
+      selectAllReports({ state, actions }) {
+        const selectedReport = state.view.Pages.Reports.selectedReport;
         const tableState = state.view.Pages.Reports;
-        const dataState = state.oada.data.Reports;
-        const collection = tableState.eventLog.Table;
+        const dataState = state.oada.data.Reports[selectedReport];
+        const collection = tableState[selectedReport].Table;
         const documentKeys = collection.map((row) => {
           return row.documentKey;
         });
@@ -240,31 +292,40 @@ export default {
 
       eventLog: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('Event Log - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid()
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadEventLog(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.eventLog[date].checked =
+              !state.oada.data.Reports.eventLog[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          async saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.eventLog;
             let wb = XLSX.utils.book_new();
             let rows = [];
-            Object.keys(myState)
-              .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].eventLog !== null
-                && myState[date].eventLog !== undefined)
-              .forEach((date) => {
-                rows = rows.concat(myState[date]['eventLog'].rows);
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === null || myRows === undefined) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'event-log',
+                    date
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                rows = rows.concat(myRows);
               });
             const ws = XLSX.utils.json_to_sheet(rows, {
               header: [
@@ -276,6 +337,7 @@ export default {
                 'event type',
                 'document type',
                 'document id',
+                'source id',
                 'document name',
                 'upload date',
                 'coi holder',
@@ -297,35 +359,45 @@ export default {
 
       userAccess: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('User Access - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadUserAccess(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.userAccess[date].checked =
+              !state.oada.data.Reports.userAccess[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          async saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.userAccess;
             let wb = XLSX.utils.book_new();
-            Object.keys(myState)
-              .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].userAccess !== null
-                && myState[date].userAccess !== undefined)
-              .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date].userAccess.rows, {
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === undefined || myState == null) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'current-tradingpartnershares',
+                    date,
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                const ws = XLSX.utils.json_to_sheet(myRows, {
                   header: [
                     'trading partner name',
                     'trading partner masterid',
                     'document type',
                     'document id',
+                    'source id',
                     'document name',
                     'upload date',
                     'coi holder',
@@ -348,33 +420,43 @@ export default {
 
       documentShares: {
         Table: {
-          loadDocumentKeys({_state, actions}, documentKeys) {
+          loadDocumentKeys({ _state, actions }, documentKeys) {
             console.log('Document Shares - loadDocumentKeys', documentKeys);
             const validDates = documentKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
               return actions.oada.loadDocumentShares(key);
-            }, {concurrency: 5});
+            }, { concurrency: 5 });
           },
 
-          toggleCheckbox({state, actions}, date) {
-            state.oada.data.Reports[date].checked =
-              !state.oada.data.Reports[date].checked;
+          toggleCheckbox({ state, actions }, date) {
+            state.oada.data.Reports.documentShares[date].checked =
+              !state.oada.data.Reports.documentShares[date].checked;
           },
 
-          saveReports({state, actions}) {
-            const myState = state.oada.data.Reports;
+          async saveReports({ state, actions }) {
+            const myState = state.oada.data.Reports.documentShares;
             let wb = XLSX.utils.book_new();
-            Object.keys(myState)
-              .filter((date) => myState[date].checked)
-              .filter((date) => myState[date].documentShares !== null
-                && myState[date].documentShares !== undefined)
-              .forEach((date) => {
-                const ws = XLSX.utils.json_to_sheet(myState[date]['documentShares'].rows, {
+            await Promise.each(
+              Object.keys(myState)
+                .filter((date) => myState[date] !== null
+                  && myState[date] !== undefined)
+                .filter((date) => myState[date].checked),
+              async (date) => {
+                let myRows = myState[date].data.rows;
+                if (myRows === undefined || myState == null) {
+                  myRows = await actions.oada.getReportRows({
+                    path: 'current-shareabledocs',
+                    date
+                  });
+                  myState[date].data.rows = myRows;
+                }
+                const ws = XLSX.utils.json_to_sheet(myRows, {
                   header: [
                     'document name',
                     'document id',
+                    'source id',
                     'document type',
                     'upload date',
                     'trading partner name',
@@ -433,7 +515,6 @@ export default {
       },
       Table: {
         loadDocumentKeys({state, actions}, documentKeys) {
-          console.log('COIS - loadDocumentKeys', documentKeys)
           const docType = 'cois';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
@@ -546,13 +627,14 @@ export default {
         state.view.Modals.RulesModal.page = 'List';
         state.view.Pages.Rules.selectedRule = rule;
       },
-      editRuleClicked({state, actions}, rule) {
+      async editRuleClicked({state, actions}, rule) {
         state.view.Modals.RulesModal.Edit = {
           template: json(rule),
           rule: json(rule),
           edit: true,
           key: rule.key,
         };
+        await actions.view.Modals.RulesModal.viewMappings();
         state.view.Modals.RulesModal.page = 'Edit';
         state.view.Modals.RulesModal.open = true;
       }

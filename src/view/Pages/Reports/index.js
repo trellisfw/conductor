@@ -12,7 +12,7 @@ import overmind from '../../../overmind'
 
 function Data() {
   const {state} = overmind();
-  const myState = state.view.Pages.Reports;
+  const selectedReport = state.view.Pages.Reports.selectedReport;
   return (
     <div css={{
       flex: 1,
@@ -32,16 +32,16 @@ function Data() {
         <ReportSelect />
         <div css={{flex: 1, display: 'flex'}}>
           <div css={{border: '1px solid #979797', flex: 1, display: 'flex'}}>
-            {state.view.Pages.Reports.selectedReport === 'eventLog' ?
-              <EventLogTable docType='Reports' />
+            {selectedReport === 'eventLog' ?
+              <EventLogTable docType='eventLog' />
               : null
             }
-            {state.view.Pages.Reports.selectedReport === 'userAccess' ?
-              <UserAccessTable docType='Reports' />
+            {selectedReport === 'userAccess' ?
+              <UserAccessTable docType='userAccess' />
               : null
             }
-            {state.view.Pages.Reports.selectedReport === 'documentShares' ?
-              <DocumentSharesTable docType='Reports' />
+            {selectedReport === 'documentShares' ?
+              <DocumentSharesTable docType='documentShares' />
               : null
             }
           </div>
