@@ -109,7 +109,7 @@ function Edit (props) {
       </div>
       <Search
         onResultSelect={(evt, {result}) => myActions.handleResultSelect(result)}
-        onSearchChange={(evt, {value}) => myActions.searchMappings(value)}
+        onSearchChange={_.debounce((evt, {value}) => myActions.searchMappings(value), 1000)}
         open={false}
         value={myState.mappingSearchValue}
       />

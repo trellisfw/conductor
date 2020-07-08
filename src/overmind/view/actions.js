@@ -51,58 +51,55 @@ export default {
         //Get and construct relevant mappings for this rule
         let tps = await actions.oada.tradingPartners();
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
+        let inverse = false;
+        let list;
+        let listType;
         if (selectedRule.mappings && selectedRule.mappings === 'holders') {
-          let holders = await actions.oada.holders();
-          Object.keys(holders).forEach((key) => {
-            let cityAndState = holders[key].city && holders[key].state ? true : false;
-            obj[key] = {
-              name: holders[key].name+ (cityAndState ? ' - '+(holders[key].city +', '+holders[key].state) : ''),
-              partners: Object.keys(holders[key]['trading-partners'] || {}).map((masterid) => {
-                let item = _.find(tps, {masterid})
-                return item.name+' - '+item.city+', '+item.state
-              }),
-              active: false
-            }
-          })
-          obj = Object.values(obj);
-          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
-          state.view.Modals.RulesModal.Mappings = obj;
+          list = await actions.oada.holders();
+        } else if (selectedRule.mappings && selectedRule.mappings === 'buyers') {
+          list = await actions.oada.buyers();
         } else if (selectedRule.mappings && selectedRule.mappings === 'facilities') {
-          let facilities = await actions.oada.facilities();
-          // Loop over trading partners, and for each facility listed,
+          list = await actions.oada.facilities();
+          listType = 'facilities';
+          inverse = true;
+        }
+
+        if (inverse) {
+          // Loop over trading partners, and for each entry listed,
           // add an item to obj
-          Object.values(tps).forEach((v) => {
-            Object.keys(v.facilities || {}).forEach((masterid) => {
-              let fac = _.find(facilities, {masterid});
+          Object.values(tps).forEach((tp) => {
+            Object.keys(tp[listType] || {}).forEach((masterid) => {
+              let item = _.find(list, {masterid});
+              let cityAndState = item.city && item.state ? true : false;
               obj[masterid] = {
-                name: fac.name,
+                name: item.name + (cityAndState ? ' - '+(item.city +', '+item.state) : ''),
                 active: false,
               }
-              let cityAndState = v.city && v.state ? true : false;
-              let entry = v.name+(cityAndState ? ' - '+v.city+', '+v.state : '');
+              let tpCityAndState = tp.city && tp.state ? true : false;
+              let entry = tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
               obj[masterid].partners = obj[masterid].partners ? obj[masterid].partners.push(entry) : [entry];
             })
           })
-          obj = Object.values(obj);
-          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
-          state.view.Modals.RulesModal.Mappings = obj;
-        } else if (selectedRule.mappings && selectedRule.mappings === 'buyers') {
-          let buyers = await actions.oada.buyers();
-          Object.keys(buyers).forEach((key) => {
+
+        } else {
+          Object.keys(list).forEach((key) => {
+            let cityAndState = list[key].city && list[key].state ? true : false;
             obj[key] = {
-              name: buyers[key].name,
-              partners: Object.keys(buyers[key]['trading-partners'] || {}).map((masterid) => {
-                let item = _.find(tps, {masterid})
-                return item.name+' - '+item.city+', '+item.state
+              name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
+              partners: Object.keys(list[key]['trading-partners'] || {}).map((masterid) => {
+                let tp = _.find(tps, {masterid})
+                let tpCityAndState = tp.city && tp.state ? true : false;
+                return tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
               }),
               active: false
             }
           })
-          obj = Object.values(obj);
-          obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
-          state.view.Modals.RulesModal.Mappings = obj;
         }
-        console.log('RESULT', obj)
+        obj = Object.values(obj);
+        //TODO: Remove this when the popup properly lists all of the entry's info
+        obj = _.uniqBy(obj, x => x.name);
+        obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
+        state.view.Modals.RulesModal.Mappings = obj;
       },
 
       async handleResultSelect({state, actions}) {
@@ -120,7 +117,6 @@ export default {
         };
         const fuse = new Fuse(mappings, options);
         let results = fuse.search(value);
-        console.log('SEARCH', results);
         state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 
