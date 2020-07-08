@@ -49,20 +49,16 @@ export default {
       async viewMappings({state, actions}) {
         let obj = {};
         //Get and construct relevant mappings for this rule
-        let tps = await actions.oada.tradingPartners();
+        let tps = await actions.oada.getList('trading-partners');
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
         let inverse = false;
-        let list;
-        let listType;
-        if (selectedRule.mappings && selectedRule.mappings === 'holders') {
-          list = await actions.oada.holders();
-        } else if (selectedRule.mappings && selectedRule.mappings === 'buyers') {
-          list = await actions.oada.buyers();
-        } else if (selectedRule.mappings && selectedRule.mappings === 'facilities') {
-          list = await actions.oada.facilities();
-          listType = 'facilities';
+        let listType = selectedRule.mappings;
+        if (!listType) return;
+        if (listType === 'facilities') {
           inverse = true;
         }
+        let list = await actions.oada.getList(listType);
+
 
         if (inverse) {
           // Loop over trading partners, and for each entry listed,
@@ -82,12 +78,13 @@ export default {
           })
 
         } else {
-          Object.keys(list).forEach((key) => {
+          Object.keys(list).filter(key => key.charAt(0) !== '_').forEach((key) => {
             let cityAndState = list[key].city && list[key].state ? true : false;
             obj[key] = {
               name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
               partners: Object.keys(list[key]['trading-partners'] || {}).map((masterid) => {
                 let tp = _.find(tps, {masterid})
+                if (!tp) return;
                 let tpCityAndState = tp.city && tp.state ? true : false;
                 return tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
               }),
@@ -96,6 +93,7 @@ export default {
           })
         }
         obj = Object.values(obj);
+        obj = _.compact(obj);
         //TODO: Remove this when the popup properly lists all of the entry's info
         obj = _.uniqBy(obj, x => x.name);
         obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));

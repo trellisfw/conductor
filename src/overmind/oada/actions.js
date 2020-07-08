@@ -10,23 +10,12 @@ import { browser as oadaIdClient } from '@oada/oada-id-client/index.js'
 const getAccessToken = Promise.promisify(oadaIdClient.getAccessToken)
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
-let COI_HOLDERS = {};
-let TRADING_PARTNERS = {};
-let FACILITIES = {};
-let BUYERS = {};
+let LIST_TYPES = ['coi-holders', 'facilities', 'letter-of-guarantee-buyers', 'trading-partners'];
+let EXPAND = {};
 
 export default {
-  async holders({state, effects}) {
-    return COI_HOLDERS
-  },
-  async tradingPartners({state, effects}) {
-    return TRADING_PARTNERS
-  },
-  async facilities({state, effects}) {
-    return FACILITIES;
-  },
-  async buyers({state, effects}) {
-    return BUYERS;
+  getList({}, type) {
+    return EXPAND[type]
   },
   async logout ({ state, effects }) {
     await effects.oada.websocket.close()
@@ -87,36 +76,16 @@ export default {
   },
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
-    let response = await actions.oada.get(`/bookmarks/trellisfw/trading-partners/expand-index`)
-    if (response.error) {
-      if (response.error.response && response.error.response.status === 404) {
-        console.log('no trading partners present for current user');
+    await Promise.each(LIST_TYPES, async (type) => {
+      let response = await actions.oada.get(`/bookmarks/trellisfw/${type}/expand-index`)
+      if (response.error) {
+        if (response.error.response && response.error.response.status === 404) {
+          console.log(`no ${type} present for current user`);
+        }
+      } else {
+        EXPAND[type] = response.data;
       }
-    } else {
-      console.log('TRADING PARTNERS', TRADING_PARTNERS);
-      TRADING_PARTNERS = response.data;
-    }
-
-    // Get expanded list of coi-holders
-    response = await actions.oada.get(`/bookmarks/trellisfw/coi-holders/expand-index`)
-    if (response.error) {
-      if (response.error.response && response.error.response.status === 404) {
-        console.log('no coi-holders present for current user');
-      }
-    } else {
-      console.log("COI_HOLDERS", COI_HOLDERS);
-      COI_HOLDERS = response.data;
-    }
-
-    response = await actions.oada.get(`/bookmarks/trellisfw/facilities/expand-index`)
-    if (response.error) {
-      if (response.error.response && response.error.response.status === 404) {
-        console.log('no facilities present for current user');
-      }
-    } else {
-      console.log("FACILITIES", FACILITIES);
-      FACILITIES = response.data;
-    }
+    })
   },
 
   async initializeDocuments({state, actions}) {
@@ -239,7 +208,7 @@ export default {
         holder = await actions.oada.get(ref)
         tps = holder.data['trading-partners']
         tps = Object.keys(tps).map(masterid => {
-          const partner = _.find(TRADING_PARTNERS, {masterid});
+          const partner = _.find(EXPAND['trading-partners'], {masterid});
           if (partner) return {
             masterid,
             with: partner.name,
@@ -253,7 +222,7 @@ export default {
         ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
-        tps = _.filter(TRADING_PARTNERS, (tp) => {
+        tps = _.filter(EXPAND['trading-partners'], (tp) => {
           if (tp.facilities == null) return false;
           return tp.facilities[masterid] ? true: false
         }).map((tp) => {
@@ -270,7 +239,7 @@ export default {
         ref = doc._meta.lookups['fsqa-certificate']['organization']._ref;
         organization = await actions.oada.get(ref)
         masterid = organization.data.masterid;
-        tps = _.filter(TRADING_PARTNERS, (tp) => {
+        tps = _.filter(EXPAND['trading-partners'], (tp) => {
           if (tp.facilities == null) return false;
           return tp.facilities[masterid] ? true: false
         }).map((tp) => {

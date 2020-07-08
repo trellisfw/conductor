@@ -70,8 +70,6 @@ function Edit (props) {
   let mappingType = state.view.Modals.RulesModal.Edit.rule.mappings;
   mappingType = mappingType.charAt(0).toUpperCase() + mappingType.slice(1);
   let results = state.view.Modals.RulesModal.Edit.mappingSearchResults || [];
-  console.log('RESULTS', results.length);
-  console.log('mappings length', mappings.length);
 
   return (
     <div
