@@ -10,6 +10,7 @@ import moment from 'moment';
 import XLSX from 'xlsx';
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
+let fuseSearch;
 export default {
   TopBar: {
     logout({state, actions}) {
@@ -98,6 +99,14 @@ export default {
         obj = _.uniqBy(obj, x => x.name);
         obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
         state.view.Modals.RulesModal.Mappings = obj;
+        let options = {
+          keys: [
+            "name",
+            "partners"
+          ]
+        };
+        const myIndex = Fuse.createIndex(options.keys, obj);
+        fuseSearch = new Fuse(obj, options, myIndex);
       },
 
       async handleResultSelect({state, actions}) {
@@ -106,15 +115,10 @@ export default {
 
       async searchMappings({state, actions}, value) {
         state.view.Modals.RulesModal.Edit.mappingSearchValue = value;
-        let mappings = state.view.Modals.RulesModal.Mappings;
-        let options = {
-          keys: [
-            "name",
-            "partners"
-          ]
-        };
-        const fuse = new Fuse(mappings, options);
-        let results = fuse.search(value);
+        // fuseSearch created when mappings are initialized above
+        console.log('start')
+        let results = fuseSearch.search(value);
+        console.log('end')
         state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 

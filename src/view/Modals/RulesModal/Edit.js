@@ -107,7 +107,7 @@ function Edit (props) {
       </div>
       <Search
         onResultSelect={(evt, {result}) => myActions.handleResultSelect(result)}
-        onSearchChange={_.debounce((evt, {value}) => myActions.searchMappings(value), 1000)}
+        onSearchChange={_.debounce((evt, {value}) => myActions.searchMappings(value), 500)}
         open={false}
         value={myState.mappingSearchValue}
       />
@@ -162,7 +162,7 @@ function Edit (props) {
           <Button onClick={(evt) => {myActions.backClicked()}}>Back</Button>
         }
         {
-          (!isEditing) ? null :
+          (true /*!isEditing*/) ? null :
           <Button style={{marginLeft: 7}} color='red' onClick={(evt) => {myActions.deleteClicked()}}>Delete</Button>
         }
         <Button style={{marginLeft: 7}} primary onClick={(evt) => {myActions.doneClicked()}}>

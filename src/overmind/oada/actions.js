@@ -207,7 +207,7 @@ export default {
       console.error('failed to get report day index list');
     }
 
-    days.forEach((day) => {
+    (days || []).forEach((day) => {
       state.oada.data.Reports.eventLog[day] = {
         checked: false,
         data: undefined,
@@ -229,7 +229,7 @@ export default {
     } catch (e) {
       console.error('failed to get report day index list');
     }
-    days.forEach((day) => {
+    (days || []).forEach((day) => {
       state.oada.data.Reports.userAccess[day] = {
         checked: false,
         data: undefined,
@@ -251,7 +251,7 @@ export default {
       console.error('failed to get report day index list');
     }
 
-    days.forEach((day) => {
+    (days || []).forEach((day) => {
       state.oada.data.Reports.documentShares[day] = {
         checked: false,
         data: undefined,
