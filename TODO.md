@@ -50,3 +50,9 @@ Auto Login:
   - When logout go to oada logout url to logout all the wya
     - try with ajax, if not popup new window.
   - When logged in via query parameter, wehn you do logout, you can login again and see nothing.
+
+
+------
+- Default tab
+- Download button
+- Cannot logout
