@@ -17,6 +17,7 @@ export default function (namespace) {
 
       let urlObj = urlLib.parse(window.location.href, true);
 			let query = _.cloneDeep(urlObj.query);
+      console.log('Original URL: ', window.location.href);
 
       //Check if we have a domain in the query parameters.
       let domain = null;
@@ -58,6 +59,9 @@ export default function (namespace) {
       if (query.s) {
         console.log('Using skin query parameter: ', query.s);
         skin = query.s;
+        delete urlObj.query.s;
+        delete urlObj.search;
+        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
       } else if (window.localStorage['skin']) {
         console.log('Have saved skin in localStorage, using it');;
         skin = window.localStorage['skin'];
