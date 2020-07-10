@@ -53,6 +53,3 @@ Auto Login:
 
 
 ------
-- Default tab
-- Download button
-- Cannot logout

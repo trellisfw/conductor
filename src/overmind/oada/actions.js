@@ -58,8 +58,8 @@ export default {
   },
   async initialize({actions}) {
     actions.oada.initializeConfig();
-    actions.oada.initializeLookups();
     actions.oada.initializeDocuments();
+    actions.oada.initializeLookups();
     actions.oada.initializeReports();
     actions.rules.initialize();
   },
