@@ -70,6 +70,13 @@ function Content (props) {
         &nbsp;&nbsp;|&nbsp;&nbsp;
         <div
           css={{ cursor: 'pointer' }}
+          onClick={() => myActions.downloadPDF({documentKey: myState.documentKey, docType: myState.docType})}
+        >
+          {'DOWNLOAD PDF'}
+        </div>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <div
+          css={{ cursor: 'pointer' }}
           onClick={() =>
             myActions.toggleShowData(_.get(myState, 'documentKey'))
           }

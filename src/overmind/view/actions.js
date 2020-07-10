@@ -10,6 +10,7 @@ import moment from 'moment';
 import XLSX from 'xlsx';
 
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
+let fuseSearch;
 export default {
   TopBar: {
     logout({state, actions}) {
@@ -98,6 +99,14 @@ export default {
         obj = _.uniqBy(obj, x => x.name);
         obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
         state.view.Modals.RulesModal.Mappings = obj;
+        let options = {
+          keys: [
+            "name",
+            "partners"
+          ]
+        };
+        const myIndex = Fuse.createIndex(options.keys, obj);
+        fuseSearch = new Fuse(obj, options, myIndex);
       },
 
       async handleResultSelect({state, actions}) {
@@ -106,15 +115,10 @@ export default {
 
       async searchMappings({state, actions}, value) {
         state.view.Modals.RulesModal.Edit.mappingSearchValue = value;
-        let mappings = state.view.Modals.RulesModal.Mappings;
-        let options = {
-          keys: [
-            "name",
-            "partners"
-          ]
-        };
-        const fuse = new Fuse(mappings, options);
-        let results = fuse.search(value);
+        // fuseSearch created when mappings are initialized above
+        console.log('start')
+        let results = fuseSearch.search(value);
+        console.log('end')
         state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 
@@ -170,6 +174,32 @@ export default {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
         state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
+      },
+      downloadPDF({state, actions}, {documentKey, docType}) {
+        return request.request({
+          url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
+          method: 'get',
+          headers: {
+            Authorization: 'Bearer ' + state.oada.token
+          }
+        }).then(response => {
+          return _.get(response, 'data.filename');
+        }).catch((err) => {
+          return null;
+        }).then((filename) => {
+          if (filename == null) filename = 'file.pdf';
+          return request.request({
+            url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`,
+            method: 'get',
+            responseType: 'blob',
+            headers: {
+              Authorization: 'Bearer ' + state.oada.token
+            }
+          }).then(response => {
+            //Download the pdf
+            fileDownload(new Blob([response.data]), filename);
+          });
+        })
       },
       toggleShowData({ state }, documentKey) {
         state.view.Modals.FileDetailsModal.showData = !state.view.Modals.FileDetailsModal.showData;
@@ -642,7 +672,7 @@ export default {
   },
   SideBar: {
     pageSelected({state, actions}, page) {
-      state.view.Pages.selectedPage = page;
-    },
+      state.view.Pages.lastSelectedPage = page;
+    }
   }
 }
