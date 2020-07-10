@@ -19,7 +19,7 @@ export default {
     }
   },
   tempB: {
-    text: "When a FSQA Certificate has an identifield facility location, share it with the associated trading partners.",
+    text: "When a FSQA Audit has an identifield facility location, share it with the associated trading partners.",
     share: {
       template: 'tempB',
       type: 'trellis',
