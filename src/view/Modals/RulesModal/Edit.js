@@ -121,36 +121,33 @@ function Edit (props) {
         </Table.Header>
         <Table.Body>
           {results.length > 0 ? results.filter(val => mappings[val].name ? true : false).map(refIndex =>
-            mappings[refIndex].partners.map(p => 
-            <Table.Row key={mappings[refIndex].name+p}>
+            <Table.Row key={mappings[refIndex].name+mappings[refIndex].partner}>
               <Table.Cell>
                 <Popup content={mappings[refIndex].name}
                   trigger={<p>{mappings[refIndex].name}</p>}
                 />
               </Table.Cell>
               <Table.Cell>
-                <Popup content={p}
-                trigger={<p>{p}</p>}
+                <Popup content={mappings[refIndex].partner}
+                trigger={<p>{mappings[refIndex].partner}</p>}
               />
               </Table.Cell>
             </Table.Row>
-            )
           ) : 
           mappings.filter((item, i) => results.indexOf(i) < 0).filter(item => item.name ? true : false).map(item => 
-            item.partners.map(p => 
-              <Table.Row key={item.name+p}>
+            <Table.Row key={item.name+item.partner}>
               <Table.Cell>
                 <Popup content={item.name}
                   trigger={<p>{item.name}</p>}
                 />
               </Table.Cell>
               <Table.Cell>
-                <Popup content={p}
-                  trigger={<p>{p}</p>}
+                <Popup content={item.partner}
+                  trigger={<p>{item.partner}</p>}
                 />
               </Table.Cell>
             </Table.Row>
-          ))}
+          )}
         </Table.Body>
       </Table>
       <div

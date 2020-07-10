@@ -58,7 +58,7 @@ export default {
         }
       },
       async viewMappings({state, actions}) {
-        let obj = {};
+        let rows = [];
         //Get and construct relevant mappings for this rule
         let tps = await actions.oada.getList('trading-partners');
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
@@ -70,54 +70,54 @@ export default {
         }
         let list = await actions.oada.getList(listType);
 
-
         if (inverse) {
           // Loop over trading partners, and for each entry listed,
-          // add an item to obj
+          // add an item to rows
           Object.values(tps).forEach((tp) => {
             Object.keys(tp[listType] || {}).forEach((masterid) => {
               let item = _.find(list, {masterid});
               let cityAndState = item.city && item.state ? true : false;
-              obj[masterid] = obj[masterid] || {
-                name: item.name + (cityAndState ? ' - '+(item.city +', '+item.state) : ''),
-                active: false,
-                partners: [],
-              }
               let tpCityAndState = tp.city && tp.state ? true : false;
               let entry = tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
-              obj[masterid].partners.push(entry);
+              rows.push({
+                name: item.name + (cityAndState ? ' - '+(item.city +', '+item.state) : ''),
+                active: false,
+                partner: entry,
+              })
             })
           })
 
         } else {
           Object.keys(list).filter(key => key.charAt(0) !== '_').forEach((key) => {
             let cityAndState = list[key].city && list[key].state ? true : false;
-            obj[key] = {
-              name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
-              partners: Object.keys(list[key]['trading-partners'] || {}).map((masterid) => {
+            if (!list[key]['trading-partners']) {
+              rows.push({
+                name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
+              })
+            } else {
+              Object.keys(list[key]['trading-partners'] || {}).map((masterid) => {
                 let tp = _.find(tps, {masterid})
-                if (!tp) return;
-                let tpCityAndState = tp.city && tp.state ? true : false;
-                return tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
-              }),
-              active: false
+                if (!tp) console.log(`trading partner with masterid ${masterid} not found for ${list[key].name}`)
+                let tpCityAndState = tp ? tp.city && tp.state ? true : false : false;
+                rows.push({
+                  name: list[key].name + (cityAndState ? ' - '+(list[key].city +', '+list[key].state) : ''),
+                  partner: tp ? tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '') : undefined,
+                })
+              })
             }
           })
         }
-        obj = Object.values(obj);
-        obj = _.compact(obj);
         //TODO: Remove this when the popup properly lists all of the entry's info
-        obj = _.uniqBy(obj, x => x.name);
-        obj = _.orderBy(obj, (item => item.name ? item.name.toLowerCase() : item.name));
-        state.view.Modals.RulesModal.Mappings = obj;
+        rows = _.uniqBy(rows, row => row.name+row.partner);
+        state.view.Modals.RulesModal.Mappings = rows;
         let options = {
           keys: [
             "name",
-            "partners"
+            "partner"
           ]
         };
-        const myIndex = Fuse.createIndex(options.keys, obj);
-        fuseSearch = new Fuse(obj, options, myIndex);
+        const myIndex = Fuse.createIndex(options.keys, rows);
+        fuseSearch = new Fuse(rows, options, myIndex);
       },
 
       async handleResultSelect({state, actions}) {
@@ -185,32 +185,6 @@ export default {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
         state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
-      },
-      downloadPDF({state, actions}, {documentKey, docType}) {
-        return request.request({
-          url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
-          method: 'get',
-          headers: {
-            Authorization: 'Bearer ' + state.oada.token
-          }
-        }).then(response => {
-          return _.get(response, 'data.filename');
-        }).catch((err) => {
-          return null;
-        }).then((filename) => {
-          if (filename == null) filename = 'file.pdf';
-          return request.request({
-            url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`,
-            method: 'get',
-            responseType: 'blob',
-            headers: {
-              Authorization: 'Bearer ' + state.oada.token
-            }
-          }).then(response => {
-            //Download the pdf
-            fileDownload(new Blob([response.data]), filename);
-          });
-        })
       },
       toggleShowData({ state }, documentKey) {
         state.view.Modals.FileDetailsModal.showData = !state.view.Modals.FileDetailsModal.showData;
@@ -683,7 +657,7 @@ export default {
   },
   SideBar: {
     pageSelected({state, actions}, page) {
-      state.view.Pages.lastSelectedPage = page;
-    }
+      state.view.Pages.selectedPage = page;
+    },
   }
 }
