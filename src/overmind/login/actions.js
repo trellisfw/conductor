@@ -35,6 +35,7 @@ export default {
   },
   async logout({ state, actions }) {
     await actions.oada.logout();
+    state.login.token = null;
     state.login.loggedIn = false;
   },
   domainChange({ state }, data) {

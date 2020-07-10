@@ -186,6 +186,32 @@ export default {
         state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
       },
+      downloadPDF({state, actions}, {documentKey, docType}) {
+        return request.request({
+          url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
+          method: 'get',
+          headers: {
+            Authorization: 'Bearer ' + state.oada.token
+          }
+        }).then(response => {
+          return _.get(response, 'data.filename');
+        }).catch((err) => {
+          return null;
+        }).then((filename) => {
+          if (filename == null) filename = 'file.pdf';
+          return request.request({
+            url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`,
+            method: 'get',
+            responseType: 'blob',
+            headers: {
+              Authorization: 'Bearer ' + state.oada.token
+            }
+          }).then(response => {
+            //Download the pdf
+            fileDownload(new Blob([response.data]), filename);
+          });
+        })
+      },
       toggleShowData({ state }, documentKey) {
         state.view.Modals.FileDetailsModal.showData = !state.view.Modals.FileDetailsModal.showData;
       },
@@ -657,7 +683,7 @@ export default {
   },
   SideBar: {
     pageSelected({state, actions}, page) {
-      state.view.Pages.selectedPage = page;
-    },
+      state.view.Pages.lastSelectedPage = page;
+    }
   }
 }

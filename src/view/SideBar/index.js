@@ -63,8 +63,43 @@ function SideSection(props) {
 
 function SideBar() {
   const { state, actions } = overmind();
-  const selectedPage = state.view.Pages.selectedPage;
-  const pageSelected = actions.view.SideBar.pageSelected;
+  let selectedPage = state.view.Pages.selectedPage;
+  if (selectedPage == null) {
+    //Pick first page that we have data for and access to
+    const pages = [
+      {
+        type: 'documents',
+        page: 'Data',
+        showIfEmpty: true
+      },
+      {
+        type: 'cois',
+        page: 'COIS'
+      },
+      {
+        type: 'fsqa-audits',
+        page: 'Audits'
+      },
+      {
+        type: 'fsqa-certificates',
+        page: 'Certificates'
+      },
+      {
+        type: 'letters-of-guarantee',
+        page: 'LettersOfGuarantee'
+      },
+    ];
+    _.forEach(pages, (page) => {
+      if (_.get(state.app.config, `tabs.${page.type}`) == true) {
+        if (page.showIfEmpty || !_.isEmpty(_.get(state.oada.data, page.type))) {
+          selectedPage = page.page;
+          return false;
+        }
+      }
+    })
+  }
+
+
   return (
     <div css={{
       display: 'flex',
