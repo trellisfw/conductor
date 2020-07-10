@@ -70,6 +70,7 @@ function Edit (props) {
   let mappingType = state.view.Modals.RulesModal.Edit.rule.mappings;
   mappingType = mappingType.charAt(0).toUpperCase() + mappingType.slice(1);
   let results = state.view.Modals.RulesModal.Edit.mappingSearchResults || [];
+  console.log(myState.sortCol, myState.list, myState.partners);
 
   return (
     <div
@@ -111,7 +112,7 @@ function Edit (props) {
         open={false}
         value={myState.mappingSearchValue}
       />
-      <Table>
+      <Table striped celled compact sortable>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>{mappingType}</Table.HeaderCell>
@@ -120,33 +121,36 @@ function Edit (props) {
         </Table.Header>
         <Table.Body>
           {results.length > 0 ? results.filter(val => mappings[val].name ? true : false).map(refIndex =>
-            <Table.Row key={mappings[refIndex].name+mappings[refIndex].partners.join(';')}>
+            mappings[refIndex].partners.map(p => 
+            <Table.Row key={mappings[refIndex].name+p}>
               <Table.Cell>
                 <Popup content={mappings[refIndex].name}
                   trigger={<p>{mappings[refIndex].name}</p>}
                 />
               </Table.Cell>
-               <Table.Cell>
-                <Popup content={mappings[refIndex].partners.join("\r\n")}
-                  trigger={<p>{mappings[refIndex].partners.join("\r\n")}</p>}
-                />
+              <Table.Cell>
+                <Popup content={p}
+                trigger={<p>{p}</p>}
+              />
               </Table.Cell>
             </Table.Row>
+            )
           ) : 
-          mappings.filter((item, i) => results.indexOf(i) < 0).filter(item => item.name ? true : false).map(item =>
-            <Table.Row key={item.name+item.partners.join(';')}>
+          mappings.filter((item, i) => results.indexOf(i) < 0).filter(item => item.name ? true : false).map(item => 
+            item.partners.map(p => 
+              <Table.Row key={item.name+p}>
               <Table.Cell>
                 <Popup content={item.name}
                   trigger={<p>{item.name}</p>}
                 />
               </Table.Cell>
               <Table.Cell>
-                <Popup content={item.partners.join("\r\n")}
-                  trigger={<p>{item.partners.join("\r\n")}</p>}
+                <Popup content={p}
+                  trigger={<p>{p}</p>}
                 />
               </Table.Cell>
             </Table.Row>
-          )}
+          ))}
         </Table.Body>
       </Table>
       <div

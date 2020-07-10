@@ -47,6 +47,16 @@ export default {
         if (!mapping.active) newState = true;
         state.view.Modals.RulesModal.Mappings[key].active = newState;
       },
+      async handleHeaderClick({state}, {value}) {
+        state.view.Modals.RulesModal.Edit.sortCol = value;
+
+        let currentSort = state.view.Modals.RulesModal.Edit[value];
+        if (currentSort && currentSort === 'ascending') {
+          state.view.Modals.RulesModal.Edit[value] = 'descending';
+        } else {
+          state.view.Modals.RulesModal.Edit[value] = 'ascending';
+        }
+      },
       async viewMappings({state, actions}) {
         let obj = {};
         //Get and construct relevant mappings for this rule
@@ -68,13 +78,14 @@ export default {
             Object.keys(tp[listType] || {}).forEach((masterid) => {
               let item = _.find(list, {masterid});
               let cityAndState = item.city && item.state ? true : false;
-              obj[masterid] = {
+              obj[masterid] = obj[masterid] || {
                 name: item.name + (cityAndState ? ' - '+(item.city +', '+item.state) : ''),
                 active: false,
+                partners: [],
               }
               let tpCityAndState = tp.city && tp.state ? true : false;
               let entry = tp.name+(tpCityAndState ? ' - '+tp.city+', '+tp.state : '');
-              obj[masterid].partners = obj[masterid].partners ? obj[masterid].partners.push(entry) : [entry];
+              obj[masterid].partners.push(entry);
             })
           })
 
