@@ -6,11 +6,48 @@ import moment from 'moment'
 
 export default {
   Pages: {
-    selectedPage: 'Data',
+    lastSelectedPage: null,
+    selectedPage: ({}, state) => {
+      let selectedPage = state.view.Pages.lastSelectedPage;
+      if (selectedPage == null) {
+        //Pick first page that we have data for and access to
+        const pages = [
+          {
+            type: 'documents',
+            page: 'Data',
+            showIfEmpty: true
+          },
+          {
+            type: 'cois',
+            page: 'COIS'
+          },
+          {
+            type: 'fsqa-audits',
+            page: 'Audits'
+          },
+          {
+            type: 'fsqa-certificates',
+            page: 'Certificates'
+          },
+          {
+            type: 'letters-of-guarantee',
+            page: 'LettersOfGuarantee'
+          },
+        ];
+        _.forEach(pages, (page) => {
+          if (_.get(state.app.config, `tabs.${page.type}`) == true) {
+            if (page.showIfEmpty || !_.isEmpty(_.get(state.oada.data, page.type))) {
+              selectedPage = page.page;
+              return false;
+            }
+          }
+        })
+      }
+      return selectedPage;
+    },
     Documents: {
 
     },
-
     Reports: {
       startDate: '',
       endDate: '',

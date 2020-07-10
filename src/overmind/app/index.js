@@ -17,6 +17,7 @@ export default function (namespace) {
 
       let urlObj = urlLib.parse(window.location.href, true);
 			let query = _.cloneDeep(urlObj.query);
+      console.log('Original URL: ', window.location.href);
 
       //Check if we have a domain in the query parameters.
       let domain = null;
@@ -54,13 +55,19 @@ export default function (namespace) {
       state.login.domain = domain;
 
       let skin = false;
-      // Populate skin from localStorage if there is a saved one:
-      if (window.localStorage['skin']) {
+      // Populate skin from 1: query param, or 2: localStorage if there is a saved one:
+      if (query.s) {
+        console.log('Using skin query parameter: ', query.s);
+        skin = query.s;
+        delete urlObj.query.s;
+        delete urlObj.search;
+        window.history.pushState({}, document.title, urlLib.format(urlObj.format()));
+      } else if (window.localStorage['skin']) {
         console.log('Have saved skin in localStorage, using it');;
         skin = window.localStorage['skin'];
       }
       if (!config.skins || !config.skins[skin]) {
-        console.log('WARNING: skin in localStorage was ',skin,', but that is not listed in config.skins');
+        console.log('WARNING: skin was ',skin,', but that is not listed in config.skins');
         skin = false;
       }
       if (!skin) skin = config.skin;
