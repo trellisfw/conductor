@@ -510,7 +510,7 @@ export default {
       return;
     }
 
-    const eventLogRows = actions.oada.getReportRows({
+    const eventLogRows = await actions.oada.getReportRows({
       path: 'event-log',
       date: documentKey
     });
