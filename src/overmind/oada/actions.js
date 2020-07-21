@@ -240,7 +240,7 @@ export default {
   async initializeDocumentShares({actions, state}) {
     let days;
     try {
-      console.log('Getting Event Log');
+      console.log('Getting Document Shares');
       days = await actions
         .oada
         .get('/bookmarks/services/trellis-reports/current-shareabledocs/day-index')
