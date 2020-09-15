@@ -2,6 +2,7 @@ import React from 'react';
 
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core'
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
 import { Document, Page } from 'react-pdf';
 
@@ -27,10 +28,6 @@ function PDFViewerModal(props) {
       <Modal.Content>
         <div css={css`
             min-height: 350px;
-            &  .pdfPage {
-              display: flex;
-              justify-content: center;
-            }
           `}>
           <div css={{display: 'flex', justifyContent: 'space-between'}}>
             <Button
@@ -40,11 +37,17 @@ function PDFViewerModal(props) {
               onClick={myActions.close}
               icon="close" />
           </div>
-          <Document
-            file={file}
-            onLoadSuccess={myActions.onLoadSuccess}>
-            <Page className={'pdfPage'} pageNumber={pageNumber} />
-          </Document>
+          <div css={css`
+            display: flex;
+            justify-content: center;
+          `}>
+            <Document
+              externalLinkTarget={"_blank"}
+              file={file}
+              onLoadSuccess={myActions.onLoadSuccess}>
+              <Page pageNumber={pageNumber} />
+            </Document>
+          </div>
           <div css={{display: 'flex', justifyContent: 'space-between'}}>
             <div>
               Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
