@@ -1,19 +1,19 @@
 {
   "files": {
     "main.css": "/conductor/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/conductor/static/js/main.82fa7224.chunk.js",
-    "main.js.map": "/conductor/static/js/main.82fa7224.chunk.js.map",
+    "main.js": "/conductor/static/js/main.686152f1.chunk.js",
+    "main.js.map": "/conductor/static/js/main.686152f1.chunk.js.map",
     "runtime-main.js": "/conductor/static/js/runtime-main.13b6049f.js",
     "runtime-main.js.map": "/conductor/static/js/runtime-main.13b6049f.js.map",
-    "static/css/2.ed7135c9.chunk.css": "/conductor/static/css/2.ed7135c9.chunk.css",
-    "static/js/2.efb6a601.chunk.js": "/conductor/static/js/2.efb6a601.chunk.js",
-    "static/js/2.efb6a601.chunk.js.map": "/conductor/static/js/2.efb6a601.chunk.js.map",
+    "static/css/2.8b0e784d.chunk.css": "/conductor/static/css/2.8b0e784d.chunk.css",
+    "static/js/2.0d8fa5fb.chunk.js": "/conductor/static/js/2.0d8fa5fb.chunk.js",
+    "static/js/2.0d8fa5fb.chunk.js.map": "/conductor/static/js/2.0d8fa5fb.chunk.js.map",
     "index.html": "/conductor/index.html",
-    "precache-manifest.704f11024887b0faeb9ee2a403c89459.js": "/conductor/precache-manifest.704f11024887b0faeb9ee2a403c89459.js",
+    "precache-manifest.6afaf4f81b5d0f40dcc6985aea95fc6f.js": "/conductor/precache-manifest.6afaf4f81b5d0f40dcc6985aea95fc6f.js",
     "service-worker.js": "/conductor/service-worker.js",
-    "static/css/2.ed7135c9.chunk.css.map": "/conductor/static/css/2.ed7135c9.chunk.css.map",
+    "static/css/2.8b0e784d.chunk.css.map": "/conductor/static/css/2.8b0e784d.chunk.css.map",
     "static/css/main.5ecd60fb.chunk.css.map": "/conductor/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.efb6a601.chunk.js.LICENSE": "/conductor/static/js/2.efb6a601.chunk.js.LICENSE",
+    "static/js/2.0d8fa5fb.chunk.js.LICENSE": "/conductor/static/js/2.0d8fa5fb.chunk.js.LICENSE",
     "static/media/semantic.min.css": "/conductor/static/media/outline-icons.ef60a4f6.woff",
     "static/media/buisness.svg": "/conductor/static/media/buisness.6b54fc90.svg",
     "static/media/connections.svg": "/conductor/static/media/connections.7c7332c0.svg",
@@ -27,9 +27,9 @@
   },
   "entrypoints": [
     "static/js/runtime-main.13b6049f.js",
-    "static/css/2.ed7135c9.chunk.css",
-    "static/js/2.efb6a601.chunk.js",
+    "static/css/2.8b0e784d.chunk.css",
+    "static/js/2.0d8fa5fb.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.82fa7224.chunk.js"
+    "static/js/main.686152f1.chunk.js"
   ]
 }
