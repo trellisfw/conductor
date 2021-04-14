@@ -16,7 +16,12 @@ export default {
     logout({state, actions}) {
       actions.login.logout()
       actions.oada.logout();
-    }
+    },
+    changeTp({state, actions}, props) {
+      state.view.tp = state.tps[props].name;
+      state.oada.path = `/bookmarks/trellisfw/trading-partners/${props}/bookmarks/trellisfw`
+      actions.oada.initializeDocuments();
+    },
   },
   Modals: {
     EditRuleModal: {
@@ -559,6 +564,7 @@ export default {
           const docType = 'cois';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
+            console.log('loading', key);
             return actions.oada.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },

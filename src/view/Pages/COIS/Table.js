@@ -21,6 +21,7 @@ function Table ({docType}) {
   const myState = state.view.Pages.COIS
   const collection = myState.Table || [];
   const il = infiniteLoader('COIS', myActions.loadDocumentKeys);
+  console.log('LENGTH', collection.length);
   return (
     <AutoSizer>
       {({ height, width }) => (

@@ -8,6 +8,7 @@ function wrapper(overmindLoadFunc) {
 
   function loadRows() {
     const documentKeys = _.keys(loadBatch);
+    console.log('got keys', documentKeys);
     loadBatch = {};
     if (omLoadFunc) {
       return omLoadFunc(documentKeys);

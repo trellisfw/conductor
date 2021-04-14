@@ -86,17 +86,19 @@ export default {
         EXPAND[type] = response.data;
       }
     })
+    state.tps = EXPAND['trading-partners'];
   },
 
   async initializeDocuments({state, actions}) {
     //Create /trellisfw if it does not exist
+    let path = state.oada.path || '/bookmarks/trellisfw';
     let exists = await actions.oada
-      .doesResourceExist('/bookmarks/trellisfw')
+      .doesResourceExist(path)
     if (!exists) {
-      console.log('/bookmarks/trellisfw does not exist.  Creating...')
+      console.log(`${path} does not exist.  Creating...`)
       //Create /trellisfw
       await actions.oada.createAndPutResource({
-        url: '/bookmarks/trellisfw',
+        url: path,
         data: {}
       })
     }
@@ -107,11 +109,11 @@ export default {
       state.oada.data[docType] = {}
 
       exists = await actions.oada
-        .doesResourceExist(`/bookmarks/trellisfw/${docType}`)
+        .doesResourceExist(`${path}/${docType}`)
       if (!exists) {
         //Create documents
         await actions.oada.createAndPutResource({
-          url: `/bookmarks/trellisfw/${docType}`,
+          url: `${path}/${docType}`,
           data: {},
           contentType: `application/vnd.trellis.${docType}.1+json`
         })
@@ -125,26 +127,27 @@ export default {
       if (docType == 'documents') {
         await actions.oada
           .watch({
-            url: `/bookmarks/trellisfw/${docType}`,
+            url: `${path}/${docType}`,
             actionName: 'oada.onDocumentsChange'
           })
       } else if (docType == 'cois') {
         await actions.oada
           .watch({
-            url: `/bookmarks/trellisfw/${docType}`,
+            url: `${path}/${docType}`,
             actionName: 'oada.onCOISChange'
           })
       } else if (docType == 'fsqa-audits') {
         await actions.oada
           .watch({
-            url: `/bookmarks/trellisfw/${docType}`,
+            url: `${path}/${docType}`,
             actionName: 'oada.onAuditsChange'
           })
       }
 
       //Get all the documents ids in /trellisfw/${docType}
       let response = await actions.oada
-        .get(`/bookmarks/trellisfw/${docType}`)
+        .get(`${path}/${docType}`)
+      console.log('dat', response.data);
       let docKeys = _.filter(
         Object.keys(response.data),
         key => _.startsWith(key, '_') === false
@@ -355,9 +358,10 @@ export default {
           })
           .then(() => {
             //Create a link to the new pdf in /documents
+            let pathPrefix = state.oada.path;
             return actions.oada
               .put({
-                url: `/bookmarks/trellisfw/documents/${id}`,
+                url: `${pathPrefix}/documents/${id}`,
                 data: {
                   _id: 'resources/' + id,
                   _rev: 0
@@ -448,7 +452,8 @@ export default {
     })
   },
   loadMeta({state, actions}, {documentId, docType}) {
-    let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
+    let pathPrefix = state.oada.path || '/bookmarks/trellisfw';
+    let path = `${pathPrefix}/${docType}/${documentId}`;
     return actions.oada
       .get(path + `/_meta`)
       .then(response => {
@@ -466,7 +471,8 @@ export default {
       });
   },
   loadDocument({state, actions}, {documentId, docType}) {
-    let path = `/bookmarks/trellisfw/${docType}/${documentId}`;
+    let pathPrefix = state.oada.path || '/bookmarks/trellisfw';
+    let path = `${pathPrefix}/${docType}/${documentId}`;
     return actions.oada
       .get(path)
       .then(response => {
