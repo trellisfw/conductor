@@ -15,12 +15,12 @@ export default {
   TopBar: {
     logout({state, actions}) {
       actions.login.logout()
-      actions.oada.logout();
+      actions.oadaHelper.logout();
     },
     changeTp({state, actions}, props) {
       state.view.tp = state.tps[props].name;
       state.oada.path = `/bookmarks/trellisfw/trading-partners/${props}/bookmarks/trellisfw`
-      actions.oada.initializeDocuments();
+      actions.oadaHelper.initializeDocuments();
     },
   },
   Modals: {
@@ -65,7 +65,7 @@ export default {
       async viewMappings({state, actions}) {
         let obj = {};
         //Get and construct relevant mappings for this rule
-        let tps = await actions.oada.getList('trading-partners');
+        let tps = await actions.oadaHelper.getList('trading-partners');
         let selectedRule = state.view.Modals.RulesModal.Edit.rule;
         let inverse = false;
         let listType = selectedRule.mappings;
@@ -73,7 +73,7 @@ export default {
         if (listType === 'facilities') {
           inverse = true;
         }
-        let list = await actions.oada.getList(listType);
+        let list = await actions.oadaHelper.getList(listType);
 
 
         if (inverse) {
@@ -179,7 +179,7 @@ export default {
       showDocument({state}, {resourceId}) {
         //Find document key for resourceId
         DOC_TYPES.forEach((docType) => {
-          let docKey = _.chain(state.oada.data[docType]).findKey({_id: resourceId}).value();
+          let docKey = _.chain(state.oadaHelper.data[docType]).findKey({_id: resourceId}).value();
           if (docKey) {
             state.view.Modals.FileDetailsModal.documentKey = docKey;
             state.view.Modals.FileDetailsModal.docType = docType;
@@ -188,12 +188,12 @@ export default {
       },
       viewPDF({ state, actions }, {documentKey, docType}) {
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
       },
       downloadPDF({state, actions}, {documentKey, docType}) {
         return request.request({
-          url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
+          url: `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
           method: 'get',
           headers: {
             Authorization: 'Bearer ' + state.oada.token
@@ -205,7 +205,7 @@ export default {
         }).then((filename) => {
           if (filename == null) filename = 'file.pdf';
           return request.request({
-            url: `${state.oada.url}/bookmarks/trellisfw/${docType}/${documentKey}/_meta/vdoc/pdf`,
+            url: `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf`,
             method: 'get',
             responseType: 'blob',
             headers: {
@@ -229,7 +229,7 @@ export default {
         const docType = state.view.Modals.FileDetailsModal.docType;
         return Promise.map(shareKeys, (taskKey) => {
           return actions.oada.put({
-            url: `/bookmarks/trellisfw/${docType}/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
+            url: `${state.oada.path}/${docType}/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
             data: {status: "approved"},
             headers: {
               'Content-Type': 'application/json',
@@ -344,7 +344,7 @@ export default {
               return moment(key, 'YYYY-MM-DD').isValid()
             });
             return Promise.map(validDates, async (key) => {
-              return actions.oada.loadEventLog(key);
+              return actions.oadaHelper.loadEventLog(key);
             }, { concurrency: 5 });
           },
 
@@ -365,7 +365,7 @@ export default {
               async (date) => {
                 let myRows = myState[date].data.rows;
                 if (myRows === null || myRows === undefined) {
-                  myRows = await actions.oada.getReportRows({
+                  myRows = await actions.oadaHelper.getReportRows({
                     path: 'event-log',
                     date
                   });
@@ -411,7 +411,7 @@ export default {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
-              return actions.oada.loadUserAccess(key);
+              return actions.oadaHelper.loadUserAccess(key);
             }, { concurrency: 5 });
           },
 
@@ -431,7 +431,7 @@ export default {
               async (date) => {
                 let myRows = myState[date].data.rows;
                 if (myRows === undefined || myState == null) {
-                  myRows = await actions.oada.getReportRows({
+                  myRows = await actions.oadaHelper.getReportRows({
                     path: 'current-tradingpartnershares',
                     date,
                   });
@@ -472,7 +472,7 @@ export default {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
             return Promise.map(validDates, async (key) => {
-              return actions.oada.loadDocumentShares(key);
+              return actions.oadaHelper.loadDocumentShares(key);
             }, { concurrency: 5 });
           },
 
@@ -492,7 +492,7 @@ export default {
               async (date) => {
                 let myRows = myState[date].data.rows;
                 if (myRows === undefined || myState == null) {
-                  myRows = await actions.oada.getReportRows({
+                  myRows = await actions.oadaHelper.getReportRows({
                     path: 'current-shareabledocs',
                     date
                   });
@@ -536,7 +536,7 @@ export default {
           const docType = 'fsqa-audits';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oada.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -551,7 +551,7 @@ export default {
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
           state.view.Modals.FileDetailsModal.sharedWith = [];
-          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType, documentKey});
         }
       }
     },
@@ -565,7 +565,7 @@ export default {
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
             console.log('loading', key);
-            return actions.oada.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -580,7 +580,7 @@ export default {
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
           state.view.Modals.FileDetailsModal.sharedWith = [];
-          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType, documentKey});
         }
       }
     },
@@ -594,7 +594,7 @@ export default {
           const docType = 'fsqa-certificates';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oada.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -609,7 +609,7 @@ export default {
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
           state.view.Modals.FileDetailsModal.sharedWith = [];
-          state.view.Modals.FileDetailsModal.sharedWith = await actions.oada.getTradingPartners({docType, documentKey});
+          state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType, documentKey});
         }
       }
     },
@@ -633,7 +633,7 @@ export default {
             state.view.Pages.Data.uploading[id] = {
               filename: file.name
             };
-            return actions.oada.uploadFile(file).then(() => {
+            return actions.oadaHelper.uploadFile(file).then(() => {
               delete state.view.Pages.Data.uploading[id];
             })
           });
@@ -645,7 +645,7 @@ export default {
           const docType = 'documents';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oada.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -658,7 +658,7 @@ export default {
           //If this is a PDF show pdf viewer
           if (rowData.type == 'application/pdf') {
             state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-            state.view.Modals.PDFViewerModal.url = `${state.oada.url}/bookmarks/trellisfw/documents/${documentKey}`
+            state.view.Modals.PDFViewerModal.url = `${state.oada.url}${state.oada.path}/documents/${documentKey}`
             state.view.Modals.PDFViewerModal.open = true;
           }
         }

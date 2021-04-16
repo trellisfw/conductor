@@ -51,7 +51,7 @@ export default {
 
     let putResponse = await actions.oada.put({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
-      url: path,
+      path,
       data: {_id, _rev: 0}
     })
     return
@@ -60,9 +60,9 @@ export default {
   async deleteShare({state, actions}) {
     let key = state.view.Modals.RulesModal.Edit.key;
     let path = `${SHARES_PATH}/${key}`;
-    let response = await actions.oada.del({
+    let response = await actions.oada.delete({
       headers: { 'Content-Type': 'application/vnd.oada.ainz.rule.1+json' },
-      url: path,
+      path,
     })
   },
 
@@ -76,13 +76,13 @@ export default {
 
   async loadShares({state, actions}) {
     try {
-      let response = await actions.oada.get(SHARES_PATH);
+      let response = await actions.oada.get({path:SHARES_PATH});
       let results = Object.keys(response.data)
         .filter(key => key.charAt(0) !== '_')
       if (results.length > 0) {
         state.app.config.tabs.rules = true;
         results.forEach(async (key) => {
-          let shareResponse = await actions.oada.get(`${SHARES_PATH}/${key}`);
+          let shareResponse = await actions.oada.get({path:`${SHARES_PATH}/${key}`});
           //TODO: this 404s immediately after deleting
           if (shareResponse && shareResponse.data) actions.rules.mapShare({key, share: shareResponse.data});
         })

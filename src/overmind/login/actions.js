@@ -8,11 +8,11 @@ export default {
 
     //Connect to oada, getting token if we don't have one
     //TODO catch error (if oada server is down)
-    await actions.oada.connect({domain, token});
+    await actions.oadaHelper.connect({domain, token});
 
     //See if our token is correct (can we get /users/me)
     if (state.oada.token) {
-      let me = await actions.oada.get('/users/me')
+      let me = await actions.oada.get({path:'/users/me'})
       if (me.error) {
         const err = me.error;
         state.login.loading = false;
@@ -29,13 +29,13 @@ export default {
         state.login.name = me && me.data && me.data.username;
         // Keep track of the last-used domain URL so refresh doesn't set it back to localhost all the time:
         window.localStorage['oada:domain'] = state.oada.url;
-        await actions.oada.initialize()
+        await actions.oadaHelper.initialize()
         state.login.loggedIn = true;
       }
     }
   },
   async logout({ state, actions }) {
-    await actions.oada.logout();
+    await actions.oadaHelper.logout();
     state.login.token = null;
     state.login.loggedIn = false;
   },

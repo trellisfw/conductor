@@ -37,9 +37,6 @@ export default {
         // redirect browser to ask for one
         console.log('Do not have an access token, redirecting...')
         let res = await getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
-          metadata: config.oada.devcert,
-          scope: 'all:all',
-          redirect: config.oada.redirect
         })
         token = res.access_token
       }
@@ -53,19 +50,29 @@ export default {
     state.oada.token = token
     console.log('Token: ' + token);
     console.log('Have token, connecting to oada with WebSocket...')
-    await effects.oada.websocket.connect(state.oada.url)
+    await actions.oada.connect({
+      token: '2pgKX9He05laIRfHsSy-TtH7cFN1wLuyW9st9yKT',
+      domain: state.oada.url,
+      options: {
+        metadata: config.oada.devcert,
+        scope: 'all:all',
+        redirect: config.oada.redirect,
+        cache: false
+      }
+    })
     console.log('Websocket connected')
   },
-  async initialize({actions}) {
-    actions.oada.initializeConfig();
-    actions.oada.initializeDocuments();
-    actions.oada.initializeLookups();
-    actions.oada.initializeReports();
+  async initialize({state, actions}) {
+    state.oada.data = {};
+    actions.oadaHelper.initializeConfig();
+    actions.oadaHelper.initializeDocuments();
+    actions.oadaHelper.initializeLookups();
+    actions.oadaHelper.initializeReports();
     actions.rules.initialize();
   },
   async initializeConfig({state, actions}) {
     //Load config
-    let response = await actions.oada.get(`/bookmarks/conductor`)
+    let response = await actions.oada.get({path:`/bookmarks/conductor`})
     if (response.error) {
       if (response.error.response && response.error.response.status === 404) {
         console.log('No config exists for this user. Using defaults.');
@@ -77,7 +84,7 @@ export default {
   async initializeLookups({state, actions}) {
   // Get expanded list of trading partners
     await Promise.each(LIST_TYPES, async (type) => {
-      let response = await actions.oada.get(`/bookmarks/trellisfw/${type}/expand-index`)
+      let response = await actions.oada.get({path:`/bookmarks/trellisfw/${type}/expand-index`})
       if (response.error) {
         if (response.error.response && response.error.response.status === 404) {
           console.log(`no ${type} present for current user`);
@@ -92,12 +99,12 @@ export default {
   async initializeDocuments({state, actions}) {
     //Create /trellisfw if it does not exist
     let path = state.oada.path || '/bookmarks/trellisfw';
-    let exists = await actions.oada
+    let exists = await actions.oadaHelper
       .doesResourceExist(path)
     if (!exists) {
       console.log(`${path} does not exist.  Creating...`)
       //Create /trellisfw
-      await actions.oada.createAndPutResource({
+      await actions.oadaHelper.createAndPutResource({
         url: path,
         data: {}
       })
@@ -108,11 +115,11 @@ export default {
 
       state.oada.data[docType] = {}
 
-      exists = await actions.oada
+      exists = await actions.oadaHelper
         .doesResourceExist(`${path}/${docType}`)
       if (!exists) {
         //Create documents
-        await actions.oada.createAndPutResource({
+        await actions.oadaHelper.createAndPutResource({
           url: `${path}/${docType}`,
           data: {},
           contentType: `application/vnd.trellis.${docType}.1+json`
@@ -126,28 +133,27 @@ export default {
       // need to figure out how to pluck docType out of responses
       if (docType == 'documents') {
         await actions.oada
-          .watch({
-            url: `${path}/${docType}`,
-            actionName: 'oada.onDocumentsChange'
+          .get({
+            path: `${path}/${docType}`,
+            watch: { actions:[ actions.oadaHelper.onDocumentsChange]}
           })
       } else if (docType == 'cois') {
         await actions.oada
-          .watch({
-            url: `${path}/${docType}`,
-            actionName: 'oada.onCOISChange'
+          .get({
+            path: `${path}/${docType}`,
+            watch: { actions:[ actions.oadaHelper.onCOISChange]}
           })
       } else if (docType == 'fsqa-audits') {
         await actions.oada
-          .watch({
-            url: `${path}/${docType}`,
-            actionName: 'oada.onAuditsChange'
+          .get({
+            path: `${path}/${docType}`,
+            watch: { actions:[ actions.oadaHelper.onAuditsChange]}
           })
       }
 
       //Get all the documents ids in /trellisfw/${docType}
       let response = await actions.oada
-        .get(`${path}/${docType}`)
-      console.log('dat', response.data);
+        .get({path:`${path}/${docType}`})
       let docKeys = _.filter(
         Object.keys(response.data),
         key => _.startsWith(key, '_') === false
@@ -162,7 +168,7 @@ export default {
   },
 
   async initializeReports({state, actions}) {
-    const hasReports = await actions.oada
+    const hasReports = await actions.oadaHelper
       .doesResourceExist('/bookmarks/services/trellis-reports');
 
     if (!hasReports) {
@@ -183,16 +189,17 @@ export default {
         data: {'day-index': {}},
       });
     }
-
+    
+    //TODO: move all of this to trellis...
     state.oada.data['Reports'] = {
       eventLog: {},
       userAccess: {},
       documentShares: {},
     };
 
-    actions.oada.initializeEventLog();
-    actions.oada.initializeUserAccess();
-    actions.oada.initializeDocumentShares();
+    actions.oadaHelper.initializeEventLog();
+    actions.oadaHelper.initializeUserAccess();
+    actions.oadaHelper.initializeDocumentShares();
   },
 
   async initializeEventLog({actions, state}) {
@@ -201,7 +208,7 @@ export default {
       console.log('Getting Event Log');
       days = await actions
         .oada
-        .get('/bookmarks/services/trellis-reports/event-log/day-index')
+        .get({path: '/bookmarks/services/trellis-reports/event-log/day-index'})
         .then((res) => {
           return Object.keys(res.data);
         });
@@ -224,7 +231,7 @@ export default {
       console.log('Getting User Access');
       days = await actions
         .oada
-        .get('/bookmarks/services/trellis-reports/current-tradingpartnershares/day-index')
+        .get({path:'/bookmarks/services/trellis-reports/current-tradingpartnershares/day-index'})
         .then((res) => {
           return Object.keys(res.data);
         });
@@ -246,7 +253,7 @@ export default {
       console.log('Getting Event Log');
       days = await actions
         .oada
-        .get('/bookmarks/services/trellis-reports/current-shareabledocs/day-index')
+        .get({path: '/bookmarks/services/trellis-reports/current-shareabledocs/day-index'})
         .then((res) => {
           return Object.keys(res.data);
         });
@@ -274,8 +281,9 @@ export default {
         if (_.get(doc, '_meta.lookups.coi') == null) return [];
         //One CoI holder to many TPs
         ref = doc._meta.lookups.coi.holder._ref;
-        holder = await actions.oada.get(ref)
-        tps = holder.data['trading-partners']
+        holder = await actions.oada.get({path:ref})
+        console.log(holder);
+        tps = holder.data['trading-partners'] || {};
         tps = Object.keys(tps).map(masterid => {
           const partner = _.find(EXPAND['trading-partners'], {masterid});
           if (partner) return {
@@ -289,7 +297,7 @@ export default {
       case 'fsqa-audits':
         if (_.get(doc, '_meta.lookups.fsqa-audit.organization') == null) return [];
         ref = doc._meta.lookups['fsqa-audit']['organization']._ref;
-        organization = await actions.oada.get(ref)
+        organization = await actions.oada.get({path:ref})
         masterid = organization.data.masterid;
         tps = _.filter(EXPAND['trading-partners'], (tp) => {
           if (tp.facilities == null) return false;
@@ -306,7 +314,7 @@ export default {
       case 'fsqa-certificates':
         if (_.get(doc, '_meta.lookups.fsqa-certificate.organization') == null) return [];
         ref = doc._meta.lookups['fsqa-certificate']['organization']._ref;
-        organization = await actions.oada.get(ref)
+        organization = await actions.oada.get({path:ref})
         masterid = organization.data.masterid;
         tps = _.filter(EXPAND['trading-partners'], (tp) => {
           if (tp.facilities == null) return false;
@@ -348,7 +356,7 @@ export default {
         //Add filename info to the pdf
         return actions.oada
           .put({
-            url: `/resources/${id}/_meta`,
+            path: `/resources/${id}/_meta`,
             data: {
               filename: file.name
             },
@@ -361,7 +369,7 @@ export default {
             let pathPrefix = state.oada.path;
             return actions.oada
               .put({
-                url: `${pathPrefix}/documents/${id}`,
+                path: `${pathPrefix}/documents/${id}`,
                 data: {
                   _id: 'resources/' + id,
                   _rev: 0
@@ -474,7 +482,7 @@ export default {
     let pathPrefix = state.oada.path || '/bookmarks/trellisfw';
     let path = `${pathPrefix}/${docType}/${documentId}`;
     return actions.oada
-      .get(path)
+      .get({path})
       .then(response => {
         if (response == null) throw Error('No data for ' + documentId)
         //If doc already exists merge in data
@@ -489,7 +497,7 @@ export default {
       }).then(() => {
         //Load the _meta for this document
         return actions.oada
-          .get(path + `/_meta`)
+          .get({path:path + `/_meta`})
           .then(response => {
             if (response == null) throw Error('No meta data for ' + documentId)
             const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
@@ -690,7 +698,7 @@ export default {
       id = id[id.length - 1]
       return actions.oada
         .post({
-          url: url,
+          path: url,
           headers: {
             'Content-Type': contentType || 'application/json'
           },
@@ -732,13 +740,12 @@ export default {
       })
   },
   createAndPutResource({actions}, {url, data, contentType}) {
-    return actions.oada.createResource({data, contentType}).then(response => {
-      console.log('response', response)
+    return actions.oadaHelper.createResource({data, contentType}).then(response => {
       //Link this new resource at the url provided
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
       return actions.oada.put({
-        url,
+        path: url,
         headers: {
           'Content-Type': contentType || 'application/json'
         },
@@ -752,16 +759,16 @@ export default {
   createResource({actions}, {data, contentType}) {
     var headers = {}
     headers['content-type'] = contentType || 'application/json'
-    return actions.oada.post({url: '/resources', data, headers})
+    return actions.oada.post({path: '/resources', data, headers})
   },
   createResourceHTTP({actions}, {data, contentType}) {
     var headers = {}
     headers['content-type'] = contentType || 'application/json'
-    return actions.oada.postHTTP({url: '/resources', data, headers})
+    return actions.oadaHelper.postHTTP({url: '/resources', data, headers})
   },
   doesResourceExist({actions}, url) {
     return actions.oada
-      .head(url)
+      .head({path:url})
       .then(response => {
         if (response.error) {
           if (response.error.response && response.error.response.status === 404) return false
@@ -771,7 +778,7 @@ export default {
       });
   },
   get({effects, state}, url) {
-    return effects.oada.websocket.http({
+    return effects.oadaHelper.websocket.http({
       method: 'GET',
       url: url,
       headers: {
@@ -782,7 +789,7 @@ export default {
     });
   },
   head({effects, state}, url) {
-    return effects.oada.websocket.http({
+    return effects.oadaHelper.websocket.http({
       method: 'HEAD',
       url: url,
       headers: {
