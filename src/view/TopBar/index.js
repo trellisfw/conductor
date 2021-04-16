@@ -13,6 +13,12 @@ function TopBar() {
   const skin = state.app.skin;
   const tp = state.view.tp;
   const tps = state.tps || {};
+
+  let tpItem = tp ? 
+    <Dropdown.Item icon='sign-out' text='Back to Smithfield' value='sf' onClick={actions.view.TopBar.toSmithfield} />
+    :
+    <Dropdown.Item icon='sign-in' text='Login as Trading Partner' value='tp' onClick={actions.view.TopBar.tpSelect} />
+
   return (
     <div css={{
       display: 'flex',
@@ -28,16 +34,9 @@ function TopBar() {
         paddingLeft: '20px'
       }} src={'skins/'+skin+'/'+state.app.skins[skin].logo.src} alt="logo" />
       <div css={{marginRight: 50}}>
-          <Dropdown text={tp}>
+          <Dropdown fluid icon="user circle" text={state.login.name}>
             <Dropdown.Menu>
-              {Object.keys(tps).map(key =>
-                <Dropdown.Item text={tps[key].name} value={key} onClick={(evt, {value}) => {actions.view.TopBar.changeTp(value)}} />
-              )}
-            </Dropdown.Menu>
-          </Dropdown>
-
-          <Dropdown text={state.login.name}>
-            <Dropdown.Menu>
+              {tpItem}
               <Dropdown.Item icon='power' text='Logout' value='logout' onClick={actions.view.TopBar.logout} />
             </Dropdown.Menu>
           </Dropdown>

@@ -11,6 +11,7 @@ import Pages from './view/Pages';
 import FileDetailsModal from './view/Modals/FileDetailsModal';
 import RulesModal from './view/Modals/RulesModal';
 import PDFViewerModal from './view/Modals/PDFViewerModal';
+import TPSelectModal from './view/Modals/TPSelectModal';
 import Login from './Login';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
         <FileDetailsModal />
         <RulesModal />
         <PDFViewerModal />
+        <TPSelectModal />
       </div>
 
     </div>

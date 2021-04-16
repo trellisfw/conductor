@@ -17,16 +17,44 @@ export default {
       actions.login.logout()
       actions.oadaHelper.logout();
     },
-    changeTp({state, actions}, props) {
-      state.view.tp = state.tps[props].name;
-      state.oada.path = `/bookmarks/trellisfw/trading-partners/${props}/bookmarks/trellisfw`
-      actions.oadaHelper.initializeDocuments();
+    tpSelect({state, actions}) {
+      state.view.Modals.TPSelectModal.open = true;
     },
+    toSmithfield({state, actions}) {
+      delete state.view.tp;
+      delete state.view.Modals.TPSelectModal.key;
+      state.oada.path = `/bookmarks/trellisfw`
+      actions.oadaHelper.initializeDocuments();
+    }
   },
   Modals: {
     EditRuleModal: {
       close({state, actions}) {
         state.view.Modals.EditRuleModal.open = false;
+      }
+    },
+    TPSelectModal: {
+      done({state, actions}) {
+        if (state.view.Modals.TPSelectModal.tp) {
+          state.view.tp = state.view.Modals.TPSelectModal.tp;
+          let key = state.view.Modals.TPSelectModal.key;
+          state.oada.path = `/bookmarks/trellisfw/trading-partners/${key}/bookmarks/trellisfw`
+          actions.oadaHelper.initializeDocuments();
+        }
+        state.view.Modals.TPSelectModal.open = false;
+      },
+      close({state}) {
+        state.view.Modals.TPSelectModal.open = false;
+      },
+      changeTP({state, actions}, props) {
+        state.view.Modals.TPSelectModal.tp = state.tps[props].name;
+        state.view.Modals.TPSelectModal.key = props;
+      },
+      onSearchChange({state, actions}, props) {
+        state.view.Modals.TPSelectModal.options = props.data;
+      },
+      checkPending({state, actions}, props) {
+        state.view.Modals.TPSelectModal.pending = !state.view.Modals.TPSelectModal.pending;
       }
     },
     RulesModal: {

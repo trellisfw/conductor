@@ -5,7 +5,6 @@ import moment from 'moment'
 //let DOC_TYPES = [ 'documents', 'cois', 'fsqa-audits', 'fsqa-certificates', 'letters-of-guarantee'];
 
 export default {
-  tp: 'Smithfield',
   Pages: {
     lastSelectedPage: null,
     selectedPage: ({}, state) => {
@@ -403,6 +402,10 @@ export default {
         template: {},
         rule: {},
       },
+    },
+    TPSelectModal: {
+      open: false,
+      pending: false,
     },
     FileDetailsModal: {
       open: false,
