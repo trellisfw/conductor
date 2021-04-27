@@ -98,6 +98,7 @@ function Table ({docType}) {
           <Column label='Producer' dataKey='producer' width={300} />
           <Column label='Insured' dataKey='insured' width={300} />
           <Column width={200} label='Added' dataKey='createdAt' />
+          <Column label='Share Status' dataKey='shareStatus' width={300} />
           <Column
             dataKey='name'
             className='signature'

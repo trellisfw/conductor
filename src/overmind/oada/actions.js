@@ -98,70 +98,86 @@ export default {
 
   async initializeDocuments({state, actions}) {
     //Create /trellisfw if it does not exist
-    let path = state.oada.path || '/bookmarks/trellisfw';
-    let exists = await actions.oadaHelper
-      .doesResourceExist(path)
-    if (!exists) {
-      console.log(`${path} does not exist.  Creating...`)
-      //Create /trellisfw
-      await actions.oadaHelper.createAndPutResource({
-        url: path,
-        data: {}
-      })
-    }
-
-    //Create document endpoints if they do not exist
-    DOC_TYPES.forEach(async (docType) => {
-
-      state.oada.data[docType] = {}
-
-      exists = await actions.oadaHelper
-        .doesResourceExist(`${path}/${docType}`)
+    let tp = state.view.tp ? true : false;
+    let pat = state.oada.path || '/bookmarks/trellisfw';
+    let paths = tp ? [`${pat}/shared/trellisfw`, `${pat}/bookmarks/trellisfw`]
+      : [pat]
+    await Promise.each(paths, async path => {
+      let exists = await actions.oadaHelper
+        .doesResourceExist(path)
       if (!exists) {
-        //Create documents
+        console.log(`${path} does not exist.  Creating...`)
+        //Create /trellisfw
         await actions.oadaHelper.createAndPutResource({
-          url: `${path}/${docType}`,
-          data: {},
-          contentType: `application/vnd.trellis.${docType}.1+json`
+          url: path,
+          data: {}
         })
       }
 
-      console.log('Setting watches...')
-      //Watch for changes to /trellisfw/documents
-      //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
-      // are many other keys with changes being made at that level
-      // need to figure out how to pluck docType out of responses
-      if (docType == 'documents') {
-        await actions.oada
-          .get({
-            path: `${path}/${docType}`,
-            watch: { actions:[ actions.oadaHelper.onDocumentsChange]}
-          })
-      } else if (docType == 'cois') {
-        await actions.oada
-          .get({
-            path: `${path}/${docType}`,
-            watch: { actions:[ actions.oadaHelper.onCOISChange]}
-          })
-      } else if (docType == 'fsqa-audits') {
-        await actions.oada
-          .get({
-            path: `${path}/${docType}`,
-            watch: { actions:[ actions.oadaHelper.onAuditsChange]}
-          })
-      }
+      //Create document endpoints if they do not exist
+      DOC_TYPES.forEach(async (docType) => {
 
-      //Get all the documents ids in /trellisfw/${docType}
-      let response = await actions.oada
-        .get({path:`${path}/${docType}`})
-      let docKeys = _.filter(
-        Object.keys(response.data),
-        key => _.startsWith(key, '_') === false
-      )
+        state.oada.data[docType] = {}
 
-      //Save space for documents
-      _.forEach(docKeys, (key) => {
-        state.oada.data[docType][key] = null;
+        exists = await actions.oadaHelper
+          .doesResourceExist(`${path}/${docType}`)
+        if (!exists) {
+          //Create documents
+          await actions.oadaHelper.createAndPutResource({
+            url: `${path}/${docType}`,
+            data: {},
+            contentType: `application/vnd.trellis.${docType}.1+json`
+          })
+        }
+
+        console.log('Setting watches...')
+        //Watch for changes to /trellisfw/documents
+        //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
+        // are many other keys with changes being made at that level
+        // need to figure out how to pluck docType out of responses
+        if (docType == 'documents') {
+          await actions.oada
+            .get({
+              path: `${path}/${docType}`,
+              watch: { 
+                actions:[ actions.oadaHelper.onDocumentsChange],
+                payload: {path}
+              }
+            })
+        } else if (docType == 'cois') {
+          await actions.oada
+            .get({
+              path: `${path}/${docType}`,
+              watch: { 
+                actions:[ actions.oadaHelper.onCOISChange],
+                payload: {path}
+              }
+            })
+        } else if (docType == 'fsqa-audits') {
+          await actions.oada
+            .get({
+              path: `${path}/${docType}`,
+              watch: { 
+                actions:[ actions.oadaHelper.onAuditsChange],
+                payload: {path}
+              }
+            })
+        }
+
+        //Get all the documents ids in /trellisfw/${docType}
+        let response = await actions.oada
+          .get({path:`${path}/${docType}`})
+        if (response.data) {
+          let docKeys = _.filter(
+            Object.keys(response.data),
+            key => _.startsWith(key, '_') === false
+          )
+
+          //Save space for documents
+          _.forEach(docKeys, (key) => {
+            state.oada.data[docType][key] = { path }
+          })
+        }
       })
     })
 
@@ -282,7 +298,6 @@ export default {
         //One CoI holder to many TPs
         ref = doc._meta.lookups.coi.holder._ref;
         holder = await actions.oada.get({path:ref})
-        console.log(holder);
         tps = holder.data['trading-partners'] || {};
         tps = Object.keys(tps).map(masterid => {
           const partner = _.find(EXPAND['trading-partners'], {masterid});
@@ -408,56 +423,58 @@ export default {
     })
   },
   onCOISChange({state, actions}, response) {
+    let {payload, type, body} = response;
+    let {path} = payload;
     //If a key was added or changed reload that document
     console.log('onCOISChange', response)
-    return Promise.map(_.get(response, 'change'), (change) => {
-      if (_.get(change, 'type') == 'merge') {
+//    return Promise.map(_.get(response, 'change'), (change) => {
+      if (type === 'merge') {
         //Get all the keys that do not start with _
         let keys = _.filter(
-          Object.keys(_.get(change, 'body')),
+          Object.keys(body),
           key => _.startsWith(key, '_') === false
         )
         //Reload meta for all these pdfs
         return Promise.map(keys, documentId => {
-          return actions.oada.loadDocument({docType: 'cois', documentId})
+          return actions.oadaHelper.loadDocument({docType: 'cois', documentId, path})
         })
-      } else if (_.get(change, 'type') == 'delete') {
+      } else if (type === 'delete') {
         //Remove documents with these keys
         let keys = _.filter(
-          Object.keys(_.get(change, 'body')),
+          Object.keys(body),
           key => _.startsWith(key, '_') === false
         )
         _.forEach(keys, key => {
           delete state.oada.data['cois'][key]
         })
       }
-    })
+//    })
   },
   onAuditsChange({state, actions}, response) {
+    let {payload, type, body} = response;
+    let {path} = payload;
     //If a key was added or changed reload that document
     console.log('onAuditsChange', response)
-    return Promise.map(_.get(response, 'change'), (change) => {
-      if (_.get(change, 'type') == 'merge') {
+      if (type === 'merge') {
         //Get all the keys that do not start with _
         let keys = _.filter(
-          Object.keys(_.get(change, 'body')),
+          Object.keys(body),
           key => _.startsWith(key, '_') === false
         )
         //Reload meta for all these pdfs
         return Promise.map(keys, documentId => {
-          return actions.oada.loadDocument({docType: 'fsqa-audits', documentId})
+          return actions.oadaHelper.loadDocument({docType: 'fsqa-audits', documentId, path})
         })
-      } else if (_.get(change, 'type') == 'delete') {
+      } else if (type === 'delete') {
         //Remove documents with these keys
         let keys = _.filter(
-          Object.keys(_.get(change, 'body')),
+          Object.keys(body),
           key => _.startsWith(key, '_') === false
         )
         _.forEach(keys, key => {
           delete state.oada.data['fsqa-audits'][key]
         })
       }
-    })
   },
   loadMeta({state, actions}, {documentId, docType}) {
     let pathPrefix = state.oada.path || '/bookmarks/trellisfw';
@@ -478,9 +495,8 @@ export default {
         console.log('Error. Failed to load document _meta', documentId)
       });
   },
-  loadDocument({state, actions}, {documentId, docType}) {
-    let pathPrefix = state.oada.path || '/bookmarks/trellisfw';
-    let path = `${pathPrefix}/${docType}/${documentId}`;
+  loadDocument({state, actions}, {documentId, docType, path}) {
+    path = `${path}/${docType}/${documentId}`;
     return actions.oada
       .get({path})
       .then(response => {
@@ -488,9 +504,9 @@ export default {
         //If doc already exists merge in data
         const orgData = _.get(state.oada.data, `${docType}.${documentId}`) || {}
         _.set(state.oada.data, `${docType}.${documentId}`, _.merge(
-          {},
+          {shared: /shared/.test(path)},
           orgData,
-          response.data
+          response.data,
         ));
       }).catch(err => {
         console.log('Error. Failed to load document', documentId)

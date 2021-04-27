@@ -209,8 +209,10 @@ export default {
               documentKey: documentKey,
               docType: 'fsqa-audits',
               filename: _.get(document, 'organization.name') || '',
+              path: _.get(document, 'path'),
               type: 'FSQA Audit',
               shares,
+              shareStatus: _.get(document, 'shared') ? 'Pending' : 'Approved',
               score: _.get(document, 'score.final'),
               validity: _.get(document, 'certificate_validity_period'),
               createdAt,
@@ -255,11 +257,13 @@ export default {
               holder: _.get(document, 'holder.name') || '',
               producer: _.get(document, 'producer.name') || '',
               insured: _.get(document, 'insured.name') || '',
+              shareStatus: _.get(document, 'shared') ? 'Pending' : 'Approved',
               signed: (_.get(document, 'signatures') || []).length > 0,
               type: 'COI',
               createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created'),
-              processingService: 'target'
+              path: _.get(document, 'path'),
+              processingService: 'target',
             }
           }
         )

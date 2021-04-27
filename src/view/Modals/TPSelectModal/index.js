@@ -39,11 +39,6 @@ function TPSelectModal(props) {
           text={tp}
           options={options}
         />
-        <Checkbox
-          checked={myState.pending}
-          onClick={myActions.checkPending}
-          label='View pending docs'
-        />
         <Button
           onClick={myActions.done}
         >

@@ -38,7 +38,9 @@ export default {
         if (state.view.Modals.TPSelectModal.tp) {
           state.view.tp = state.view.Modals.TPSelectModal.tp;
           let key = state.view.Modals.TPSelectModal.key;
-          state.oada.path = `/bookmarks/trellisfw/trading-partners/${key}/bookmarks/trellisfw`
+//          let location = state.view.Modals.TPSelectModal.pending ? 'shared' : 'bookmarks';
+//          state.view.pending = state.view.Modals.TPSelectModal.pending;
+          state.oada.path = `/bookmarks/trellisfw/trading-partners/${key}`
           actions.oadaHelper.initializeDocuments();
         }
         state.view.Modals.TPSelectModal.open = false;
@@ -559,7 +561,8 @@ export default {
         state.view.Pages.Audits.search = value;
       },
       Table: {
-        loadDocumentKeys({state, actions}, documentKeys) {
+        loadDocumentKeys({state, actions}, documents) {
+          let documentKeys = Object.keys(documents);
           console.log('Audits - loadDocumentKeys', documentKeys)
           const docType = 'fsqa-audits';
           let keys = documentKeys.sort();
@@ -588,12 +591,13 @@ export default {
         state.view.Pages.COIS.search = value;
       },
       Table: {
-        loadDocumentKeys({state, actions}, documentKeys) {
+        loadDocumentKeys({state, actions}, documents) {
+          let documentKeys = Object.keys(documents);
           const docType = 'cois';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
             console.log('loading', key);
-            return actions.oadaHelper.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key, path: documents[key].path });
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
