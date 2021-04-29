@@ -19,7 +19,6 @@ function TPSelectModal(props) {
     value: key,
   })).filter(o => o.text)  
   options = _.sortBy(options, ['text'])
-  console.log(options)
 
   return (
     <Modal open={myState.open} onClose={myActions.close}>

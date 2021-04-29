@@ -8,9 +8,10 @@ function wrapper(overmindLoadFunc) {
 
   function loadRows() {
 //    const documentKeys = _.keys(loadBatch);
+    const documents = _.clone(loadBatch);
     loadBatch = {};
     if (omLoadFunc) {
-      return omLoadFunc(loadBatch);
+      return omLoadFunc(documents);
 //      return omLoadFunc(documentKeys);
     } else {
       if (omLoadFunc == null) {
@@ -22,13 +23,13 @@ function wrapper(overmindLoadFunc) {
   }
   let debouncedLoadRows = _.debounce(loadRows, 300, {maxWait: 1000});
   function getRow(row) {
-    console.log("ROW", row);
     //Check if loaded
-    if (_.isEmpty(_.omit(row, 'documentKey'))) {
+//    if (_.isEmpty(_.omit(row, 'documentKey'))) {
+    if (!row.loaded) {
       //Not loaded, load it
       if (loading[row.documentKey] != true) {
         loading[row.documentKey] = true
-        loadBatch[row.documentKey] = {row};
+        loadBatch[row.documentKey] = row;
         debouncedLoadRows()
       }
     }

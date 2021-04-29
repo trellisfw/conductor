@@ -46,7 +46,7 @@ function TopBar() {
       }} src={'skins/'+skin+'/'+state.app.skins[skin].logo.src} alt="logo" />
       <div css={{marginRight: 50, display: 'flex', flexDirection: 'column'}}>
         <Dropdown fluid icon="user circle" text={state.login.name}>
-          <Dropdown.Menu>
+          <Dropdown.Menu direction='left'>
             {tpItem}
             <Dropdown.Item icon='sign-in' text='Login as Trading Partner' value='tp' onClick={actions.view.TopBar.tpSelect} />
             <Dropdown.Item icon='power' text='Logout' value='logout' onClick={actions.view.TopBar.logout} />

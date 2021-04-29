@@ -5,7 +5,6 @@ import { jsx, css } from '@emotion/core'
 
 import 'react-virtualized/styles.css'
 import { Column, Table as RTable, AutoSizer, InfiniteLoader } from 'react-virtualized'
-import { Icon } from 'semantic-ui-react'
 import overmind from '../../../overmind'
 import _ from 'lodash'
 import moment from 'moment'
@@ -16,14 +15,13 @@ import TargetIcon from './icons/TargetIcon'
 import classnames from 'classnames'
 import infiniteLoader from '../infiniteLoader'
 
-function Table ({docType, identified}) {
+function Table ({docType}) {
   const { actions, state } = overmind()
   const myActions = actions.view.Pages.Data.Table
   const myState = state.view.Pages.Data
-  let collection = myState.Table || [];
-  collection = identified ? collection.filter(c => c.identified) : collection.filter(c => !c.identified)
-  const il = infiniteLoader(identified ? 'IdentifiedDocuments' : 'Documents', myActions.loadDocumentKeys);
-//  if (identified && collection.length === 0) return null;
+  const collection = myState.Table || [];
+  collection.filter(c => !c.identified)
+  const il = infiniteLoader('Documents', myActions.loadDocumentKeys);
 
   return (
     <AutoSizer>
@@ -94,8 +92,7 @@ function Table ({docType, identified}) {
               !rowData || rowData.processingService !== 'target' ? (
                 ''
               ) : (
-                identified ? <TargetIcon /> :
-                  <Icon name='circle notched' loading />
+                <TargetIcon />
               )
             }
           />
@@ -106,6 +103,7 @@ function Table ({docType, identified}) {
             dataKey='type'
             cellRenderer={({ rowData }) => {
               if (rowData.type) {
+                console.log('rowData.type', rowData.type);
                 if (rowData.masked) {
                   return <div>{`${rowData.type} - Masked`}</div>
                 }

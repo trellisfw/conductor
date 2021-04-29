@@ -23,7 +23,7 @@ export default {
     toSmithfield({state, actions}) {
       delete state.view.tp;
       delete state.view.Modals.TPSelectModal.key;
-      state.oada.path = `/bookmarks/trellisfw`
+      state.oadaHelper.path = `/bookmarks/trellisfw`
       actions.oadaHelper.initializeDocuments();
     }
   },
@@ -40,7 +40,7 @@ export default {
           let key = state.view.Modals.TPSelectModal.key;
 //          let location = state.view.Modals.TPSelectModal.pending ? 'shared' : 'bookmarks';
 //          state.view.pending = state.view.Modals.TPSelectModal.pending;
-          state.oada.path = `/bookmarks/trellisfw/trading-partners/${key}`
+          state.oadaHelper.path = `/bookmarks/trellisfw/trading-partners/${key}`
           actions.oadaHelper.initializeDocuments();
         }
         state.view.Modals.TPSelectModal.open = false;
@@ -162,9 +162,7 @@ export default {
       async searchMappings({state, actions}, value) {
         state.view.Modals.RulesModal.Edit.mappingSearchValue = value;
         // fuseSearch created when mappings are initialized above
-        console.log('start')
         let results = fuseSearch.search(value);
-        console.log('end')
         state.view.Modals.RulesModal.Edit.mappingSearchResults = results.map(item => item.refIndex);
       },
 
@@ -217,13 +215,17 @@ export default {
         })
       },
       viewPDF({ state, actions }, {documentKey, docType}) {
+        let tp = state.view.tp;
+        let path = tp ? `${state.oadaHelper.path}/bookmarks/trellisfw` : `/bookmarks/trellisfw`
         state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-        state.view.Modals.PDFViewerModal.url = `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf`
+        state.view.Modals.PDFViewerModal.url = `${state.oada.url}${path}/${docType}/${documentKey}/_meta/vdoc/pdf`
         state.view.Modals.PDFViewerModal.open = true;
       },
       downloadPDF({state, actions}, {documentKey, docType}) {
+        let tp = state.view.tp;
+        let path = tp ? `${state.oadaHelper.path}/bookmarks/trellisfw` : `/bookmarks/trellisfw`
         return request.request({
-          url: `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
+          url: `${state.oada.url}${path}/${docType}/${documentKey}/_meta/vdoc/pdf/_meta`,
           method: 'get',
           headers: {
             Authorization: 'Bearer ' + state.oada.token
@@ -235,7 +237,7 @@ export default {
         }).then((filename) => {
           if (filename == null) filename = 'file.pdf';
           return request.request({
-            url: `${state.oada.url}${state.oada.path}/${docType}/${documentKey}/_meta/vdoc/pdf`,
+            url: `${state.oada.url}${path}/${docType}/${documentKey}/_meta/vdoc/pdf`,
             method: 'get',
             responseType: 'blob',
             headers: {
@@ -251,6 +253,8 @@ export default {
         state.view.Modals.FileDetailsModal.showData = !state.view.Modals.FileDetailsModal.showData;
       },
       share({ state, actions }) {
+        let tp = state.view.tp;
+        let path = tp ? `${state.oadaHelper.path}/bookmarks/trellisfw` : `/bookmarks/trellisfw`
         //Share to all the share options
         const shareKeys = _.map(state.view.Modals.FileDetailsModal.share, (share, key) => {
           return key;
@@ -259,7 +263,7 @@ export default {
         const docType = state.view.Modals.FileDetailsModal.docType;
         return Promise.map(shareKeys, (taskKey) => {
           return actions.oada.put({
-            url: `${state.oada.path}/${docType}/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
+            url: `${path}/${docType}/${documentKey}/_meta/services/approval/tasks/${taskKey}`,
             data: {status: "approved"},
             headers: {
               'Content-Type': 'application/json',
@@ -307,7 +311,6 @@ export default {
   Pages: {
     Reports: {
       onStart({ state }, value) {
-        // console.log('value: ', value);
         const dt = moment(value, 'YYYY-MM-DD');
         if (dt.isValid()) {
           state.view.Pages.Reports.startDate = value;
@@ -567,7 +570,7 @@ export default {
           const docType = 'fsqa-audits';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oadaHelper.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key, path: documents[key].path});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -596,7 +599,6 @@ export default {
           const docType = 'cois';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            console.log('loading', key);
             return actions.oadaHelper.loadDocument({docType, documentId: key, path: documents[key].path });
           }, {concurrency: 5})
         },
@@ -607,7 +609,7 @@ export default {
           console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
           const doc = state.oada.data[docType][documentKey];
-          //Show file detial model
+          //Show file detail model
           state.view.Modals.FileDetailsModal.docType = docType;
           state.view.Modals.FileDetailsModal.documentKey = documentKey;
           state.view.Modals.FileDetailsModal.open = true;
@@ -621,12 +623,13 @@ export default {
         state.view.Pages.Certificates.search = value;
       },
       Table: {
-        loadDocumentKeys({state, actions}, documentKeys) {
+        loadDocumentKeys({state, actions}, documents) {
+          let documentKeys = Object.keys(documents);
           console.log('Certificates - loadDocumentKeys', documentKeys)
           const docType = 'fsqa-certificates';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oadaHelper.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key, path: documents[key].path});
           }, {concurrency: 5})
         },
         async onRowClick({ state, actions }, {rowData}) {
@@ -662,36 +665,57 @@ export default {
           return Promise.map(files, (file) => {
             //Add an `uploading` file
             const id = uuid();
+            /*
             state.view.Pages.Data.uploading[id] = {
-              filename: file.name
+              filename: file.name,
+              documentKey: id,
             };
+            */
             return actions.oadaHelper.uploadFile(file).then(() => {
-              delete state.view.Pages.Data.uploading[id];
+//              delete state.view.Pages.Data.uploading[id];
             })
           });
         }
       },
       Table: {
-        loadDocumentKeys({state, actions}, documentKeys) {
+        loadDocumentKeys({state, actions}, documents) {
+          let documentKeys = Object.keys(documents);
           console.log('Unidentified Files - loadDocumentKeys', documentKeys)
           const docType = 'documents';
           let keys = documentKeys.sort();
           return Promise.map(keys, async (key) => {
-            return actions.oadaHelper.loadDocument({docType, documentId: key});
+            return actions.oadaHelper.loadDocument({docType, documentId: key, path: documents[key].path});
           }, {concurrency: 5})
         },
-        async onRowClick({ state, actions }, {rowData}) {
+        async onRowClick({ state, actions }, props) {
+          let {rowData, index} = props;
           const documentKey = rowData.documentKey
-          const docType = rowData.docType;
+          let docType = rowData.docType;
           console.log('Selected Document:')
           console.log('key', documentKey, 'data', rowData)
           if (documentKey == null) return; //Uploading doc
 
           //If this is a PDF show pdf viewer
-          if (rowData.type == 'application/pdf') {
-            state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
-            state.view.Modals.PDFViewerModal.url = `${state.oada.url}${state.oada.path}/documents/${documentKey}`
-            state.view.Modals.PDFViewerModal.open = true;
+          console.log('clicked and type is', rowData.type);
+          switch(rowData.type) {
+            case 'application/pdf':
+              let tp = state.view.tp;
+              let path = tp ? `${state.oadaHelper.path}/bookmarks/trellisfw` : `/bookmarks/trellisfw`
+              state.view.Modals.PDFViewerModal.headers = {Authorization: 'Bearer '+state.oada.token}
+              state.view.Modals.PDFViewerModal.url = `${state.oada.url}${path}/documents/${documentKey}`
+              state.view.Modals.PDFViewerModal.open = true;
+              state.view.MessageLog.path = `oada.data.documents.${documentKey}`
+              break;
+          // Handle modal viewers for all other types
+            default:
+              let doc = state.oada.data.documents[documentKey].identified;
+              state.view.MessageLog.path = `oada.data.documents.${documentKey}`
+              state.view.Modals.FileDetailsModal.docType = doc.docType;
+              state.view.Modals.FileDetailsModal.documentKey = doc.docKey;
+              state.view.Modals.FileDetailsModal.open = true;
+              state.view.Modals.FileDetailsModal.sharedWith = [];
+              state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType: doc.docType, documentKey:doc.docKey});
+              break;
           }
         }
       }

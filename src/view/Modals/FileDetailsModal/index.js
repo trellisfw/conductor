@@ -9,6 +9,7 @@ import overmind from '../../../overmind'
 import Header from './Header';
 import Content from './Content';
 import Sharing from './Sharing'
+import MessageLog from '../../Widgets/MessageLog'
 
 function FileDetailsModal(props) {
   const { actions, state } = overmind();
@@ -21,6 +22,7 @@ function FileDetailsModal(props) {
         <div css={{minHeight: 350, display: 'flex', flexDirection: 'column'}}>
           <Content />
           <Sharing />
+          <MessageLog />
         </div>
       </Modal.Content>
     </Modal>

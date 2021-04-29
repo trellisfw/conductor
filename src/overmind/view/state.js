@@ -304,6 +304,7 @@ export default {
               docType: 'fsqa-certificates',
               organization: _.get(document, 'organization.name') || '',
               org_location: org_location || '',
+              path: _.get(document, 'path'),
               signed: (_.get(document, 'signatures') || []).length > 0,
               type: 'COI',
               createdAt,
@@ -340,7 +341,7 @@ export default {
             }
             //Filter out docs with vdoc in meta, don't show them
             if (_.get(document, '_meta.vdoc') != null) {
-              return null;
+              //return null;
             }
             //Pull out status from target
             const tasks = _.get(document, '_meta.services.target.jobs') || {}
@@ -359,14 +360,32 @@ export default {
               createdAt = '';
             }
 
+            /*
+            let messages = [];
+            let jobs = _.get(document, `_meta.services.target.jobs`)
+            console.log('COMPUTING', jobs);
+            Object.values(jobs || {}).forEach(({updates}) => {
+              messages.push(...Object.values(updates || {})
+                .filter(obj => obj.information || obj.meta)
+                .map(obj => ({
+                  text: obj.information || obj.meta,
+                  time: moment(obj.time, 'X').fromNow()
+                }))
+              )
+            })
+            */
+
             return {
               documentKey: documentKey,
-              docType: 'documents',
+              docType: document.docType || 'documents',
               filename: _.get(document, '_meta.filename') || '',
-              type: fileDetails.type,
+              identified: document.identified,
+              type: document.type || fileDetails.type,
               createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created'),
-              processingService
+              path: _.get(document, 'path'),
+              processingService,
+              //messages,
             }
           }
         )
@@ -381,12 +400,13 @@ export default {
         }
         _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
           collection.unshift({
+            documentKey: _.get(file, 'documentKey'),
             filename: file.filename,
             status: 'uploading'
           })
         })
         return collection;
-      }
+      },
     },
     Rules: {
     }
@@ -460,6 +480,7 @@ export default {
     },
     PDFViewerModal: {
       open: false
-    }
-  }
+    },
+  },
+  MessageLog: {}
 }

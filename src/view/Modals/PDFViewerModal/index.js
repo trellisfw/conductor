@@ -4,18 +4,21 @@ import React from 'react';
 import { jsx, css } from '@emotion/core'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
+import MessageLog from '../../Widgets/MessageLog'
+
 import { Document, Page } from 'react-pdf';
 
 import overmind from '../../../overmind'
+import moment from 'moment'
 import _ from 'lodash'
-import { Modal, Icon, Button } from 'semantic-ui-react'
+import { Header, Message, Modal, Icon, Button } from 'semantic-ui-react'
 import {useMemo} from 'react';
 
 function PDFViewerModal(props) {
   const { actions, state } = overmind();
   const myActions = actions.view.Modals.PDFViewerModal;
   const myState = state.view.Modals.PDFViewerModal;
-  let { pageNumber, numPages, url, headers } = myState;
+  let { pageNumber, numPages, url, headers} = myState;
   pageNumber = pageNumber || 1;
 
   const file = useMemo(
@@ -66,6 +69,7 @@ function PDFViewerModal(props) {
             </div>
           </div>
         </div>
+        <MessageLog />
       </Modal.Content>
     </Modal>
   );
