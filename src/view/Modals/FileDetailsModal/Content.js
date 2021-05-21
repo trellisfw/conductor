@@ -63,14 +63,14 @@ function Content (props) {
       >
         <div
           css={{ cursor: 'pointer' }}
-          onClick={() => myActions.viewPDF({documentKey: myState.documentKey, docType: myState.docType})}
+          onClick={() => myActions.viewPDF({docKey: myState.docKey, docType: myState.docType})}
         >
           {'VIEW PDF'}
         </div>
         &nbsp;&nbsp;|&nbsp;&nbsp;
         <div
           css={{ cursor: 'pointer' }}
-          onClick={() => myActions.downloadPDF({documentKey: myState.documentKey, docType: myState.docType})}
+          onClick={() => myActions.downloadPDF({docKey: myState.docKey, docType: myState.docType})}
         >
           {'DOWNLOAD PDF'}
         </div>
@@ -78,7 +78,7 @@ function Content (props) {
         <div
           css={{ cursor: 'pointer' }}
           onClick={() =>
-            myActions.toggleShowData(_.get(myState, 'documentKey'))
+            myActions.toggleShowData(_.get(myState, 'docKey'))
           }
         >
           {myState.showData ? 'HIDE DATA' : 'VIEW DATA'}

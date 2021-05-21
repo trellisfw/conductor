@@ -76,7 +76,7 @@ function DocumentSharesTable({ docType }) {
           }}
           rowHeight={30}
           width={width}
-          onRowClick={({ rowData }) => myActions.toggleCheckbox(rowData.documentKey)}
+          onRowClick={({ rowData }) => myActions.toggleCheckbox(rowData.docKey)}
         >
 
           <Column
@@ -97,13 +97,13 @@ function DocumentSharesTable({ docType }) {
               return (
                 <Checkbox
                   // checked={false}
-                  checked={state.oada.data.Reports.documentShares[rowData.documentKey].checked}
+                  checked={state.oada.data.Reports.documentShares[rowData.docKey].checked}
                 />
               );
             }}
           />
 
-          <Column label='Date' dataKey='documentKey' width={200} />
+          <Column label='Date' dataKey='docKey' width={200} />
 
           <Column
             width={400}

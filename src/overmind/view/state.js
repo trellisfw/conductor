@@ -73,22 +73,22 @@ export default {
             return reportDate.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
-            if (!myState[documentKey].data) {
-              return { documentKey };
+          return valid.map((docKey) => {
+            if (!myState[docKey].data) {
+              return { docKey };
             }
             try {
               return {
-                checked: myState[documentKey].checked,
-                documentKey,
-                numDocuments: myState[documentKey].data.numDocuments,
-                numEvents: myState[documentKey].data.numEvents,
-                numEmails: myState[documentKey].data.numEmails,
-                numShares: myState[documentKey].data.numShares,
+                checked: myState[docKey].checked,
+                docKey,
+                numDocuments: myState[docKey].data.numDocuments,
+                numEvents: myState[docKey].data.numEvents,
+                numEmails: myState[docKey].data.numEmails,
+                numShares: myState[docKey].data.numShares,
               };
             } catch (e) {
               return {
-                documentKey,
+                docKey,
               };
             }
           });
@@ -116,21 +116,21 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
-            if (!myState[documentKey].data) {
-              return { documentKey };
+          return valid.map((docKey) => {
+            if (!myState[docKey].data) {
+              return { docKey };
             }
             try {
               return {
-                checked: myState[documentKey].checked,
-                documentKey,
-                numTradingPartners: myState[documentKey].data.numTradingPartners,
-                numTPWODocs: myState[documentKey].data.numTPWODocs,
-                totalShares: myState[documentKey].data.totalShares,
+                checked: myState[docKey].checked,
+                docKey,
+                numTradingPartners: myState[docKey].data.numTradingPartners,
+                numTPWODocs: myState[docKey].data.numTPWODocs,
+                totalShares: myState[docKey].data.totalShares,
               };
             } catch (e) {
               return {
-                documentKey,
+                docKey,
               };
             }
           });
@@ -158,21 +158,21 @@ export default {
             return date.format('YYYY-MM-DD');
           });
 
-          return valid.map((documentKey) => {
-            if (!myState[documentKey].data) {
-              return { documentKey };
+          return valid.map((docKey) => {
+            if (!myState[docKey].data) {
+              return { docKey };
             }
             try {
               return {
-                checked: myState[documentKey].checked,
-                documentKey,
-                numDocsToShare: myState[documentKey].data.numDocsToShare,
-                numExpiredDocuments: myState[documentKey].data.numExpiredDocuments,
-                numDocsNotShared: myState[documentKey].data.numDocsNotShared,
+                checked: myState[docKey].checked,
+                docKey,
+                numDocsToShare: myState[docKey].data.numDocsToShare,
+                numExpiredDocuments: myState[docKey].data.numExpiredDocuments,
+                numDocsNotShared: myState[docKey].data.numDocsNotShared,
               };
             } catch (e) {
               return {
-                documentKey,
+                docKey,
               };
             }
           });
@@ -189,11 +189,11 @@ export default {
         const docKeys = _.keys(documents).sort().reverse();
         const now = moment()
         let collection = _.map(docKeys,
-          (documentKey) => {
-            const document = documents[documentKey];
+          (docKey) => {
+            const document = documents[docKey];
             if (!document) {
-              unloadedDocs.push({documentKey})
-              return {documentKey};
+              unloadedDocs.push({docKey})
+              return {docKey};
             }
             let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
             if (createdAt.isValid()) {
@@ -206,7 +206,7 @@ export default {
             if (shares == null) shares = _.chain(document).get('_meta.services.trellis-shares.jobs').keys().value().length;
 
             return {
-              documentKey: documentKey,
+              docKey: docKey,
               docType: 'fsqa-audits',
               filename: _.get(document, 'organization.name') || '',
               path: _.get(document, 'path'),
@@ -239,11 +239,11 @@ export default {
         const documents = _.get(state, `oada.data.cois`);
         const docKeys = _.keys(documents).sort().reverse();
         let collection = _.map(docKeys,
-          (documentKey) => {
-            const document = documents[documentKey];
+          (docKey) => {
+            const document = documents[docKey];
             if (!document) {
-              unloadedDocs.push({documentKey})
-              return {documentKey};
+              unloadedDocs.push({docKey})
+              return {docKey};
             }
             let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
             if (createdAt.isValid()) {
@@ -252,12 +252,15 @@ export default {
               createdAt = '';
             }
             return {
-              documentKey: documentKey,
+              docKey: docKey,
               docType: 'cois',
               holder: _.get(document, 'holder.name') || '',
               producer: _.get(document, 'producer.name') || '',
               insured: _.get(document, 'insured.name') || '',
-              shareStatus: _.get(document, 'shared') ? 'Pending' : 'Approved',
+              flSync: {
+                validStatus: _.get(document, ['_meta', 'services', 'fl-sync', 'valid', 'status']) ? 'Valid' : 'Invalid',
+                shareStatus: _.get(document, 'shared') ? 'Pending' : 'Approved',
+              },
               signed: (_.get(document, 'signatures') || []).length > 0,
               type: 'COI',
               createdAt,
@@ -286,11 +289,11 @@ export default {
         const documents = _.get(state, `oada.data.fsqa-certificates`);
         const docKeys = _.keys(documents).sort().reverse();
         let collection = _.map(docKeys,
-          (documentKey) => {
-            const document = documents[documentKey];
+          (docKey) => {
+            const document = documents[docKey];
             if (!document) {
-              unloadedDocs.push({documentKey})
-              return {documentKey};
+              unloadedDocs.push({docKey})
+              return {docKey};
             }
             let createdAt = moment.utc(_.get(document, '_meta.stats.created'), 'X')
             if (createdAt.isValid()) {
@@ -300,7 +303,7 @@ export default {
             }
             let org_location = `${_.get(document, 'organization.location.street_address')} - ${_.get(document, 'organization.location.city')}, ${_.get(document, 'organization.location.state')}`
             return {
-              documentKey: documentKey,
+              docKey: docKey,
               docType: 'fsqa-certificates',
               organization: _.get(document, 'organization.name') || '',
               org_location: org_location || '',
@@ -333,11 +336,11 @@ export default {
         const documents = _.get(state, `oada.data.documents`);
         const docKeys = _.keys(documents).sort().reverse();
         let collection = _.map(docKeys,
-          (documentKey) => {
-            const document = documents[documentKey];
+          (docKey) => {
+            const document = documents[docKey];
             if (!document) {
-              unloadedDocs.push({documentKey})
-              return {documentKey};
+              unloadedDocs.push({docKey})
+              return {docKey};
             }
             //Filter out docs with vdoc in meta, don't show them
             if (_.get(document, '_meta.vdoc') != null) {
@@ -376,11 +379,13 @@ export default {
             */
 
             return {
-              documentKey: documentKey,
+              docKey: docKey,
               docType: document.docType || 'documents',
               filename: _.get(document, '_meta.filename') || '',
               identified: document.identified,
               type: document.type || fileDetails.type,
+              shareStatus: _.get(document, 'shared') ? 'Pending' : 'Approved',
+              validStatus: _.get(document, ['_meta', 'services', 'fl-sync', 'valid', 'status']) ? 'Valid' : 'Invalid',
               createdAt,
               createdAtUnix: _.get(document, '_meta.stats.created'),
               path: _.get(document, 'path'),
@@ -400,7 +405,7 @@ export default {
         }
         _.forEach(_.get(state, 'view.Pages.Data.uploading'), file => {
           collection.unshift({
-            documentKey: _.get(file, 'documentKey'),
+            docKey: _.get(file, 'docKey'),
             filename: file.filename,
             status: 'uploading'
           })
@@ -433,14 +438,14 @@ export default {
     },
     FileDetailsModal: {
       open: false,
-      documentKey: null,
+      docKey: null,
       docType: null,
       showData: false,
-      document: ({ documentKey, docType }, state) => {
+      document: ({ docKey, docType }, state) => {
         //Get the document
         return (
           _.chain(state)
-            .get(`oada.data.${docType}.${documentKey}`)
+            .get(`oada.data.${docType}.${docKey}`)
             .value() || {}
         )
       },

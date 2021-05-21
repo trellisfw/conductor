@@ -7,12 +7,12 @@ function wrapper(overmindLoadFunc) {
   let omLoadFunc = overmindLoadFunc;
 
   function loadRows() {
-//    const documentKeys = _.keys(loadBatch);
+//    const docKeys = _.keys(loadBatch);
     const documents = _.clone(loadBatch);
     loadBatch = {};
     if (omLoadFunc) {
       return omLoadFunc(documents);
-//      return omLoadFunc(documentKeys);
+//      return omLoadFunc(docKeys);
     } else {
       if (omLoadFunc == null) {
         console.warn('No overmind action provided to infiniteLoader')
@@ -24,12 +24,12 @@ function wrapper(overmindLoadFunc) {
   let debouncedLoadRows = _.debounce(loadRows, 300, {maxWait: 1000});
   function getRow(row) {
     //Check if loaded
-//    if (_.isEmpty(_.omit(row, 'documentKey'))) {
+//    if (_.isEmpty(_.omit(row, 'docKey'))) {
     if (!row.loaded) {
       //Not loaded, load it
-      if (loading[row.documentKey] != true) {
-        loading[row.documentKey] = true
-        loadBatch[row.documentKey] = row;
+      if (loading[row.docKey] != true) {
+        loading[row.docKey] = true
+        loadBatch[row.docKey] = row;
         debouncedLoadRows()
       }
     }

@@ -76,7 +76,7 @@ function EventLogTable({ docType }) {
           }}
           rowHeight={30}
           width={width}
-          onRowClick={({ rowData }) => myActions.toggleCheckbox(rowData.documentKey)}
+          onRowClick={({ rowData }) => myActions.toggleCheckbox(rowData.docKey)}
         >
 
           <Column
@@ -93,13 +93,13 @@ function EventLogTable({ docType }) {
             cellRenderer={({ rowData }) => {
               return (
                 <Checkbox
-                  checked={state.oada.data.Reports.eventLog[rowData.documentKey].checked}
+                  checked={state.oada.data.Reports.eventLog[rowData.docKey].checked}
                 />
               );
             }}
           />
 
-          <Column label='Date' dataKey='documentKey' width={300} />
+          <Column label='Date' dataKey='docKey' width={300} />
 
           <Column
             width={300}

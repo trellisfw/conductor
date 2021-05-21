@@ -20,7 +20,7 @@ function MessageLog() {
         .filter(obj => obj.information || obj.meta)
         .map(obj => ({
           text: obj.information || obj.meta,
-          time: moment(obj.time, 'X').fromNow()
+          time: (moment(obj.time, 'X').year() > 2000 ? moment(obj.time, 'X').add(4, 'hours') : moment(obj.time)).fromNow()
         }))
       )
     })

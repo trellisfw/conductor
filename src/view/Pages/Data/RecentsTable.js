@@ -122,7 +122,7 @@ function Table ({docType}) {
                     <div css={{ marginLeft: 3 }}>{'Uploading...'}</div>
                   </div>
                 )
-              } else if (_.isEmpty(_.omit(rowData, 'documentKey'))) {
+              } else if (_.isEmpty(_.omit(rowData, 'docKey'))) {
                 return <div></div>
               } else {
                 return <div></div>
@@ -146,6 +146,10 @@ function Table ({docType}) {
               )
             }}
           />
+          {state.view.tp ? 
+            <Column width={140} label='Share Status' dataKey='shareStatus' />
+            : null
+          }
         </RTable>
       )}
     </AutoSizer>

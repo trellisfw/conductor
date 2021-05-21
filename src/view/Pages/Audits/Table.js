@@ -120,7 +120,7 @@ function Table ({docType}) {
                     <div css={{ marginLeft: 3 }}>{'Uploading...'}</div>
                   </div>
                 )
-              } else if (_.isEmpty(_.omit(rowData, 'documentKey'))) {
+              } else if (_.isEmpty(_.omit(rowData, 'docKey'))) {
                 return <div></div>
               } else {
                 return <div>{'Unknown'}</div>

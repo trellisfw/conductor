@@ -54,7 +54,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -o github -d build",
+    "deploy": "gh-pages -o github -d build --remote prod",
     "start": "concurrently \"overmind-devtools\" \"react-scripts start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",

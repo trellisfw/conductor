@@ -19,6 +19,7 @@ function PDFViewerModal(props) {
   const myActions = actions.view.Modals.PDFViewerModal;
   const myState = state.view.Modals.PDFViewerModal;
   let { pageNumber, numPages, url, headers} = myState;
+  console.log('PDF HERES THE URL', url);
   pageNumber = pageNumber || 1;
 
   const file = useMemo(

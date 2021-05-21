@@ -121,7 +121,6 @@ export default {
 
         exists = await actions.oadaHelper
           .doesResourceExist(`${path}/${docType}`)
-        console.log(path, docType, 'EXISTS', exists);
         if (!exists) {
           //Create documents
           await actions.oadaHelper.createAndPutResource({
@@ -131,13 +130,24 @@ export default {
           })
         }
 
+        //Wipe out all the old watches
+        //TODO: this may be a bit too severe...
+        let oldWatches = _.get(state, ['oada', state.oada.defaultConn, 'watches'])
+        await Promise.each(Object.keys(oldWatches || {}), async key => {
+          await actions.oada.delete({
+            path: key,
+            unwatch: true
+          })
+        })
+
+
         console.log('Setting watches...')
         //Watch for changes to /trellisfw/documents
         //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
         // are many other keys with changes being made at that level
         // need to figure out how to pluck docType out of responses
         if (docType == 'documents') {
-          await actions.oada
+                    await actions.oada
             .get({
               path: `${path}/${docType}`,
               watch: { 
@@ -286,8 +296,8 @@ export default {
     });
   },
 
-  async getTradingPartners({state, actions}, {docType, documentKey}) {
-    let doc = state.oada.data[docType][documentKey];
+  async getTradingPartners({state, actions}, {docType, docKey}) {
+    let doc = state.oada.data[docType][docKey];
     let ref = null;
     let organization = null;
     let masterid = null;
@@ -398,86 +408,99 @@ export default {
           });
       })
   },
-  onDocumentsChange({state, actions}, response) {
+  async onDocumentsChange({state, actions}, response) {
     let {payload, type, body} = response;
     let tpPath = payload ? payload.path : undefined;
     let path = tpPath || `/bookmarks/trellisfw`
     //If a key was added or changed reload that document
     console.log('onDocumentsChange', response)
-//    return Promise.map(_.get(response, 'change'), (change) => {
-      if (type === 'merge') {
-        //Get all the keys that do not start with _
-        let keys = _.filter(
-          Object.keys(body),
-          key => _.startsWith(key, '_') === false
-        )
+    if (type === 'merge') {
+      //Get all the keys that do not start with _
+      let keys = _.filter(
+        Object.keys(body),
+        key => _.startsWith(key, '_') === false
+      )
 
-        let types = {
-          'cois': 'COI',
-          'fsqa-audits': 'FSQA Audit',
-          'fsqa-certificates': 'FSQA Certificate'
-        }
+      let types = {
+        'cois': 'COI',
+        'fsqa-audits': 'FSQA Audit',
+        'fsqa-certificates': 'FSQA Certificate'
+      }
 
-        // The change we're looking for here will come in on an existing
-        // document resource (the response path will have the document key)
-        let vdocs =_.get(body, ['_meta', 'vdoc'])
-        Object.keys(vdocs || {}).forEach(async docType => {
-          let key = response.path.replace(/^\//, '');
-          Object.keys(vdocs[docType] || {}).forEach(async docKey=> {
-            state.oada.data.documents[key].identified = {
-              docType,
-              docKey
-            }
-            // Make the entry for the recently ided table
-            state.oada.data.documents[key].type = types[docType];
-            state.oada.data.documents[key].docType = types[docType];
-            state.oada.data.documents[key].key = docKey;
-            await actions.oadaHelper.loadDocument({docType, documentId:docKey, path})
-            /*
-            recents[key] = {
-              docType,
-              docKey,
-              ref: vdocs[docType][docKey].ref
-            }
-            */
-          })
+      // Once recognized, the unidentified document will contain a _meta
+      // vdoc entry including the type and key in the appropriate 
+      // identified docs list
+      let vdocs =_.get(body, ['_meta', 'vdoc'])
+      await Promise.each(Object.keys(vdocs || {}), async docType => {
+        let key = response.path.replace(/^\//, '');
+        await Promise.each(Object.keys(vdocs[docType] || {}), async docKey=> {
+          state.oada.data.documents[key].identified = {
+            docType,
+            docKey
+          }
+          // Make the entry for the recently ided table
+          state.oada.data.documents[key].type = types[docType];
+          state.oada.data.documents[key].docType = types[docType];
+          state.oada.data.documents[key].key = docKey;
+          await actions.oadaHelper.loadDocument({docType, docKey, path})
+
+          // Swap out UI
+          if (state.view.Modals.PDFViewerModal.open) {
+            state.view.Modals.FileDetailsModal.docType = docType;
+            state.view.Modals.FileDetailsModal.docKey = docKey;
+            state.view.Modals.FileDetailsModal.sharedWith = [];
+            state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType, docKey: docKey})
+            state.view.Modals.PDFViewerModal.open = false;
+            state.view.Modals.FileDetailsModal.open = true;
+          }
+          /*
+          recents[key] = {
+            docType,
+            docKey,
+            ref: vdocs[docType][docKey].ref
+          }
+          */
         })
+      })
 
-
-        //Load Target job updates
-        let jobs =_.get(body, ['_meta', 'services', 'target', 'jobs'])
-        Object.keys(jobs || {}).forEach(async (jobId) => {
-          await actions.oadaHelper.fetchTargetJob({
-            watch: true,
-            path: jobs[jobId]._ref, 
-            documentId: response.path.replace(/^\//, ''),
-            docType: 'documents', 
-            jobId
-          })
+      //Load Target job updates
+      let jobs =_.get(body, ['_meta', 'services', 'target', 'jobs'])
+      Object.keys(jobs || {}).forEach(async (jobId) => {
+        await actions.oadaHelper.fetchTargetJob({
+          watch: true,
+          path: jobs[jobId]._ref, 
+          docKey: response.path.replace(/^\//, ''),
+          docType: 'documents', 
+          jobId
         })
+      })
 
-        /*
-        if (!state.oada.data['recents']) state.oada.data.recents = {};
-        _.forEach(keys, key => {
-          state.oada.data.recents[key] = _.clone(state.oada.data['documents'][key])
-        })
-        */
-
-        //Reload meta for all these pdfs
-        return Promise.map(keys, documentId => {
-          return actions.oadaHelper.loadMeta({docType: 'documents', documentId, path})
-        })
-      } else if (type === 'delete') {
-        //Remove documents with these keys
-        let keys = _.filter(
-          Object.keys(body),
-          key => _.startsWith(key, '_') === false
-        )
-        _.forEach(keys, key => {
-//          delete state.oada.data['documents'][key]
+      // Add new documents to the index
+      if (tpPath) {
+        await Promise.map(keys, docKey => {
+          let shared = /shared/.test(tpPath);
+          if (!state.oada.data.documents[docKey]) state.oada.data.documents[docKey] = {
+            shared,
+            path: tpPath,
+            _id: body[docKey]._id
+          };
         })
       }
-//    })
+
+      //Reload meta for all these pdfs
+      await Promise.map(keys, async docKey => {
+        await actions.oadaHelper.loadMeta({docType: 'documents', docKey, path})
+      })
+    } else if (type === 'delete') {
+      //Remove documents with these keys
+      let keys = _.filter(
+        Object.keys(body),
+        key => _.startsWith(key, '_') === false
+      )
+      _.forEach(keys, key => {
+//          delete state.oada.data['documents'][key]
+      })
+    }
   },
   onCOISChange({state, actions}, response) {
     let {payload, type, body} = response;
@@ -485,28 +508,26 @@ export default {
     let path = tpPath || `/bookmarks/trellisfw`
     //If a key was added or changed reload that document
     console.log('onCOISChange', response)
-//    return Promise.map(_.get(response, 'change'), (change) => {
-      if (type === 'merge') {
-        //Get all the keys that do not start with _
-        let keys = _.filter(
-          Object.keys(body),
-          key => _.startsWith(key, '_') === false
-        )
-        //Reload meta for all these pdfs
-        return Promise.map(keys, documentId => {
-          return actions.oadaHelper.loadDocument({docType: 'cois', documentId, path})
-        })
-      } else if (type === 'delete') {
-        //Remove documents with these keys
-        let keys = _.filter(
-          Object.keys(body),
-          key => _.startsWith(key, '_') === false
-        )
-        _.forEach(keys, key => {
-          delete state.oada.data['cois'][key]
-        })
-      }
-//    })
+    if (type === 'merge') {
+      //Get all the keys that do not start with _
+      let keys = _.filter(
+        Object.keys(body),
+        key => _.startsWith(key, '_') === false
+      )
+      //Reload meta for all these pdfs
+      return Promise.map(keys, docKey => {
+        return actions.oadaHelper.loadDocument({docType: 'cois', docKey, path})
+      })
+    } else if (type === 'delete') {
+      //Remove documents with these keys
+      let keys = _.filter(
+        Object.keys(body),
+        key => _.startsWith(key, '_') === false
+      )
+      _.forEach(keys, key => {
+        delete state.oada.data['cois'][key]
+      })
+    }
   },
   onAuditsChange({state, actions}, response) {
     let {payload, type, body} = response;
@@ -521,8 +542,8 @@ export default {
           key => _.startsWith(key, '_') === false
         )
         //Reload meta for all these pdfs
-        return Promise.map(keys, documentId => {
-          return actions.oadaHelper.loadDocument({docType: 'fsqa-audits', documentId, path})
+        return Promise.map(keys, docKey => {
+          return actions.oadaHelper.loadDocument({docType: 'fsqa-audits', docKey, path})
         })
       } else if (type === 'delete') {
         //Remove documents with these keys
@@ -537,8 +558,8 @@ export default {
   },
   onTargetJobChange({state, actions}, response) {
     let {payload, type, body} = response;
-    let {jobId, docType, documentId} = payload;
-    let jobPath = `${docType}.${documentId}._meta.services.target.jobs.${jobId}`
+    let {jobId, docType, docKey} = payload;
+    let jobPath = `${docType}.${docKey}._meta.services.target.jobs.${jobId}`
     const orgJobMeta = _.get(state.oada.data, jobPath)
     const newMeta = _.merge(
       {},
@@ -554,12 +575,12 @@ export default {
     _.set(state.oada.data, jobPath, newMeta);
 
   },
-  async fetchTargetJob({state, actions}, {watch, docType, documentId, path, jobId}) {
-    let jobPath = `${docType}.${documentId}._meta.services.target.jobs.${jobId}`
+  async fetchTargetJob({state, actions}, {watch, docType, docKey, path, jobId}) {
+    let jobPath = `${docType}.${docKey}._meta.services.target.jobs.${jobId}`
     let request = {path};
     if (watch) request.watch = {
       actions:[ actions.oadaHelper.onTargetJobChange],
-      payload: {jobId, path, docType, documentId}
+      payload: {jobId, path, docType, docKey}
     }
     let response = await actions.oada.get(request)
       .then(response => {
@@ -573,77 +594,90 @@ export default {
         //Merge in stats and services
         _.set(state.oada.data, `${jobPath}`, newMeta);
       }).catch(err => {
-        console.log('Error. Failed to load document _meta', documentId)
+        console.log('Error. Failed to load document _meta', docKey)
       });
 
 
   },
-  loadMeta({state, actions}, {documentId, docType, path}) {
-    path = `${path}/${docType}/${documentId}/_meta`;
+  loadMeta({state, actions}, {docKey, docType, path}) {
+    path = `${path}/${docType}/${docKey}/_meta`;
     return actions.oada
       .get({path})
       .then(response => {
-        if (response == null) throw Error('No meta data for ' + documentId)
-        const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
+        if (response == null) throw Error('No meta data for ' + docKey)
+        const orgMeta = _.get(state.oada.data, `${docType}.${docKey}._meta`)
         const newMeta = _.merge(
           {},
           orgMeta,
           _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc'])
         )
         //Merge in stats and services
-        _.set(state.oada.data, `${docType}.${documentId}._meta`, newMeta);
+        _.set(state.oada.data, `${docType}.${docKey}._meta`, newMeta);
       }).catch(err => {
-        console.log('Error. Failed to load document _meta', documentId)
+        console.log('Error. Failed to load document _meta', docKey)
       });
   },
-  loadDocument({state, actions}, {documentId, docType, path}) {
-    path = `${path}/${docType}/${documentId}`;
+  loadDocument({state, actions}, {docKey, docType, path}) {
+    path = `${path}/${docType}/${docKey}`;
+    if (docType === 'documents') {
+      path = `/${state.oada.data.documents[docKey]._id}`;
+    }
     return actions.oada
       .get({path})
       .then(response => {
-        if (response == null) throw Error('No data for ' + documentId)
+        if (response == null) throw Error('No data for ' + docKey)
         //If doc already exists merge in data
-        const orgData = _.get(state.oada.data, `${docType}.${documentId}`) || {}
-        _.set(state.oada.data, `${docType}.${documentId}`, _.merge(
-          {shared: /shared/.test(path), loaded: true },
-          orgData,
-          response.data,
-        ));
+        const orgData = _.get(state.oada.data, `${docType}.${docKey}`) || {}
+        if (response.headers['content-type'] === 'application/pdf') {
+          // Don't put pdf data into the state...
+          _.set(state.oada.data, `${docType}.${docKey}`, _.merge(
+            {shared: /shared/.test(path), loaded: true },
+            orgData,
+            {},
+          ));
+        } else {
+          _.set(state.oada.data, `${docType}.${docKey}`, _.merge(
+            {shared: /shared/.test(path), loaded: true },
+            orgData,
+            response.data,
+          ));
+        }
       }).catch(err => {
-        console.log('Error. Failed to load document', documentId)
+        console.log('Error. Failed to load document', docKey)
       }).then(() => {
         //Load the _meta for this document
         return actions.oada
           .get({path:path + `/_meta`})
           .then(response => {
-            if (response == null) throw Error('No meta data for ' + documentId)
-            const orgMeta = _.get(state.oada.data, `${docType}.${documentId}._meta`)
+            if (response == null) throw Error('No meta data for ' + docKey)
+            const orgMeta = _.get(state.oada.data, `${docType}.${docKey}._meta`)
             const newMeta = _.merge(
               {},
               orgMeta,
               _.pick(response.data, ['stats', 'services', 'filename', '_type', 'vdoc', 'lookups'])
             )
             //Merge in stats and services
-            _.set(state.oada.data, `${docType}.${documentId}._meta`, newMeta);
+            _.set(state.oada.data, `${docType}.${docKey}._meta`, newMeta);
+
           })
       }).catch(err => {
-        console.log('Error. Failed to load document _meta', documentId)
+        console.log('Error. Failed to load document _meta', docKey)
       });
   },
 
-  async loadEventLog({state, actions}, documentKey) {
+  async loadEventLog({state, actions}, docKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'event-log',
-      date: documentKey,
+      date: docKey,
     });
     if (statistics) {
-      state.oada.data.Reports.eventLog[documentKey].data = statistics;
+      state.oada.data.Reports.eventLog[docKey].data = statistics;
       return;
     }
 
     const eventLogRows = actions.oada.getReportRows({
       path: 'event-log',
-      date: documentKey
+      date: docKey
     });
     let eventLogDocuments = {};
     const eventLogStatistics = eventLogRows.reduce((acc, row) => {
@@ -663,25 +697,25 @@ export default {
       numEmails: 0,
       numShares: 0,
     });
-    state.oada.data.Reports.eventLog[documentKey].data = {
+    state.oada.data.Reports.eventLog[docKey].data = {
       rows: eventLogRows,
       ...eventLogStatistics,
     };
   },
 
-  async loadUserAccess({state, actions}, documentKey) {
+  async loadUserAccess({state, actions}, docKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'current-tradingpartnershares',
-      date: documentKey,
+      date: docKey,
     });
     if (statistics) {
-      state.oada.data.Reports.userAccess[documentKey].data = statistics;
+      state.oada.data.Reports.userAccess[docKey].data = statistics;
       return;
     }
 
     const userAccessRows = await actions.oada.getReportRows({
       path: 'current-tradingpartnershares',
-      date: documentKey,
+      date: docKey,
     });
     const tradingPartners = {};
     const userAccessStatistics = userAccessRows.reduce((acc, row) => {
@@ -700,25 +734,25 @@ export default {
       totalShares: userAccessRows.length,
     });
 
-    state.oada.data.Reports.userAccess[documentKey].data = {
+    state.oada.data.Reports.userAccess[docKey].data = {
       rows: userAccessRows,
       ...userAccessStatistics,
     };
   },
 
-  async loadDocumentShares({state, actions}, documentKey) {
+  async loadDocumentShares({state, actions}, docKey) {
     const statistics = await actions.oada.getReportStatistics({
       path: 'current-shareabledocs',
-      date: documentKey,
+      date: docKey,
     });
     if (statistics) {
-      state.oada.data.Reports.documentShares[documentKey].data = statistics;
+      state.oada.data.Reports.documentShares[docKey].data = statistics;
       return;
     }
 
     const documentSharesRows = await actions.oada.getReportRows({
       path: 'current-shareabledocs',
-      date: documentKey,
+      date: docKey,
     });
     let documents = {};
     const today = moment();
@@ -771,7 +805,7 @@ export default {
       numExpiredDocuments: 0,
       numDocsNotShared: 0,
     });
-    state.oada.data.Reports.documentShares[documentKey].data = {
+    state.oada.data.Reports.documentShares[docKey].data = {
       rows: documentSharesRows,
       ...documentSharesStatistics
     };
@@ -859,7 +893,6 @@ export default {
   createAndPutResource({actions}, {url, data, contentType}) {
     return actions.oadaHelper.createResource({data, contentType}).then(response => {
       //Link this new resource at the url provided
-      console.log(response);
       var id = response.headers['content-location'].split('/')
       id = id[id.length - 1]
       return actions.oada.put({
