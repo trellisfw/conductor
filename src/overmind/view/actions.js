@@ -410,8 +410,9 @@ export default {
 
       eventLog: {
         Table: {
-          loadDocumentKeys({ _state, actions }, docKeys) {
-            console.log('Event Log - loadDocumentKeys', docKeys);
+          loadDocumentKeys({ _state, actions }, documents) {
+            console.log('Event Log - loadDocumentKeys', documents);
+            let docKeys = Object.keys(documents);
             const validDates = docKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid()
             });
@@ -477,8 +478,9 @@ export default {
 
       userAccess: {
         Table: {
-          loadDocumentKeys({ _state, actions }, docKeys) {
-            console.log('User Access - loadDocumentKeys', docKeys);
+          loadDocumentKeys({ _state, actions }, documents) {
+            console.log('User Access - loadDocumentKeys', documents);
+            let docKeys = Object.keys(documents);
             const validDates = docKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });
@@ -538,8 +540,9 @@ export default {
 
       documentShares: {
         Table: {
-          loadDocumentKeys({ _state, actions }, docKeys) {
-            console.log('Document Shares - loadDocumentKeys', docKeys);
+          loadDocumentKeys({ _state, actions }, documents) {
+            console.log('Document Shares - loadDocumentKeys', documents);
+            let docKeys = Object.keys(documents);
             const validDates = docKeys.filter((key) => {
               return moment(key, 'YYYY-MM-DD').isValid();
             });

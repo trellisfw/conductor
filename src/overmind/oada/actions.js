@@ -666,7 +666,7 @@ export default {
   },
 
   async loadEventLog({state, actions}, docKey) {
-    const statistics = await actions.oada.getReportStatistics({
+    const statistics = await actions.oadaHelper.getReportStatistics({
       path: 'event-log',
       date: docKey,
     });
@@ -675,7 +675,7 @@ export default {
       return;
     }
 
-    const eventLogRows = actions.oada.getReportRows({
+    const eventLogRows = actions.oadaHelper.getReportRows({
       path: 'event-log',
       date: docKey
     });
@@ -704,7 +704,7 @@ export default {
   },
 
   async loadUserAccess({state, actions}, docKey) {
-    const statistics = await actions.oada.getReportStatistics({
+    const statistics = await actions.oadaHelper.getReportStatistics({
       path: 'current-tradingpartnershares',
       date: docKey,
     });
@@ -713,7 +713,7 @@ export default {
       return;
     }
 
-    const userAccessRows = await actions.oada.getReportRows({
+    const userAccessRows = await actions.oadaHelper.getReportRows({
       path: 'current-tradingpartnershares',
       date: docKey,
     });
@@ -741,7 +741,7 @@ export default {
   },
 
   async loadDocumentShares({state, actions}, docKey) {
-    const statistics = await actions.oada.getReportStatistics({
+    const statistics = await actions.oadaHelper.getReportStatistics({
       path: 'current-shareabledocs',
       date: docKey,
     });
@@ -750,7 +750,7 @@ export default {
       return;
     }
 
-    const documentSharesRows = await actions.oada.getReportRows({
+    const documentSharesRows = await actions.oadaHelper.getReportRows({
       path: 'current-shareabledocs',
       date: docKey,
     });
@@ -834,9 +834,9 @@ export default {
 
   async getReportStatistics({actions}, {path, date}) {
     try {
-      return actions.oada.get(
-        `/bookmarks/services/trellis-reports/${path}/day-index/${date}/_meta`
-      ).then((res) => _.get(res, 'data.statistics'));
+      return actions.oada.get({
+        path: `/bookmarks/services/trellis-reports/${path}/day-index/${date}/_meta`
+      }).then((res) => _.get(res, 'data.statistics'));
     } catch (e) {
       console.error('failed to fetch statistics, building from from report');
     }
