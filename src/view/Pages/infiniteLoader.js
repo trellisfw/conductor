@@ -10,6 +10,7 @@ function wrapper(overmindLoadFunc) {
 //    const docKeys = _.keys(loadBatch);
     const documents = _.clone(loadBatch);
     loadBatch = {};
+    console.log('loading rows', documents);
     if (omLoadFunc) {
       return omLoadFunc(documents);
 //      return omLoadFunc(docKeys);

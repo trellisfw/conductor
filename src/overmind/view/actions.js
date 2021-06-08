@@ -293,27 +293,6 @@ export default {
         //Close my window
         state.view.Modals.FileDetailsModal.open = false;
       },
-      async approveFLDocument({state, actions}) {
-        //1. Get document id
-        let flDocId = await actions.oada.get({
-          path: `${state.view.Modals.FileDetailsModal.document._meta.services['fl-sync'].document._id}`,
-        }).then(r => _.get(r, ['data', 'food-logiq-mirror', '_id']));
-
-        console.log('EXECUTING PUT', 
-          `${fl_host}/v2/businesses/${sf_bus_id}/documents/${flDocId}/approvalStatus/approved`);
-        //2. Execute PUT \
-        if (flDocId) await request({
-          method: 'put',
-          url: `${fl_host}/v2/businesses/${sf_bus_id}/documents/${flDocId}/approvalStatus/approved`,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${fl_token}`,
-          },
-          data: {
-            status: "Approved"
-          }
-        })
-      },
     },
     PDFViewerModal: {
       nextPage({state}) {
@@ -726,7 +705,6 @@ export default {
           const docType = 'documents';
           let keys = docKeys.sort();
           return Promise.map(keys, async (key) => {
-            console.log('LOADING', documents[key].path, docType, key)
             return actions.oadaHelper.loadDocument({docType, docKey: key, path: documents[key].path});
           }, {concurrency: 5})
         },
@@ -737,6 +715,8 @@ export default {
           console.log('Selected Document:')
           console.log('key', docKey, 'data', rowData)
           if (docKey == null) return; //Uploading doc
+          
+          state.view.MessageLog.path = ``
 
           //If this is a PDF show pdf viewer
           switch(rowData.type) {
@@ -754,11 +734,11 @@ export default {
             default:
               let doc = state.oada.data.documents[docKey].identified;
               state.view.MessageLog.path = `oada.data.documents.${docKey}`
-              state.view.Modals.FileDetailsModal.docType = doc.docType;
-              state.view.Modals.FileDetailsModal.docKey = doc.docKey;
+              state.view.Modals.FileDetailsModal.docType = rowData.docType;
+              state.view.Modals.FileDetailsModal.docKey = rowData.docKey;
               state.view.Modals.FileDetailsModal.open = true;
               state.view.Modals.FileDetailsModal.sharedWith = [];
-              state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType: doc.docType, docKey:doc.docKey});
+              state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType: docType, docKey:docKey});
               break;
           }
         }

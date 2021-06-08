@@ -43,7 +43,7 @@ function Scope (props) {
             <Popup key={idx} content={
               <div>
                 <div css={{textAlign: 'center'}}>{'Effective'}</div>
-                <div>{`${p.start.format('MMMM d, YYYY')} to ${p.end.format('MMMM d, YYYY')}`}</div>
+                <div>{`${p.start.format('MMMM DD, YYYY')} to ${p.end.format('MMMM DD, YYYY')}`}</div>
               </div>
             } trigger={
               <Chip color={(p.expired) ? 'secondary' : 'default'} label={`${p.number}${p.expired ? ': EXPIRED' : ''}`} />

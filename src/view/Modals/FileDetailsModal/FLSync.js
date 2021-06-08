@@ -14,19 +14,44 @@ function FLSync() {
   const myActions = actions.view.Modals.FileDetailsModal;
 
   let valid = _.get(myState, ['document', '_meta', 'services', 'fl-sync', 'valid', 'status'])
-  valid = valid === true ? 'PDF data validated against user-entered data. Ready for approval.' 
-    : valid === false ? 'Rejected' : 'Awaiting validation'
+
+  //Show assessment link if associated
+  let aLink;
+  let aId = _.get(myState, ['document', '_meta', 'services', 'fl-sync', 'assessment'])
+  if (aId) {
+    let aText = "View the Assessment in Food Logiq"
+    let aPath = `https://sandbox.foodlogiq.com/businesses/5acf7c2cfd7fa00001ce518d/internal-reviews/summary/${aId}`
+    aLink = <a target="_blank" href={aPath}>{aText}</a>
+  } 
+
+  //Show document link if associated
+  let dLink;
+  let dId = _.get(myState, ['document', '_meta', 'services', 'fl-sync', 'flId'])
+  if (dId) {
+    let dText = "View the Document in Food Logiq"
+    let dPath = `https://sandbox.foodlogiq.com/businesses/5acf7c2cfd7fa00001ce518d/documents/detail/${dId}`
+    dLink = <a target="_blank" href={dPath}>{dText}</a>
+  } 
+
+  valid = valid === true ? 
+    <div css={{fontWeight: 'bold', color: 'green'}}>
+      Trellis-extracted PDF data matches user-entered Food Logiq data. 
+    </div>
+    : valid === false ? 
+      <div css={{fontWeight: 'bold', color: 'red'}}>
+        Document rejected in Food Logiq
+      </div>
+    : <div>
+       Awaiting validation of extracted data... 
+      </div>
 
   return (
     <div>
       <Header as="h4">Food Logiq</Header>
-      <div>{valid}</div>
-      {/*valid ? 
-        <Button icon onClick={myActions.approveFLDocument}>
-          <Icon name='signup' />
-          <span css={{marginLeft: 7, marginRight: 4, color: '#0061C0', fontWeight: 100}}>Approve Pending Document</span>
-        </Button > 
-        : null*/ }
+      {valid}
+      {dLink}
+      {aLink ? <br /> : null}
+      {aLink}
     </div>
   );
 }

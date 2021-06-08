@@ -63,7 +63,9 @@ function SideSection(props) {
 
 function SideBar() {
   const { state, actions } = overmind();
+  const tp = state.view.tp;
   let selectedPage = state.view.Pages.selectedPage;
+  console.log('TP', tp);
   if (selectedPage == null) {
     //Pick first page that we have data for and access to
     const pages = [
@@ -127,11 +129,11 @@ function SideBar() {
         <SideSection selected={(selectedPage == 'LettersOfGuarantee')} name={'Letters of Guarantee'} icon={iconData}>{'Letters of Guarantee'}</SideSection>
       }
       {
-        !state.app.config.tabs.reports ? null :
+        tp || !state.app.config.tabs.reports ? null :
         <SideSection selected={(selectedPage == 'Reports')} name={'Reports'} icon={iconData}>{'Reports'}</SideSection>
       }
       {
-        !state.app.config.tabs.rules ? null :
+        tp || !state.app.config.tabs.rules ? null :
         <SideSection selected={(selectedPage == 'Rules')} name={'Rules'} icon={iconConnections}>{'Rules'}</SideSection>
       }
     </div>

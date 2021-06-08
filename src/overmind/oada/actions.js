@@ -620,7 +620,7 @@ export default {
   loadDocument({state, actions}, {docKey, docType, path}) {
     path = `${path}/${docType}/${docKey}`;
     if (docType === 'documents') {
-      path = `/${state.oada.data.documents[docKey]._id}`;
+      let path = "/" + (state.oada.data.documents[docKey]._id || `resources/${docKey}`);
     }
     return actions.oada
       .get({path})
