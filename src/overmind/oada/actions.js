@@ -461,7 +461,7 @@ export default {
       Object.keys(jobs || {}).forEach(async (jobId) => {
         await actions.oadaHelper.fetchTargetJob({
           watch: true,
-          path: jobs[jobId]._ref, 
+          path: '/'+jobs[jobId]._ref, 
           docKey: response.path.replace(/^\//, ''),
           docType: 'documents', 
           jobId

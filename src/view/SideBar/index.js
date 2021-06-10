@@ -65,7 +65,6 @@ function SideBar() {
   const { state, actions } = overmind();
   const tp = state.view.tp;
   let selectedPage = state.view.Pages.selectedPage;
-  console.log('TP', tp);
   if (selectedPage == null) {
     //Pick first page that we have data for and access to
     const pages = [
