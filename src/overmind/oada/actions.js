@@ -440,7 +440,7 @@ export default {
           }
           // Make the entry for the recently ided table
           state.oada.data.documents[key].type = types[docType];
-          state.oada.data.documents[key].docType = types[docType];
+//          state.oada.data.documents[key].docType = types[docType];
           state.oada.data.documents[key].key = docKey;
           await actions.oadaHelper.loadDocument({docType, docKey, path})
 
@@ -453,13 +453,6 @@ export default {
             state.view.Modals.PDFViewerModal.open = false;
             state.view.Modals.FileDetailsModal.open = true;
           }
-          /*
-          recents[key] = {
-            docType,
-            docKey,
-            ref: vdocs[docType][docKey].ref
-          }
-          */
         })
       })
 
@@ -622,9 +615,11 @@ export default {
     if (docType === 'documents') {
       let path = "/" + (state.oada.data.documents[docKey]._id || `resources/${docKey}`);
     }
+    console.log('PATH', path);
     return actions.oada
       .get({path})
       .then(response => {
+        console.log(response);
         if (response == null) throw Error('No data for ' + docKey)
         //If doc already exists merge in data
         const orgData = _.get(state.oada.data, `${docType}.${docKey}`) || {}
@@ -643,6 +638,7 @@ export default {
           ));
         }
       }).catch(err => {
+        console.log(err);
         console.log('Error. Failed to load document', docKey)
       }).then(() => {
         //Load the _meta for this document

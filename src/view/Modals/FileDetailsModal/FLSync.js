@@ -33,7 +33,7 @@ function FLSync() {
     dLink = <a target="_blank" href={dPath}>{dText}</a>
   } 
 
-  valid = valid === true ? 
+  let validText = valid === true ? 
     <div css={{fontWeight: 'bold', color: 'green'}}>
       Trellis-extracted PDF data matches user-entered Food Logiq data. 
     </div>
@@ -48,7 +48,7 @@ function FLSync() {
   return (
     <div>
       <Header as="h4">Food Logiq</Header>
-      {valid}
+      {validText}
       {dLink}
       {aLink ? <br /> : null}
       {aLink}

@@ -443,6 +443,11 @@ export default {
       showData: false,
       document: ({ docKey, docType }, state) => {
         //Get the document
+        if (_.has(state, `oada.data.${docType}.${docKey}.identified`)) {
+          let identified = _.get(state, `oada.data.${docType}.${docKey}.identified`)
+          docKey = identified.docKey;
+          docType = identified.docType;
+        }
         return (
           _.chain(state)
             .get(`oada.data.${docType}.${docKey}`)

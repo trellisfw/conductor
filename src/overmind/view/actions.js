@@ -732,13 +732,13 @@ export default {
               break;
           // Handle modal viewers for all other types
             default:
-              let doc = state.oada.data.documents[docKey].identified;
+              let doc = state.oada.data.documents[docKey].identified || {};
               state.view.MessageLog.path = `oada.data.documents.${docKey}`
-              state.view.Modals.FileDetailsModal.docType = rowData.docType;
-              state.view.Modals.FileDetailsModal.docKey = rowData.docKey;
+              state.view.Modals.FileDetailsModal.docType = doc.docType || rowData.docType;
+              state.view.Modals.FileDetailsModal.docKey = doc.docKey || rowData.docKey;
               state.view.Modals.FileDetailsModal.open = true;
               state.view.Modals.FileDetailsModal.sharedWith = [];
-              state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType: docType, docKey:docKey});
+              state.view.Modals.FileDetailsModal.sharedWith = await actions.oadaHelper.getTradingPartners({docType, docKey});
               break;
           }
         }
