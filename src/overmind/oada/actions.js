@@ -17,8 +17,8 @@ export default {
   getList({}, type) {
     return EXPAND[type]
   },
-  async logout({state, effects}) {
-    await effects.oada.websocket.close()
+  async logout({state, actions}) {
+    await actions.oada.disconnect()
     //Clear documents
     state.oada.data = {}
     //Clear the token from state
@@ -50,8 +50,9 @@ export default {
     state.oada.token = token
     console.log('Token: ' + token);
     console.log('Have token, connecting to oada with WebSocket...')
+    console.log(token);
     await actions.oada.connect({
-      token: '2pgKX9He05laIRfHsSy-TtH7cFN1wLuyW9st9yKT',
+      token,
       domain: state.oada.url,
       options: {
         metadata: config.oada.devcert,

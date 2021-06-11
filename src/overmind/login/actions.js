@@ -1,8 +1,8 @@
+let token = require('../config.js').token;
+
 export default {
   async login({ state, actions }) {
     let domain = state.login.domain;
-    //let token = state.login.token;
-    let token = '2pgKX9He05laIRfHsSy-TtH7cFN1wLuyW9st9yKT';
     state.login.loading = true;
     domain = domain.match(/^http/) ? domain : 'https://'+domain;
 

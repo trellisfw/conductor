@@ -10,7 +10,6 @@ import moment from 'moment';
 import XLSX from 'xlsx';
 import config from '../../config/config.js'
 
-let {sf_bus_id, fl_host, fl_token} = config['foodlogiq'];
 let DOC_TYPES = ['cois', 'fsqa-certificates', 'fsqa-audits', 'letters-of-guarantee', 'documents'];
 let fuseSearch;
 export default {

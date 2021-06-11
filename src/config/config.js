@@ -11,11 +11,6 @@ const config = {
     default: {}, // filled out from skin-specific config below
     smithfield: {},
   },
-  foodlogiq: {
-    sf_bus_id: '5acf7c2cfd7fa00001ce518d',
-    fl_host: 'https://sandbox-api.foodlogiq.com',
-    fl_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Zvb2Rsb2dpcS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWRmNTQxMDk4YmExNmIwZGExZjBjNmE4IiwiYXVkIjoiQnpzY0I5NXVGVTlSdkFGQzFGM0I0eFVVSWtiV0NSTmgiLCJpYXQiOjE1NzYzNjcyMzQsImV4cCI6MTU3NjM2NzUzNH0.tcWWHxyKlKlv7FNm1nferzTe6BgwiXY4ZgYSZv9z_wg',
-  }
 };
 
 // Load the skin configs:
