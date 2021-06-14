@@ -46,10 +46,10 @@ export default {
       _type: 'application/vnd.oada.bookmarks.1+json',
       trellisfw: {
         documents: {
-          _type: 'application/vnd.trellis.documents.1+json',
+          _type: 'application/vnd.trellisfw.documents.1+json',
           _rev: 0,
           '*': {
-            _type: 'application/vnd.trellis.document.1+json',
+            _type: 'application/vnd.trellisfw.document.1+json',
             _rev: 0
           }
         }

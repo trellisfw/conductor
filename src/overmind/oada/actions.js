@@ -126,7 +126,7 @@ export default {
           await actions.oadaHelper.createAndPutResource({
             url: `${path}/${docType}`,
             data: {},
-            contentType: `application/vnd.trellis.${docType}.1+json`
+            contentType: `application/vnd.trellisfw.${docType}.1+json`
           })
         }
 
@@ -402,7 +402,7 @@ export default {
                   _rev: 0
                 },
                 headers: {
-                  'Content-Type': 'application/vnd.trellis.documents.1+json'
+                  'Content-Type': 'application/vnd.trellisfw.documents.1+json'
                 }
               })
           });
