@@ -50,7 +50,6 @@ export default {
     state.oada.token = token
     console.log('Token: ' + token);
     console.log('Have token, connecting to oada with WebSocket...')
-    console.log(token);
     await actions.oada.connect({
       token,
       domain: state.oada.url,

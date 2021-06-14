@@ -33,6 +33,7 @@ export default function (namespace) {
         domain = window.localStorage['oada:domain'];
         console.log('Have saved domain in localStorage, using it:', domain);
       }
+      console.log('HERE');
 
       //Check if we have a token in the query parameters
       let token;
@@ -46,6 +47,7 @@ export default function (namespace) {
         state.login.dontSaveToken = true; //Don't save the login token after login
 			} else if (window.localStorage['oada:'+domain+':token']) {
         //Check if we have a token in local storage
+        console.log('HELLOOOO???');
         token = window.localStorage['oada:'+domain+':token']
         console.log('Already have a token for URL ' + domain+ ', logout to clear:', token)
       } else {
