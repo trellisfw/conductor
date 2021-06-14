@@ -7,6 +7,7 @@ export default {
       cois: true,
       audits: true,
       certificates: true,
+      documents: true
     }
   }
 }
