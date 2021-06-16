@@ -3173,7 +3173,7 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-attr-accept@^2.0.0:
+attr-accept@^2.2.1:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/attr-accept/-/attr-accept-2.2.2.tgz#646613809660110749e92f2c10833b70968d929b"
   integrity sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==
@@ -6223,12 +6223,12 @@ file-loader@^6.0.0:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
 
-file-selector@^0.1.12:
-  version "0.1.19"
-  resolved "https://registry.yarnpkg.com/file-selector/-/file-selector-0.1.19.tgz#8ecc9d069a6f544f2e4a096b64a8052e70ec8abf"
-  integrity sha512-kCWw3+Aai8Uox+5tHCNgMFaUdgidxvMnLWO6fM5sZ0hA2wlHP5/DHGF0ECe84BiB95qdJbKNEJhWKVDvMN+JDQ==
+file-selector@^0.2.2:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/file-selector/-/file-selector-0.2.4.tgz#7b98286f9dbb9925f420130ea5ed0a69238d4d80"
+  integrity sha512-ZDsQNbrv6qRi1YTDOEWzf5J2KjZ9KMI1Q2SGeTkCJmNNW25Jg4TW4UMcmoqcg4WrAyKRcpBXdbWRxkfrOzVRbA==
   dependencies:
-    tslib "^2.0.1"
+    tslib "^2.0.3"
 
 file-uri-to-path@1.0.0:
   version "1.0.0"
@@ -9443,6 +9443,11 @@ node-releases@^1.1.61, node-releases@^1.1.71:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.73.tgz#dd4e81ddd5277ff846b80b52bb40c49edf7a7b20"
   integrity sha512-uW7fodD6pyW2FZNZnp/Z3hvWKeEW1Y8R1+1CnErE8cXFXzl5blBOoVB41CvMer6P6Q0S5FXDwcHgFd1Wj0U9zg==
 
+non-blocking-json@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/non-blocking-json/-/non-blocking-json-1.1.1.tgz#2180c25ee0330475bdc5e14b27d0750d7c0d73a4"
+  integrity sha512-iweGQWA3+GZkjJEXhvtRh1fjo8DpnotpL8+13NSwaI28X6HaqlYTxAI/ZXawCmva2GS3NaOl5NdNudg3RyQreQ==
+
 nopt@~1.0.10:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/nopt/-/nopt-1.0.10.tgz#6ddd21bd2a31417b92727dd585f8a6f37608ebee"
@@ -9776,55 +9781,53 @@ os-locale@^1.4.0:
   dependencies:
     lcid "^1.0.0"
 
-overmind-devtools-client@5.1.3:
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/overmind-devtools-client/-/overmind-devtools-client-5.1.3.tgz#a6340d64e26eb9ffc1a71ab0e5f5f5313ce090a4"
-  integrity sha512-HrWA89blwpm3WQakX8aB9csHhMsWVP+4+2hoKEI2nqkx4n5EpeAMqIvWzXvrNGVV7n/X/48WXNAK+cwYR8hQDg==
+overmind-devtools-client@10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/overmind-devtools-client/-/overmind-devtools-client-10.0.0.tgz#7eaeeb6d937e2eeac1eb6a16ae2d35495540faaf"
+  integrity sha512-6R4sIiltVyPC72NVe+hM+SiFVBRG1FupXc88XXe1prIakYuwYNBghfqa753DiVcS7DPdP3rPJ9eYaKcY2UNTGQ==
   dependencies:
     emotion "^9.2.12"
+    lodash.clonedeep "^4.5.0"
     lodash.throttle "^4.1.1"
-    overmind-react "23.0.5"
-    overmind-themes next
+    non-blocking-json "1.1.1"
+    overmind-react "28.0.0"
     react "16.9.0"
     react-dom "16.9.0"
     react-split-pane "^0.1.87"
     ws "^7.0.0"
 
-overmind-devtools@^23.1.0:
-  version "23.1.3"
-  resolved "https://registry.yarnpkg.com/overmind-devtools/-/overmind-devtools-23.1.3.tgz#8a52bce8089008869aa77b64448e177a49c8aba1"
-  integrity sha512-UtSC0ZF16StXX1mUJ4xfaZbsRIPC2SH7FncDS0/XkQ8PonjTkVvtrfqCPV3t70MfcDlXAKZl5h35vm4hu0nPaA==
+overmind-devtools@^28.0.0:
+  version "28.0.0"
+  resolved "https://registry.yarnpkg.com/overmind-devtools/-/overmind-devtools-28.0.0.tgz#284287f217af1e1a0fcbe8a80cc94708f71d240a"
+  integrity sha512-lCdcFjFZJw9bi6EtFq4tn8IzO2t3cds9ZIVqLM0fwLGuP5/Q66apJqQhxwmlex97A4wZDiwF5BwjoLi7w2VvZQ==
   dependencies:
     color "^3.0.0"
     color-hash "^1.0.3"
     electron "^8.0.0"
     electron-json-storage "^4.1.8"
     electron-prompt "^1.5.1"
-    overmind-devtools-client "5.1.3"
+    overmind-devtools-client "10.0.0"
     ws "^7.0.0"
 
-overmind-react@23.0.5:
-  version "23.0.5"
-  resolved "https://registry.yarnpkg.com/overmind-react/-/overmind-react-23.0.5.tgz#5273e37f5a6bba1a7af47ec82a245902b75ef6dc"
-  integrity sha512-2IAy+8UaC4tlGGYRQlm1vZex/kNdz8+AArjCA9Cb5JgOU6yIXMoIoBniPkThVwXgrZHyiwS2BQFyEskIUwKHrg==
+overmind-react@28.0.0, overmind-react@^28.0.0:
+  version "28.0.0"
+  resolved "https://registry.yarnpkg.com/overmind-react/-/overmind-react-28.0.0.tgz#e5d9af4eb4de2bab9e5d8c0a2c46e5a02d5c7776"
+  integrity sha512-6KNjaB3AUx8ta5xvVvrxb9rcOX2eGkmrSngIlNhBVoZtiD10zspo7sYMJsHewCnbwthXg255BOJUJdg3jl9EuA==
   dependencies:
-    overmind "22.0.5"
+    overmind "27.0.0"
 
-overmind-react@^22.0.0:
-  version "22.0.0"
-  resolved "https://registry.yarnpkg.com/overmind-react/-/overmind-react-22.0.0.tgz#e244dbaec7827b09781216e4bb408f546b8ff9e5"
-  integrity sha512-XQv3yQ2Q3GE8rMIE7X/8vywp4pSRiJcg6KWjyt2xmAkMuJpuAsyKz8sl+VhAclX7C3YAHd5jCJ0+AzH2+qQXQg==
+overmind@27.0.0:
+  version "27.0.0"
+  resolved "https://registry.yarnpkg.com/overmind/-/overmind-27.0.0.tgz#bebec800ef601521c23ffb72a03622842d60c600"
+  integrity sha512-Olh3Ckb+KJcYIBun+ZP0PU5bEPkdAIXt/uNtBWx6C9nfpX+dndTb1VSaEpA69diNGE3V38GnNnynd7K41ruiqA==
   dependencies:
-    overmind "21.0.0"
+    betsy "1.0.2"
+    is-plain-obj "^1.1.0"
+    non-blocking-json "1.1.1"
+    proxy-state-tree "6.2.0"
+    tslib "^1.10.0"
 
-overmind-themes@next:
-  version "1.0.2-1591613774638"
-  resolved "https://registry.yarnpkg.com/overmind-themes/-/overmind-themes-1.0.2-1591613774638.tgz#d4b29757aee057b98306efadf6d47e3476161f90"
-  integrity sha512-4Pl1wRZWS3/DbzTouUEgPLbsMip1kuOx2EJsvS9QResjBQBnnIonu9RuX/KlOem+rUDhIsOU6V4wND96CU6cHw==
-  dependencies:
-    color "^3.0.0"
-
-overmind@21.0.0, overmind@^21.0.0:
+overmind@^21.0.0:
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/overmind/-/overmind-21.0.0.tgz#39b19ca115fb6a86e6eda622ad30b4ee4e5ba0d5"
   integrity sha512-vP0Rj0Gws40xM9nbmKiDk5WBGfdWDFy4/usSp1DIDccpF/Swtw/sIsrjewpuVdzRDkWIsnI9idlHm9+ghMB6HA==
@@ -9832,16 +9835,6 @@ overmind@21.0.0, overmind@^21.0.0:
     betsy "1.0.2"
     is-plain-obj "^1.1.0"
     proxy-state-tree "4.6.0"
-    tslib "^1.10.0"
-
-overmind@22.0.5:
-  version "22.0.5"
-  resolved "https://registry.yarnpkg.com/overmind/-/overmind-22.0.5.tgz#1208007da97d15f54f2bbbdc3b7edd503a1e6d2e"
-  integrity sha512-QcgdC6QzJtUl1diUZQFRlgt2Tx5Z5RGF3K1q7mfyvCO93ceUaB7iDUFxi0Tm3dI0PeJypOqmRbn6salI5/oz2w==
-  dependencies:
-    betsy "1.0.2"
-    is-plain-obj "^1.1.0"
-    proxy-state-tree "4.7.0"
     tslib "^1.10.0"
 
 p-cancelable@^1.0.0:
@@ -11084,10 +11077,10 @@ proxy-state-tree@4.6.0:
   dependencies:
     is-plain-obj "^1.1.0"
 
-proxy-state-tree@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/proxy-state-tree/-/proxy-state-tree-4.7.0.tgz#b069929ce19e921c752e2c5b31c5ffe0157f7e76"
-  integrity sha512-kMdNHOmxC3hNe5jhNu8MbFjAAHIvSGTD9vxQtHq49AyXLCbRPrKkAlJINqRZ6hiXOespCOTT6QfveAcSYC2rwQ==
+proxy-state-tree@6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/proxy-state-tree/-/proxy-state-tree-6.2.0.tgz#24e253a7539162a350dcfedbc8ba4952a00d1bc4"
+  integrity sha512-6xbFPeUArtx6eR3vmDJPEUhHLJebpKvceMe5DVClCF7ZHge8tVghbmPqJP4KZLmXMY3orHdFNA5blbFQkB5a+Q==
   dependencies:
     is-plain-obj "^1.1.0"
 
@@ -11307,23 +11300,22 @@ react-dom@16.9.0:
     prop-types "^15.6.2"
     scheduler "^0.15.0"
 
-react-dom@^16.12.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.14.0.tgz#7ad838ec29a777fb3c75c3a190f661cf92ab8b89"
-  integrity sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==
+react-dom@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
+  integrity sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
-    scheduler "^0.19.1"
+    scheduler "^0.20.2"
 
-react-dropzone@^10.2.1:
-  version "10.2.2"
-  resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-10.2.2.tgz#67b4db7459589a42c3b891a82eaf9ade7650b815"
-  integrity sha512-U5EKckXVt6IrEyhMMsgmHQiWTGLudhajPPG77KFSvgsMqNEHSyGpqWvOMc5+DhEah/vH4E1n+J5weBNLd5VtyA==
+react-dropzone@^11.3.2:
+  version "11.3.2"
+  resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-11.3.2.tgz#2efb6af800a4779a9daa1e7ba1f8d51d0ab862d7"
+  integrity sha512-Z0l/YHcrNK1r85o6RT77Z5XgTARmlZZGfEKBl3tqTXL9fZNQDuIdRx/J0QjvR60X+yYu26dnHeaG2pWU+1HHvw==
   dependencies:
-    attr-accept "^2.0.0"
-    file-selector "^0.1.12"
+    attr-accept "^2.2.1"
+    file-selector "^0.2.2"
     prop-types "^15.7.2"
 
 react-error-overlay@^6.0.9:
@@ -11510,14 +11502,13 @@ react@16.9.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
 
-react@^16.12.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
+react@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
+  integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
 
 read-pkg-up@^3.0.0:
   version "3.0.0"
@@ -12040,10 +12031,10 @@ scheduler@^0.15.0:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
-scheduler@^0.19.1:
-  version "0.19.1"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.19.1.tgz#4f3e2ed2c1a7d65681f4c854fa8c5a1ccb40f196"
-  integrity sha512-n/zwRWRYSUj0/3g/otKDRPMh6qv2SYMWNq85IEa8iZyAv8od9zDYpGSnpBEjNgcMNq6Scbu5KfIPxNF72R/2EA==
+scheduler@^0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -13219,7 +13210,7 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.1, tslib@^2.0.3:
+tslib@^2.0.3:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
   integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
