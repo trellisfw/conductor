@@ -18,7 +18,7 @@ export default {
     return EXPAND[type]
   },
   async logout({state, actions}) {
-    await actions.oada.disconnect()
+    await actions.oada.disconnect({})
     //Clear documents
     state.oada.data = {}
     //Clear the token from state
@@ -36,7 +36,12 @@ export default {
         // If we don't have a token stored from last time, we'll need to
         // redirect browser to ask for one
         console.log('Do not have an access token, redirecting...')
-        let res = await getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
+        console.log(config);
+        let res = await getAccessToken(state.oada.url, {
+        //let res = await getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
+          metadata: config.oada.devcert,
+          scope: 'all:all',
+          redirect: config.oada.redirect,
         })
         token = res.access_token
       }

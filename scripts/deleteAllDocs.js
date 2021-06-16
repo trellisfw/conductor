@@ -3,12 +3,14 @@ var axios = require('axios');
 var Promise = require('bluebird');
 const argv = require('minimist')(process.argv.slice(2));
 
-const token = argv.t || process.env.TOKEN || 'god'; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
+const token = argv.t || process.env.TOKEN; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
 const url = argv.u || process.env.URL || 'https://localhost';
 console.log('Using url '+url+', token ', token);
 
 console.log('Requesting /bookmarks/trellisfw/documents...');
 async function main() {
+  if (!token) throw new Error('token missing. set via TOKEN environment')
+  if (!url) throw new Error('server domain missing. set via URL environment (include https)')
   let r0 = await axios.request({
     url: '/bookmarks/trellisfw/documents',
     baseURL: url,

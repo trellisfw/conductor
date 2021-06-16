@@ -25,7 +25,7 @@ let tree = {
   }
 }
 
-const token = argv.t || process.env.TOKEN || 'god'; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
+const token = argv.t || process.env.TOKEN; // this is one of the Trellis dummy tokens.  Create your own if you aren't running trellis in dev mode
 const url = argv.u || process.env.URL || process.env.DOMAIN || 'https://localhost';
 console.log('Using url '+url+', token ', token);
 
