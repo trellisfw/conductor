@@ -21,7 +21,7 @@ function FLSync() {
   if (aId) {
     let aText = "View the Assessment in Food Logiq"
     let aPath = `https://sandbox.foodlogiq.com/businesses/5acf7c2cfd7fa00001ce518d/internal-reviews/summary/${aId}`
-    aLink = <a target="_blank" href={aPath}>{aText}</a>
+    aLink = <a target="_blank" rel="noopener noreferrer" href={aPath}>{aText}</a>
   } 
 
   //Show document link if associated
@@ -30,7 +30,7 @@ function FLSync() {
   if (dId) {
     let dText = "View the Document in Food Logiq"
     let dPath = `https://sandbox.foodlogiq.com/businesses/5acf7c2cfd7fa00001ce518d/documents/detail/${dId}`
-    dLink = <a target="_blank" href={dPath}>{dText}</a>
+    dLink = <a target="_blank" rel="noopener noreferrer" href={dPath}>{dText}</a>
   } 
 
   let validText = valid === true ? 
