@@ -1769,7 +1769,7 @@
     p-queue "^6.4.0"
     ws "^7.2.3"
 
-"@oada/oada-cache-overmind@^1.0.7":
+"@oada/oada-cache-overmind@^1.0.4":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@oada/oada-cache-overmind/-/oada-cache-overmind-1.0.7.tgz#cddc1f9dffd814b1222d62c7e14d4c1284efdea1"
   integrity sha512-wzM9SugH+wd4NX8BYzTxp4BLTTX1CwqLFUE8KcuXzMkXWDCm2uXaYMlGRB01WqCU5C4Zwfmt7+cPq0PKFBGm3A==
