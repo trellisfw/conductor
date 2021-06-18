@@ -1,18 +1,14 @@
-import React from "react";
-
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { jsx } from "@emotion/core";
 
-import { Button, Dropdown } from "semantic-ui-react";
+import { Dropdown } from "semantic-ui-react";
 import overmind from "../../overmind";
-import config from "../../config";
 
 function TopBar() {
   const { actions, state } = overmind();
   const skin = state.app.skin;
   const tp = state.view.tp;
-  const tps = state.tps || {};
 
   let partnerInfo = tp ? (
     <div>

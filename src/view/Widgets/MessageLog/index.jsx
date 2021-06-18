@@ -1,8 +1,6 @@
-import React from "react";
-
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import { jsx, css } from "@emotion/core";
+import { jsx } from "@emotion/core";
 
 import overmind from "../../../overmind";
 import moment from "moment";
@@ -10,7 +8,7 @@ import _ from "lodash";
 import { Header, Message } from "semantic-ui-react";
 
 function MessageLog() {
-  const { actions, state } = overmind();
+  const { state } = overmind();
   const { path } = state.view.MessageLog;
   let messages = [];
   if (path) {

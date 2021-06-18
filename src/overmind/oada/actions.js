@@ -48,13 +48,15 @@ export default {
         // redirect browser to ask for one
         console.log("Do not have an access token, redirecting...");
         console.log(config);
-        let res = await getAccessToken(state.oada.url, {
-          //let res = await getAccessToken(state.oada.url.replace(/^https?:\/\//, ''), {
+        let url = urlLib.parse(state.oada.url);
+
+        let res = await getAccessToken(url.host, {
           metadata: config.oada.devcert,
           scope: "all:all",
           redirect: config.oada.redirect,
         });
         token = res.access_token;
+        console.log('RES', res.access_token);
       }
     } catch (err) {
       state.login.error =

@@ -1,4 +1,3 @@
-import React from "react";
 import _ from "lodash";
 
 /** @jsxRuntime classic */
@@ -6,7 +5,6 @@ import _ from "lodash";
 import { jsx, css } from "@emotion/core";
 
 import TopBar from "./TopBar";
-import { Button, Icon } from "semantic-ui-react";
 import overmind from "../../../overmind";
 import iconIFT from "./icons/ift.svg";
 import iconFoodLogiq from "./icons/foodlogiq.svg";
@@ -44,7 +42,7 @@ function Rule(props) {
         <div css={{ display: "flex", alignItems: "center" }}>
           <div css={{ display: "flex", alignItems: "center", marginRight: 20 }}>
             {_.map(r.icons, (i) => {
-              if (i == "ift.svg") {
+              if (i === "ift.svg") {
                 return (
                   <img
                     key={i}
@@ -56,7 +54,7 @@ function Rule(props) {
                   />
                 );
               }
-              if (i == "foodlogiq.svg") {
+              if (i === "foodlogiq.svg") {
                 return (
                   <img
                     key={i}
@@ -68,7 +66,7 @@ function Rule(props) {
                   />
                 );
               }
-              if (i == "email.svg") {
+              if (i === "email.svg") {
                 return (
                   <img
                     key={i}
@@ -86,7 +84,7 @@ function Rule(props) {
             {r.text.split(pattern).map((item, j) => {
               if (pattern.test(item)) {
                 let text = _.values(r[item].values).map((o) => o.name);
-                if (text.length == 0) {
+                if (text.length === 0) {
                   return (
                     <span
                       css={{ fontWeight: 800 }}

@@ -1,12 +1,9 @@
-import React from "react";
-
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { jsx, css } from "@emotion/core";
 import _ from "lodash";
 
 import iconData from "./data.svg";
-import iconBuisness from "./buisness.svg";
 import iconConnections from "./connections.svg";
 import overmind from "../../overmind";
 
@@ -22,7 +19,7 @@ const activeSideSelection = {
 };
 
 function SideSection(props) {
-  const { state, actions } = overmind();
+  const { actions } = overmind();
   const myActions = actions.view.SideBar;
   return (
     <div
@@ -67,7 +64,7 @@ function SideSection(props) {
 }
 
 function SideBar() {
-  const { state, actions } = overmind();
+  const { state } = overmind();
   const tp = state.view.tp;
   let selectedPage = state.view.Pages.selectedPage;
   if (selectedPage == null) {
@@ -96,7 +93,7 @@ function SideBar() {
       },
     ];
     _.forEach(pages, (page) => {
-      if (_.get(state.app.config, `tabs.${page.type}`) == true) {
+      if (_.get(state.app.config, `tabs.${page.type}`) === true) {
         if (page.showIfEmpty || !_.isEmpty(_.get(state.oada.data, page.type))) {
           selectedPage = page.page;
           return false;
@@ -116,7 +113,7 @@ function SideBar() {
       {!state.app.config.tabs.documents ||
       state.oada.data.documents == null ? null : (
         <SideSection
-          selected={selectedPage == "Data"}
+          selected={selectedPage === "Data"}
           name={"Data"}
           icon={iconData}
         >
@@ -127,7 +124,7 @@ function SideBar() {
       state.oada.data.cois == null ||
       _.isEmpty(state.oada.data.cois) ? null : (
         <SideSection
-          selected={selectedPage == "COIS"}
+          selected={selectedPage === "COIS"}
           name={"COIS"}
           icon={iconData}
         >
@@ -138,7 +135,7 @@ function SideBar() {
       state.oada.data["fsqa-audits"] == null ||
       _.isEmpty(state.oada.data["fsqa-audits"]) ? null : (
         <SideSection
-          selected={selectedPage == "Audits"}
+          selected={selectedPage === "Audits"}
           name={"Audits"}
           icon={iconData}
         >
@@ -149,7 +146,7 @@ function SideBar() {
       state.oada.data["fsqa-certificates"] == null ||
       _.isEmpty(state.oada.data["fsqa-certificates"]) ? null : (
         <SideSection
-          selected={selectedPage == "Certificates"}
+          selected={selectedPage === "Certificates"}
           name={"Certificates"}
           icon={iconData}
         >
@@ -160,7 +157,7 @@ function SideBar() {
       state.oada.data["letters-of-guarantee"] == null ||
       _.isEmpty(state.oada.data["letters-of-guarantee"]) ? null : (
         <SideSection
-          selected={selectedPage == "LettersOfGuarantee"}
+          selected={selectedPage === "LettersOfGuarantee"}
           name={"Letters of Guarantee"}
           icon={iconData}
         >
@@ -169,7 +166,7 @@ function SideBar() {
       )}
       {tp || !state.app.config.tabs.reports ? null : (
         <SideSection
-          selected={selectedPage == "Reports"}
+          selected={selectedPage === "Reports"}
           name={"Reports"}
           icon={iconData}
         >
@@ -178,7 +175,7 @@ function SideBar() {
       )}
       {tp || !state.app.config.tabs.rules ? null : (
         <SideSection
-          selected={selectedPage == "Rules"}
+          selected={selectedPage === "Rules"}
           name={"Rules"}
           icon={iconConnections}
         >

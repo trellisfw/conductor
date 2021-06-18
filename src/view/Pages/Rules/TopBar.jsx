@@ -1,17 +1,15 @@
-import React from "react";
-
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { jsx, css } from "@emotion/core";
 
-import { Input, Button, Icon } from "semantic-ui-react";
+//import { Input, Button, Icon } from "semantic-ui-react";
 import overmind from "../../../overmind";
 
 import "semantic-ui-css/semantic.min.css";
 
 function TopBar() {
   const { actions } = overmind();
-  let myActions = actions.view.Pages.Rules;
+//  let myActions = actions.view.Pages.Rules;
   return (
     <div
       css={css`

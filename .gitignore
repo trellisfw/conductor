@@ -12,6 +12,9 @@
 # production
 /build
 
+# generating metadata
+/certs
+
 # misc
 .DS_Store
 .env.local
