@@ -1769,7 +1769,7 @@
     p-queue "^6.4.0"
     ws "^7.2.3"
 
-"@oada/oada-cache-overmind@^1.0.7":
+"@oada/oada-cache-overmind@^1.0.4":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@oada/oada-cache-overmind/-/oada-cache-overmind-1.0.7.tgz#cddc1f9dffd814b1222d62c7e14d4c1284efdea1"
   integrity sha512-wzM9SugH+wd4NX8BYzTxp4BLTTX1CwqLFUE8KcuXzMkXWDCm2uXaYMlGRB01WqCU5C4Zwfmt7+cPq0PKFBGm3A==
@@ -13674,10 +13674,10 @@ ws@^7.0.0, ws@^7.2.3, ws@^7.4.5:
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.0.tgz#0033bafea031fb9df041b2026fc72a571ca44691"
   integrity sha512-6ezXvzOZupqKj4jUqbQ9tXuJNo+BR2gU8fFRk3XCP3e0G6WT414u5ELe6Y0vtp7kmSJ3F7YWObSNr1ESsgi4vw==
 
-xlsx@^0.16.2:
-  version "0.16.9"
-  resolved "https://registry.yarnpkg.com/xlsx/-/xlsx-0.16.9.tgz#dacd5bb46bda6dd3743940c9c3dc1e2171826256"
-  integrity sha512-gxi1I3EasYvgCX1vN9pGyq920Ron4NO8PNfhuoA3Hpq6Y8f0ECXiy4OLrK4QZBnj1jx3QD+8Fq5YZ/3mPZ5iXw==
+xlsx@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/xlsx/-/xlsx-0.17.0.tgz#028176a0140967dcee1817d221678461e47481c8"
+  integrity sha512-bZ36FSACiAyjoldey1+7it50PMlDp1pcAJrZKcVZHzKd8BC/z6TQ/QAN8onuqcepifqSznR6uKnjPhaGt6ig9A==
   dependencies:
     adler-32 "~1.2.0"
     cfb "^1.1.4"
