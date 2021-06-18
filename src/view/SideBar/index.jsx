@@ -67,7 +67,7 @@ function SideBar() {
   const { state } = overmind();
   const tp = state.view.tp;
   let selectedPage = state.view.Pages.selectedPage;
-  if (selectedPage == null) {
+  if (selectedPage === null) {
     //Pick first page that we have data for and access to
     const pages = [
       {
@@ -111,7 +111,7 @@ function SideBar() {
       }}
     >
       {!state.app.config.tabs.documents ||
-      state.oada.data.documents == null ? null : (
+      state.oada.data.documents === null ? null : (
         <SideSection
           selected={selectedPage === "Data"}
           name={"Data"}
@@ -121,7 +121,7 @@ function SideBar() {
         </SideSection>
       )}
       {!state.app.config.tabs.cois ||
-      state.oada.data.cois == null ||
+      state.oada.data.cois === null ||
       _.isEmpty(state.oada.data.cois) ? null : (
         <SideSection
           selected={selectedPage === "COIS"}
@@ -132,7 +132,7 @@ function SideBar() {
         </SideSection>
       )}
       {!state.app.config.tabs.audits ||
-      state.oada.data["fsqa-audits"] == null ||
+      state.oada.data["fsqa-audits"] === null ||
       _.isEmpty(state.oada.data["fsqa-audits"]) ? null : (
         <SideSection
           selected={selectedPage === "Audits"}
@@ -143,7 +143,7 @@ function SideBar() {
         </SideSection>
       )}
       {!state.app.config.tabs.certificates ||
-      state.oada.data["fsqa-certificates"] == null ||
+      state.oada.data["fsqa-certificates"] === null ||
       _.isEmpty(state.oada.data["fsqa-certificates"]) ? null : (
         <SideSection
           selected={selectedPage === "Certificates"}
@@ -154,7 +154,7 @@ function SideBar() {
         </SideSection>
       )}
       {!state.app.config.tabs.lettersOfGuarantee ||
-      state.oada.data["letters-of-guarantee"] == null ||
+      state.oada.data["letters-of-guarantee"] === null ||
       _.isEmpty(state.oada.data["letters-of-guarantee"]) ? null : (
         <SideSection
           selected={selectedPage === "LettersOfGuarantee"}

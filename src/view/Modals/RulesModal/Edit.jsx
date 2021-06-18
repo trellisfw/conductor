@@ -20,7 +20,7 @@ function BlankB(props) {
   let selected = Object.values(rule[props.item].values)
     .map((v) => v.name)
     .join(" or ");
-  if (selected.length == 0) {
+  if (selected.length === 0) {
     if (isEditing) {
       selected = "anything";
     } else {

@@ -56,7 +56,7 @@ export default {
           redirect: config.oada.redirect,
         });
         token = res.access_token;
-        console.log('RES', res.access_token);
+        console.log("RES", res.access_token);
       }
     } catch (err) {
       state.login.error =
@@ -171,7 +171,7 @@ export default {
         //TODO: with multiple document types we need multiple watches; can't just watch /bookmarks/trellisfw because there
         // are many other keys with changes being made at that level
         // need to figure out how to pluck docType out of responses
-        if (docType == "documents") {
+        if (docType === "documents") {
           await actions.oada.get({
             path: `${path}/${docType}`,
             watch: {
@@ -179,7 +179,7 @@ export default {
               payload: { path },
             },
           });
-        } else if (docType == "cois") {
+        } else if (docType === "cois") {
           await actions.oada.get({
             path: `${path}/${docType}`,
             watch: {
@@ -187,7 +187,7 @@ export default {
               payload: { path },
             },
           });
-        } else if (docType == "fsqa-audits") {
+        } else if (docType === "fsqa-audits") {
           await actions.oada.get({
             path: `${path}/${docType}`,
             watch: {
@@ -331,7 +331,7 @@ export default {
     let tps = null;
     switch (docType) {
       case "cois":
-        if (_.get(doc, "_meta.lookups.coi") == null) return [];
+        if (_.get(doc, "_meta.lookups.coi") === null) return [];
         //One CoI holder to many TPs
         ref = doc._meta.lookups.coi.holder._ref;
         holder = await actions.oada.get({ path: ref });
@@ -348,13 +348,13 @@ export default {
         tps = _.compact(tps);
         return tps;
       case "fsqa-audits":
-        if (_.get(doc, "_meta.lookups.fsqa-audit.organization") == null)
+        if (_.get(doc, "_meta.lookups.fsqa-audit.organization") === null)
           return [];
         ref = doc._meta.lookups["fsqa-audit"]["organization"]._ref;
         organization = await actions.oada.get({ path: ref });
         masterid = organization.data.masterid;
         tps = _.filter(EXPAND["trading-partners"], (tp) => {
-          if (tp.facilities == null) return false;
+          if (tp.facilities === null) return false;
           return tp.facilities[masterid] ? true : false;
         }).map((tp) => {
           if (tp)
@@ -367,13 +367,13 @@ export default {
         tps = _.compact(tps);
         return tps;
       case "fsqa-certificates":
-        if (_.get(doc, "_meta.lookups.fsqa-certificate.organization") == null)
+        if (_.get(doc, "_meta.lookups.fsqa-certificate.organization") === null)
           return [];
         ref = doc._meta.lookups["fsqa-certificate"]["organization"]._ref;
         organization = await actions.oada.get({ path: ref });
         masterid = organization.data.masterid;
         tps = _.filter(EXPAND["trading-partners"], (tp) => {
-          if (tp.facilities == null) return false;
+          if (tp.facilities === null) return false;
           return tp.facilities[masterid] ? true : false;
         }).map((tp) => {
           if (tp)
@@ -628,7 +628,7 @@ export default {
     let response = await actions.oada
       .get(request)
       .then((response) => {
-        if (response == null) throw Error("No job resource for job" + path);
+        if (response === null) throw Error("No job resource for job" + path);
         const orgJobMeta = _.get(state.oada.data, `${jobPath}`);
         const newMeta = _.merge(
           {},
@@ -647,7 +647,7 @@ export default {
     return actions.oada
       .get({ path })
       .then((response) => {
-        if (response == null) throw Error("No meta data for " + docKey);
+        if (response === null) throw Error("No meta data for " + docKey);
         const orgMeta = _.get(state.oada.data, `${docType}.${docKey}._meta`);
         const newMeta = _.merge(
           {},
@@ -678,7 +678,7 @@ export default {
       .head({ path })
       .then((response) => {
         console.log(response);
-        if (response == null) throw Error("No data for " + docKey);
+        if (response === null) throw Error("No data for " + docKey);
         //If doc already exists merge in data
         const orgData = _.get(state.oada.data, `${docType}.${docKey}`) || {};
         if (response.headers["content-type"] === "application/pdf") {
@@ -710,7 +710,7 @@ export default {
       .then(() => {
         //Load the _meta for this document
         return actions.oada.get({ path: path + `/_meta` }).then((response) => {
-          if (response == null) throw Error("No meta data for " + docKey);
+          if (response === null) throw Error("No meta data for " + docKey);
           const orgMeta = _.get(state.oada.data, `${docType}.${docKey}._meta`);
           const newMeta = _.merge(
             {},
@@ -1007,7 +1007,7 @@ export default {
         if (response.error) {
           if (response.error && response.error.status === 404) return false;
         }
-        if (response != null) return true;
+        if (response !== null) return true;
         return false;
       })
       .catch((err) => {

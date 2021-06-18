@@ -35,7 +35,7 @@ function Content(props) {
 
       {!myState.showData ? (
         ""
-      ) : jsonData == null ? (
+      ) : jsonData === null ? (
         <span>&lt; No Data &gt;</span>
       ) : (
         <ReactJson

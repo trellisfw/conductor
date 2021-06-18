@@ -122,14 +122,14 @@ function Table({ docType, identified }) {
                   return <div>{`${rowData.type} - Masked`}</div>;
                 }
                 return <div>{rowData.type}</div>;
-              } else if (rowData.status == "processing") {
+              } else if (rowData.status === "processing") {
                 return (
                   <div css={{ display: "flex", alignItems: "center" }}>
                     <ProcessingIcon />
                     <div css={{ marginLeft: 3 }}>{"Processing..."}</div>
                   </div>
                 );
-              } else if (rowData.status == "uploading") {
+              } else if (rowData.status === "uploading") {
                 return (
                   <div css={{ display: "flex", alignItems: "center" }}>
                     <UploadingIcon />

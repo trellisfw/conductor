@@ -13,11 +13,11 @@ function MyHeader(props) {
   const { state } = overmind();
   const myState = state.view.Modals.FileDetailsModal;
   let title = "Unknown Document Type";
-  if (myState.docType == "fsqa-audits") {
+  if (myState.docType === "fsqa-audits") {
     title = `FSQA Audit`;
-  } else if (myState.docType == "cois") {
+  } else if (myState.docType === "cois") {
     title = `Certificate of Insurance`;
-  } else if (myState.docType == "fsqa-certificates") {
+  } else if (myState.docType === "fsqa-certificates") {
     title = `FSQA Certificate`;
   }
 

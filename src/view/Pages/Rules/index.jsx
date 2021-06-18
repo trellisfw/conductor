@@ -101,7 +101,7 @@ function Rule(props) {
                         key={`newrule-${j}-boldword-${idx}`}
                       >
                         <span css={{ fontWeight: 800 }}>{t}</span>
-                        {idx == text.length - 1 ? null : <span>{" or "}</span>}
+                        {idx === text.length - 1 ? null : <span>{" or "}</span>}
                       </div>
                     );
                   });

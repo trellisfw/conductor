@@ -15,7 +15,7 @@ function SharingTable({ list }) {
   const myActions = actions.view.Modals.FileDetailsModal;
   const myState = state.view.Modals.FileDetailsModal;
   list = list || [];
-  if (list.length == 0 && myState.sharedSearchValue.length == 0) return null;
+  if (list.length === 0 && myState.sharedSearchValue.length === 0) return null;
   return (
     <Table celled>
       <Table.Header>
@@ -39,9 +39,9 @@ function SharingTable({ list }) {
       <Table.Body>
         {_.map(list, (share, index) => {
           var type = share.type;
-          if (type == "fl") type = "FoodLogiQ";
-          if (type == "shareWf") type = "Trellis";
-          if (type == "ift") type = "IBM Food Trust";
+          if (type === "fl") type = "FoodLogiQ";
+          if (type === "shareWf") type = "Trellis";
+          if (type === "ift") type = "IBM Food Trust";
           return (
             <Table.Row key={"share" + index}>
               <Table.Cell>{share.with}</Table.Cell>
@@ -60,11 +60,11 @@ function Sharing(props) {
   const myState = state.view.Modals.FileDetailsModal;
   const shareOptions = _.chain(myState.share)
     .map((share, key) => {
-      if (share.status == "approved") return null;
+      if (share.status === "approved") return null;
       var type = share.type;
-      if (type == "fl") type = "FoodLogiQ";
-      if (type == "shareWf") type = "Trellis";
-      if (type == "ift") type = "IBM Food Trust";
+      if (type === "fl") type = "FoodLogiQ";
+      if (type === "shareWf") type = "Trellis";
+      if (type === "ift") type = "IBM Food Trust";
       return {
         key,
         text: `${share["with"]} - ${type}`,
@@ -75,7 +75,7 @@ function Sharing(props) {
     .value();
   const shareValue = _.chain(myState.share)
     .map((share, key) => {
-      if (share.status == "pending") return key;
+      if (share.status === "pending") return key;
     })
     .compact()
     .value();
@@ -103,7 +103,7 @@ function Sharing(props) {
           value={shareValue}
           onChange={(evt, data)=>{myActions.onShareChange(data.value)}}
         />
-        <Button icon primary labelPosition='left' disabled={(shareValue.length == 0)} onClick={myActions.share}>
+        <Button icon primary labelPosition='left' disabled={(shareValue.length === 0)} onClick={myActions.share}>
           <Icon name='send' />
           Share
         </Button>
