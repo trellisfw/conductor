@@ -44,6 +44,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/uuid": "^7.0.2",
     "concurrently": "^6.2.0",
+    "cross-env": "^7.0.3",
     "gh-pages": "^3.2.1",
     "minimist": "^1.2.0",
     "overmind-devtools": "^28.0.0",
@@ -53,7 +54,7 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -o github -d build --remote prod",
-    "start": "concurrently \"overmind-devtools\" \"HTTPS=true PUBLIC_URL=/ react-scripts start\"",
+    "start": "concurrently \"overmind-devtools\" \"cross-env HTTPS=true PUBLIC_URL=/ react-scripts start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
