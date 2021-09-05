@@ -10,7 +10,7 @@
     "@oada/oada-id-client": "^1.1.2",
     "@trellisfw/signatures": "^2.1.0",
     "addressbar": "^1.0.3",
-    "axios": "^0.21.1",
+    "axios": "^0.21.3",
     "bluebird": "^3.7.2",
     "classnames": "^2.2.6",
     "fuse.js": "^5.0.7-beta",
