@@ -19,7 +19,7 @@
     "jsonschema8": "^1.0.1",
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "nconf": "^0.10.0",
     "overmind": "^21.0.0",
     "overmind-react": "^28.0.0",
